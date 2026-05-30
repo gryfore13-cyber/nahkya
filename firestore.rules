@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper: look up user role from users collection
+    function getUserRole(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+    function isSuperAdmin() {
+      return request.auth != null && getUserRole(request.auth.uid) == 'super_admin';
+    }
+    function isDesigner() {
+      return request.auth != null && getUserRole(request.auth.uid) == 'designer';
+    }
+    function isOwnerOrSuperAdmin(userId) {
+      return request.auth != null && (request.auth.uid == userId || isSuperAdmin());
+    }
+
+    // Config documents
+    match /config/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && isSuperAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if request.auth != null && isOwnerOrSuperAdmin(userId);
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Designers
+    match /designers/{designerId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isSuperAdmin();
+    }
+
+    // Artworks — any auth user can read; any auth user can create; designer can update own pending; super_admin full access
+    match /artworks/{artworkId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        isSuperAdmin() ||
+        (resource.data.designerId == request.auth.uid && resource.data.status == 'pending_review')
+      );
+      allow delete: if request.auth != null && isSuperAdmin();
+    }
+
+    // Commissions
+    match /commissions/{commissionId} {
+      allow read: if request.auth != null && (
+        isSuperAdmin() ||
+        resource.data.designerId == request.auth.uid
+      );
+      allow create: if request.auth != null && isSuperAdmin();
+      allow update: if request.auth != null && isSuperAdmin();
+      allow delete: if request.auth != null && isSuperAdmin();
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if request.auth != null && (
+        isSuperAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        isSuperAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow delete: if request.auth != null && isSuperAdmin();
+    }
+
+    // Saved designs
+    match /savedDesigns/{designId} {
+      allow read: if request.auth != null && (
+        isSuperAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Articles / Editorial content
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if request.auth != null && isSuperAdmin();
+    }
+  }
+}

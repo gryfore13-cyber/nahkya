@@ -1,0 +1,3097 @@
+/*
+  Haus of Nahkya — Soft Burgundy + Antique Gold Theme
+  ---------------------------------------------------
+  Purpose:
+  A single CSS design system for the public website, dashboard, CMS, and boutique UI.
+
+  Important:
+  - Keep generated tokens.css as-is if your app regenerates it from an admin theme editor.
+  - Import this file after tokens.css so this theme can override or extend the old look.
+  - Use these classes repeatedly instead of creating new one-off component styles.
+*/
+
+/* 1. Fonts */
+/* Fonts loaded in index.html */
+
+/* 2. Design Tokens */
+:root {
+  /* Soft Nahkya Base */
+  --nahkya-bg: #F8F1E8;
+  --nahkya-surface: #FFF9F2;
+  --nahkya-surface-soft: #F1E4DA;
+  --nahkya-surface-warm: #F6EADF;
+
+  /* Text */
+  --nahkya-text: #2D211D;
+  --nahkya-text-strong: #1F1714;
+  --nahkya-text-muted: #7B6A60;
+  --nahkya-text-soft: #9A877A;
+  --nahkya-text-inverse: #FFF9F2;
+
+  /* Burgundy */
+  --nahkya-burgundy: #7B1E2B;
+  --nahkya-burgundy-dark: #4B161D;
+  --nahkya-burgundy-soft: #EAD5D8;
+
+  /* Antique Gold */
+  --nahkya-gold: #B88B4A;
+  --nahkya-gold-soft: #D8BE96;
+  --nahkya-gold-muted: #9A7B52;
+  --nahkya-gold-veil: #EFE2C7;
+
+  /* Borders */
+  --nahkya-border: #E5D5C7;
+  --nahkya-border-strong: #D8BE96;
+
+  /* Status */
+  --nahkya-error: #B42318;
+  --nahkya-error-soft: #F5E0DC;
+  --nahkya-success: #2F7D4F;
+  --nahkya-success-soft: #E0F0E5;
+
+  /* Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Type Scale */
+  --text-display: clamp(3.25rem, 8vw, 7rem);
+  --text-section: clamp(2.25rem, 5vw, 4.5rem);
+  --text-card-title: clamp(1.5rem, 3vw, 2.25rem);
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-eyebrow: 0.6875rem;
+  --text-ui: 0.875rem;
+
+  /* Radius */
+  --radius-nahkya-sm: 12px;
+  --radius-nahkya-md: 20px;
+  --radius-nahkya-lg: 28px;
+  --radius-nahkya-xl: 32px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --container-max: 1200px;
+  --section-padding: clamp(3rem, 6vw, 7rem);
+  --gutter: clamp(1.25rem, 4vw, 2rem);
+
+  /* Effects */
+  --shadow-soft: 0 24px 80px rgba(184, 139, 74, 0.16);
+  --shadow-card: 0 18px 60px rgba(184, 139, 74, 0.13);
+  --shadow-burgundy: 0 12px 28px rgba(123, 30, 43, 0.18);
+  --focus-ring: 0 0 0 4px rgba(216, 190, 150, 0.55);
+
+  /* Motion */
+  --transition-fast: 160ms ease;
+  --transition-base: 220ms ease;
+}
+
+/* Optional: map old generated token names to the new system.
+   This helps old components start behaving without editing every file immediately. */
+:root {
+  --nahkya-ivory: var(--nahkya-bg);
+  --nahkya-cream: var(--nahkya-surface);
+  --nahkya-stone: var(--nahkya-gold-soft);
+  --nahkya-taupe: var(--nahkya-text-muted);
+  --nahkya-sand: var(--nahkya-gold);
+  --nahkya-charcoal: var(--nahkya-text);
+  --nahkya-soft-black: var(--nahkya-text-strong);
+  --nahkya-gold-light: var(--nahkya-gold-soft);
+  --nahkya-gold-muted: var(--nahkya-gold-muted);
+  --nahkya-text-secondary: var(--nahkya-text-muted);
+  --nahkya-rose: var(--nahkya-burgundy);
+}
+
+/* 3. Reset / Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--nahkya-bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(239, 226, 199, 0.75), transparent 32rem),
+    linear-gradient(180deg, var(--nahkya-bg), var(--nahkya-surface-soft));
+  color: var(--nahkya-text);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy-dark);
+}
+
+/* 4. Layout */
+.nk-container {
+  width: min(100% - calc(var(--gutter) * 2), var(--container-max));
+  margin-inline: auto;
+}
+
+.nk-section {
+  padding-block: var(--section-padding);
+}
+
+.nk-section-soft {
+  background: var(--nahkya-surface);
+  border-block: 1px solid var(--nahkya-border);
+}
+
+.nk-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.nk-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.nk-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* 5. Typography System — keep to these seven styles */
+.nk-display,
+.nk-section-title,
+.nk-card-title {
+  font-family: var(--font-display);
+  color: var(--nahkya-text);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.nk-display {
+  max-width: 13ch;
+  font-size: var(--text-display);
+  line-height: 0.95;
+}
+
+.nk-section-title {
+  max-width: 14ch;
+  font-size: var(--text-section);
+  line-height: 1;
+}
+
+.nk-card-title {
+  font-size: var(--text-card-title);
+  line-height: 1.08;
+}
+
+.nk-body {
+  max-width: 65ch;
+  color: var(--nahkya-text-muted);
+  font-size: var(--text-body);
+  line-height: 1.8;
+}
+
+.nk-small {
+  color: var(--nahkya-text-muted);
+  font-size: var(--text-small);
+  line-height: 1.6;
+}
+
+.nk-eyebrow {
+  color: var(--nahkya-gold);
+  font-size: var(--text-eyebrow);
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.nk-ui-text {
+  font-size: var(--text-ui);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.nk-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+/* Global fallback heading behavior */
+h1,
+h2,
+h3,
+h4 {
+  margin-block: 0;
+  font-family: var(--font-display);
+  color: var(--nahkya-text);
+  font-weight: 600;
+}
+
+p {
+  margin-block: 0;
+}
+
+/* 6. Buttons */
+.nk-btn {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  padding: 0.75rem 1.35rem;
+  font-size: var(--text-ui);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
+}
+
+.nk-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.nk-btn:hover {
+  transform: translateY(-1px);
+}
+
+.nk-btn-primary {
+  background: var(--nahkya-burgundy);
+  border-color: var(--nahkya-gold-soft);
+  color: var(--nahkya-text-inverse);
+  box-shadow: var(--shadow-burgundy);
+}
+
+.nk-btn-primary:hover {
+  background: var(--nahkya-burgundy-dark);
+}
+
+.nk-btn-secondary {
+  background: var(--nahkya-surface);
+  border-color: var(--nahkya-gold);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-btn-secondary:hover {
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--nahkya-text-muted);
+}
+
+.nk-btn-ghost:hover {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+/* 7. Cards / Panels */
+.nk-card {
+  background: var(--nahkya-surface);
+  border: 1px solid var(--nahkya-border-strong);
+  border-radius: var(--radius-nahkya-lg);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  box-shadow: var(--shadow-card);
+}
+
+.nk-card-subtle {
+  background: rgba(255, 249, 242, 0.74);
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-lg);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.nk-gold-frame {
+  border: 1px solid var(--nahkya-gold);
+  box-shadow:
+    inset 0 0 0 1px rgba(216, 190, 150, 0.45),
+    var(--shadow-card);
+}
+
+.nk-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  padding: 0.45rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* 8. Top Navigation */
+.nk-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 249, 242, 0.82);
+  border-bottom: 1px solid var(--nahkya-gold-soft);
+  backdrop-filter: blur(18px);
+}
+
+.nk-navbar-inner {
+  width: min(100% - calc(var(--gutter) * 2), var(--container-max));
+  min-height: 74px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.nk-logo {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.nk-logo-mark {
+  color: var(--nahkya-gold);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.nk-logo-text {
+  color: var(--nahkya-burgundy-dark);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.nk-nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.nk-nav-link {
+  color: var(--nahkya-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: color var(--transition-fast);
+}
+
+.nk-nav-link:hover,
+.nk-nav-link.is-active {
+  color: var(--nahkya-burgundy);
+}
+
+/* 9. Sidebar Navigation */
+.nk-app-shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1.25rem;
+  width: min(100% - calc(var(--gutter) * 2), 1440px);
+  margin-inline: auto;
+  padding-block: 1.25rem;
+}
+
+.nk-sidebar {
+  width: 100%;
+  background: var(--nahkya-surface);
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  padding: 1rem;
+  box-shadow: inset 0 0 0 1px rgba(216, 190, 150, 0.35);
+}
+
+.nk-sidebar-header {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--nahkya-border);
+}
+
+.nk-sidebar-title {
+  margin-top: 0.5rem;
+  color: var(--nahkya-burgundy-dark);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.nk-sidebar-nav {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.nk-sidebar-link {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-nahkya-md);
+  border: 1px solid transparent;
+  padding: 0.75rem 1rem;
+  color: var(--nahkya-text-muted);
+  font-size: 0.875rem;
+  font-weight: 800;
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.nk-sidebar-link:hover {
+  background: var(--nahkya-gold-veil);
+  border-color: var(--nahkya-gold-soft);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-sidebar-link.is-active,
+.nk-sidebar-link[aria-current="page"] {
+  background: var(--nahkya-burgundy);
+  border-color: var(--nahkya-gold-soft);
+  color: var(--nahkya-text-inverse);
+  box-shadow: 0 10px 24px rgba(123, 30, 43, 0.16);
+}
+
+.nk-sidebar-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-soft);
+  flex: 0 0 auto;
+}
+
+.nk-sidebar-note {
+  margin-top: 1.25rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-gold-veil);
+  padding: 1rem;
+}
+
+/* 10. Forms */
+.nk-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.nk-label {
+  color: var(--nahkya-burgundy);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.nk-input,
+.nk-select,
+.nk-textarea {
+  width: 100%;
+  border: 1px solid var(--nahkya-border-strong);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text);
+  padding: 0.8rem 1rem;
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.nk-input:focus,
+.nk-select:focus,
+.nk-textarea:focus {
+  outline: none;
+  border-color: var(--nahkya-gold);
+  box-shadow: var(--focus-ring);
+}
+
+/* 11. Utilities */
+.nk-text-burgundy {
+  color: var(--nahkya-burgundy);
+}
+
+.nk-text-gold {
+  color: var(--nahkya-gold);
+}
+
+.nk-bg-soft {
+  background: var(--nahkya-bg);
+}
+
+.nk-bg-surface {
+  background: var(--nahkya-surface);
+}
+
+.nk-bg-burgundy {
+  background: var(--nahkya-burgundy);
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-border-gold {
+  border-color: var(--nahkya-gold-soft);
+}
+
+/* 12. Responsive Rules */
+@media (max-width: 900px) {
+  .nk-grid-2,
+  .nk-app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .nk-sidebar {
+    width: 100%;
+  }
+
+  .nk-nav-links {
+    display: none;
+  }
+
+  .nk-navbar-inner {
+    min-height: 68px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nk-section {
+    padding-block: 3rem;
+  }
+
+  .nk-display {
+    font-size: clamp(2.8rem, 16vw, 4.5rem);
+  }
+
+  .nk-section-title {
+    font-size: clamp(2rem, 11vw, 3.25rem);
+  }
+
+  .nk-card,
+  .nk-card-subtle,
+  .nk-sidebar {
+    border-radius: 22px;
+  }
+}
+
+/* 13. Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+/* 14. Mobile Drawer */
+.nk-mobile-menu-button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  padding: 0.65rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.nk-mobile-menu-button:hover,
+.nk-mobile-menu-button:focus-visible {
+  background: var(--nahkya-surface);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.nk-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(45, 33, 29, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.nk-mobile-drawer {
+  position: fixed;
+  inset-block: 0;
+  right: 0;
+  z-index: 100;
+  width: min(88vw, 360px);
+  background: var(--nahkya-surface);
+  border-left: 1px solid var(--nahkya-gold-soft);
+  box-shadow: -24px 0 80px rgba(45, 33, 29, 0.18);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.nk-mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--nahkya-border);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nk-drawer-close {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nk-drawer-close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* 15. Modal / Dialog */
+.nk-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  background: rgba(45, 33, 29, 0.38);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+}
+
+.nk-modal {
+  width: min(100%, 540px);
+  background: var(--nahkya-surface);
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  box-shadow: 0 30px 100px rgba(45, 33, 29, 0.24);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.nk-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nk-modal-title {
+  color: var(--nahkya-burgundy-dark);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.nk-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* 16. Tables */
+.nk-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+}
+
+.nk-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.nk-table thead {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-table th,
+.nk-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--nahkya-border);
+}
+
+.nk-table th {
+  font-weight: 900;
+}
+
+.nk-table tbody tr {
+  color: var(--nahkya-text-muted);
+  transition: background var(--transition-fast);
+}
+
+.nk-table tbody tr:hover {
+  background: var(--nahkya-bg);
+}
+
+.nk-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.nk-table-title {
+  color: var(--nahkya-text);
+  font-weight: 800;
+}
+
+/* Mobile table alternative: use on a stacked row/card view */
+.nk-table-card-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nk-table-card {
+  border: 1px solid var(--nahkya-border-strong);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+}
+
+.nk-table-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--nahkya-border);
+  padding-block: 0.55rem;
+}
+
+.nk-table-card-row:last-child {
+  border-bottom: 0;
+}
+
+.nk-table-card-label {
+  color: var(--nahkya-gold-muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* 17. Alerts, Status & App States */
+.nk-alert {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-text-muted);
+  padding: 1rem;
+}
+
+.nk-alert-title {
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+}
+
+.nk-alert-success {
+  border-color: #B7D4BD;
+  background: var(--nahkya-success-soft);
+}
+
+.nk-alert-success .nk-alert-title {
+  color: var(--nahkya-success);
+}
+
+.nk-alert-error {
+  border-color: #E5B8B1;
+  background: var(--nahkya-error-soft);
+}
+
+.nk-alert-error .nk-alert-title {
+  color: var(--nahkya-error);
+}
+
+.nk-status {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.nk-status-review {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-status-success {
+  background: var(--nahkya-success-soft);
+  color: var(--nahkya-success);
+}
+
+.nk-status-error {
+  background: var(--nahkya-error-soft);
+  color: var(--nahkya-error);
+}
+
+.is-disabled,
+[disabled] {
+  cursor: not-allowed !important;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.is-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 999px;
+  color: var(--nahkya-gold-soft);
+  animation: nk-spin 800ms linear infinite;
+}
+
+@keyframes nk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 18. Empty States */
+.nk-empty-state {
+  border: 1px dashed var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  background: var(--nahkya-bg);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+}
+
+.nk-empty-icon {
+  width: 3rem;
+  height: 3rem;
+  margin-inline: auto;
+  margin-bottom: 1rem;
+  border: 1px solid var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-empty-title {
+  color: var(--nahkya-burgundy-dark);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.05;
+}
+
+.nk-empty-text {
+  max-width: 36rem;
+  margin: 0.75rem auto 0;
+  color: var(--nahkya-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* 19. Light Workspace Editor */
+.nk-workspace {
+  min-height: 100vh;
+  background: var(--workspace-bg, #F8F1E8);
+  color: var(--workspace-text, #2D211D);
+}
+
+.nk-workspace-shell {
+  display: grid;
+  grid-template-columns: minmax(72px, 96px) minmax(0, 1fr) minmax(240px, 320px);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.nk-workspace-tools,
+.nk-workspace-inspector,
+.nk-workspace-panel {
+  background: var(--workspace-sidebar, #FFF9F2);
+  border: 1px solid var(--workspace-border, #D8BE96);
+  border-radius: var(--radius-nahkya-lg);
+  box-shadow: var(--workspace-shadow, 0 18px 50px rgba(184, 139, 74, 0.12));
+}
+
+.nk-workspace-tools,
+.nk-workspace-inspector {
+  padding: 0.85rem;
+}
+
+.nk-tool-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--workspace-border-soft, #E5D5C7);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--workspace-panel-soft, #FCF7F1);
+  color: var(--workspace-text-muted, #7B6A60);
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.nk-tool-button:hover {
+  background: var(--workspace-hover, #EFE2C7);
+  border-color: var(--workspace-border, #D8BE96);
+  color: var(--workspace-accent, #7B1E2B);
+}
+
+.nk-tool-button.is-active,
+.nk-tool-button[aria-pressed="true"] {
+  background: var(--workspace-accent, #7B1E2B);
+  border-color: var(--workspace-border, #D8BE96);
+  color: var(--nahkya-text-inverse);
+  box-shadow: var(--shadow-burgundy);
+}
+
+.nk-workspace-canvas-wrap {
+  background: var(--workspace-canvas-wrap, #F3E8DD);
+  border: 1px solid var(--workspace-border, #D8BE96);
+  border-radius: var(--radius-nahkya-lg);
+  padding: 1rem;
+}
+
+.nk-workspace-canvas-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.nk-workspace-canvas {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-height: min(70vh, 720px);
+  overflow: hidden;
+  background: var(--workspace-canvas-surface, #FFFCF8);
+  border: 1px solid var(--workspace-canvas-border, #D9C9BA);
+  border-radius: var(--radius-nahkya-md);
+  box-shadow: 0 10px 30px rgba(44, 36, 32, 0.06);
+}
+
+.nk-workspace-canvas.is-checker {
+  background-color: var(--workspace-canvas-surface, #FFFCF8);
+  background-image:
+    linear-gradient(45deg, rgba(184, 139, 74, 0.08) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(184, 139, 74, 0.08) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(184, 139, 74, 0.08) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(184, 139, 74, 0.08) 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+}
+
+.nk-canvas-safe-area {
+  position: absolute;
+  inset: 8%;
+  border: 1px dashed rgba(123, 30, 43, 0.42);
+  border-radius: 1rem;
+  pointer-events: none;
+}
+
+.nk-canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(184, 139, 74, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184, 139, 74, 0.12) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.nk-selected-object {
+  outline: 2px solid var(--workspace-accent, #7B1E2B);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(123, 30, 43, 0.12);
+}
+
+.nk-resize-handle {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--workspace-accent, #7B1E2B);
+  border-radius: 999px;
+  background: var(--workspace-canvas-surface, #FFFCF8);
+  box-shadow: 0 2px 8px rgba(45, 33, 29, 0.16);
+}
+
+.nk-canvas-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nk-canvas-control {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid var(--workspace-border, #D8BE96);
+  border-radius: var(--radius-pill);
+  background: var(--workspace-panel-soft, #FCF7F1);
+  color: var(--workspace-accent, #7B1E2B);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nk-canvas-control:hover,
+.nk-canvas-control.is-active {
+  background: var(--workspace-hover, #EFE2C7);
+}
+
+/* 20. Form Validation States */
+.nk-helper-text {
+  color: var(--nahkya-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.nk-error-text {
+  color: var(--nahkya-error);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.nk-input.is-error,
+.nk-select.is-error,
+.nk-textarea.is-error,
+.nk-input[aria-invalid="true"],
+.nk-select[aria-invalid="true"],
+.nk-textarea[aria-invalid="true"] {
+  border-color: #E5B8B1;
+  background: #FFF8F6;
+}
+
+.nk-input.is-error:focus,
+.nk-select.is-error:focus,
+.nk-textarea.is-error:focus,
+.nk-input[aria-invalid="true"]:focus,
+.nk-select[aria-invalid="true"]:focus,
+.nk-textarea[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 4px rgba(229, 184, 177, 0.45);
+}
+
+/* 21. Controlled Premium Dark Accent — use sparingly */
+.nk-luxury-panel {
+  background:
+    radial-gradient(circle at top right, rgba(216, 190, 150, 0.16), transparent 18rem),
+    linear-gradient(135deg, var(--nahkya-burgundy-dark), #2D211D);
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  color: var(--nahkya-text-inverse);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  box-shadow: 0 24px 80px rgba(45, 33, 29, 0.22);
+}
+
+.nk-luxury-panel :is(.nk-section-title, .nk-card-title, h1, h2, h3, h4) {
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-luxury-panel :is(.nk-body, .nk-small, p) {
+  color: rgba(255, 249, 242, 0.76);
+}
+
+/* 22. Extra Responsive Workspace Rules */
+@media (max-width: 1100px) {
+  .nk-workspace-shell {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  .nk-workspace-inspector {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .nk-workspace-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .nk-workspace-tools {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .nk-tool-button {
+    width: auto;
+    min-width: 52px;
+  }
+
+  .nk-workspace-canvas {
+    min-height: auto;
+  }
+
+  .nk-table {
+    min-width: 560px;
+  }
+}
+
+/* 23. Strict Styling Boundaries
+   These comments are intentionally explicit for AI-assisted editing.
+
+   Do not:
+   - use pure black backgrounds for public pages
+   - use 2px border radius for public cards/buttons
+   - create random new font sizes when existing text classes work
+   - use large gold backgrounds except for small veil sections
+   - create separate button styles outside .nk-btn variants
+   - create separate sidebar styles outside .nk-sidebar variants
+   - use dark workspace panels unless there is a specific visibility reason
+*/
+
+
+/* 24. Sliders / Range Controls */
+.nk-slider-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.nk-slider-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.nk-slider-label {
+  color: var(--nahkya-burgundy);
+  font-size: 0.8125rem;
+  font-weight: 900;
+}
+
+.nk-slider-value {
+  color: var(--nahkya-gold-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.nk-slider {
+  width: 100%;
+  height: 1.75rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nk-slider:focus-visible {
+  outline: none;
+}
+
+.nk-slider::-webkit-slider-runnable-track {
+  height: 0.45rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(
+      90deg,
+      var(--nahkya-burgundy) 0%,
+      var(--nahkya-burgundy) var(--nk-slider-progress, 50%),
+      var(--nahkya-gold-veil) var(--nk-slider-progress, 50%),
+      var(--nahkya-gold-veil) 100%
+    );
+}
+
+.nk-slider::-moz-range-track {
+  height: 0.45rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-slider::-moz-range-progress {
+  height: 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-burgundy);
+}
+
+.nk-slider::-webkit-slider-thumb {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: -0.42rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  box-shadow: 0 4px 12px rgba(123, 30, 43, 0.18);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nk-slider::-moz-range-thumb {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  box-shadow: 0 4px 12px rgba(123, 30, 43, 0.18);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nk-slider:hover::-webkit-slider-thumb,
+.nk-slider:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.08);
+  box-shadow: var(--focus-ring);
+}
+
+.nk-slider:hover::-moz-range-thumb,
+.nk-slider:focus-visible::-moz-range-thumb {
+  transform: scale(1.08);
+  box-shadow: var(--focus-ring);
+}
+
+.nk-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--nahkya-text-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.nk-slider.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Compact version for inspectors/tool panels */
+.nk-slider-field-compact {
+  gap: 0.35rem;
+}
+
+.nk-slider-field-compact .nk-slider-label,
+.nk-slider-field-compact .nk-slider-value {
+  font-size: 0.6875rem;
+}
+
+.nk-slider-field-compact .nk-slider {
+  height: 1.4rem;
+}
+
+.nk-slider-field-compact .nk-slider::-webkit-slider-runnable-track {
+  height: 0.35rem;
+}
+
+.nk-slider-field-compact .nk-slider::-moz-range-track,
+.nk-slider-field-compact .nk-slider::-moz-range-progress {
+  height: 0.35rem;
+}
+
+.nk-slider-field-compact .nk-slider::-webkit-slider-thumb {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-top: -0.36rem;
+}
+
+.nk-slider-field-compact .nk-slider::-moz-range-thumb {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+
+/* 25. Form Control Pack */
+.nk-select-control {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.nk-select-control:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.nk-toggle {
+  position: relative;
+  display: inline-flex;
+  width: 3rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-border);
+  box-shadow: inset 0 0 0 1px var(--nahkya-gold-soft);
+  cursor: pointer;
+}
+
+.nk-toggle::after {
+  content: "";
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  transition: transform var(--transition-base);
+}
+
+.nk-toggle.is-on,
+.nk-toggle[aria-checked="true"] {
+  background: var(--nahkya-burgundy);
+}
+
+.nk-toggle.is-on::after,
+.nk-toggle[aria-checked="true"]::after {
+  transform: translateX(1.25rem);
+}
+
+.nk-checkbox,
+.nk-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--nahkya-text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.nk-checkbox-box,
+.nk-radio-dot {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 1px solid var(--nahkya-gold-soft);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-checkbox-box {
+  border-radius: 0.4rem;
+}
+
+.nk-radio-dot {
+  border-radius: var(--radius-pill);
+}
+
+.nk-checkbox.is-checked .nk-checkbox-box,
+.nk-radio.is-checked .nk-radio-dot {
+  background: var(--nahkya-burgundy);
+  border-color: var(--nahkya-gold-soft);
+}
+
+.nk-radio.is-checked .nk-radio-dot {
+  box-shadow: inset 0 0 0 5px var(--nahkya-burgundy), inset 0 0 0 7px var(--nahkya-surface);
+}
+
+.nk-upload-card {
+  border: 1px dashed var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-bg);
+  padding: 1.25rem;
+  text-align: center;
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.nk-upload-card:hover,
+.nk-upload-card.is-dragging {
+  border-color: var(--nahkya-gold);
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-upload-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  margin-inline: auto;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+}
+
+/* 26. Color Swatch / Palette Controls */
+.nk-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.nk-swatch {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 12px rgba(184, 139, 74, 0.12);
+  cursor: pointer;
+}
+
+.nk-swatch.is-selected {
+  border-color: var(--nahkya-burgundy);
+  box-shadow: 0 0 0 4px var(--nahkya-burgundy-soft);
+}
+
+.nk-swatch.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.nk-swatch-add {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px dashed var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nk-color-editor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-bg);
+  padding: 1rem;
+}
+
+.nk-color-chip {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+}
+
+/* 27. Editor Object Controls */
+.nk-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nk-editor-chip {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--workspace-border, var(--nahkya-gold-soft));
+  border-radius: var(--radius-pill);
+  background: var(--workspace-panel-soft, var(--nahkya-surface));
+  color: var(--workspace-accent, var(--nahkya-burgundy));
+  padding: 0.35rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.nk-editor-chip.is-active {
+  background: var(--workspace-accent, var(--nahkya-burgundy));
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-rotation-handle {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--workspace-gold, var(--nahkya-gold));
+  border-radius: var(--radius-pill);
+  background: var(--workspace-canvas-surface, var(--nahkya-surface));
+  box-shadow: 0 4px 12px rgba(184, 139, 74, 0.22);
+}
+
+.nk-snap-guide {
+  position: absolute;
+  background: rgba(123, 30, 43, 0.5);
+  pointer-events: none;
+}
+
+.nk-snap-guide-x {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.nk-snap-guide-y {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.nk-layer-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  color: var(--nahkya-text-muted);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.nk-layer-button.is-active {
+  border-color: var(--nahkya-gold-soft);
+  color: var(--nahkya-burgundy);
+  background: var(--nahkya-gold-veil);
+}
+
+/* 28. Media Cards / Image Frames */
+.nk-media-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.nk-media-card {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  background: var(--nahkya-bg);
+  padding: 0.75rem;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.nk-media-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.nk-media-frame {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+}
+
+.nk-media-placeholder {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--nahkya-gold-soft);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-burgundy);
+  text-align: center;
+}
+
+.nk-media-title {
+  margin-top: 0.75rem;
+  color: var(--nahkya-burgundy);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.nk-media-meta {
+  color: var(--nahkya-text-muted);
+  font-size: 0.75rem;
+}
+
+/* 29. Icon System */
+.nk-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--nahkya-text-muted);
+  stroke-width: 1.75;
+}
+
+.nk-icon-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.nk-icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.nk-icon-active {
+  color: var(--nahkya-burgundy);
+}
+
+.nk-icon-gold {
+  color: var(--nahkya-gold);
+}
+
+.nk-icon-disabled {
+  opacity: 0.4;
+}
+
+
+/* 30. Tooltips / Help */
+.nk-tooltip-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nk-tooltip-content {
+  position: absolute;
+  z-index: 120;
+  width: max-content;
+  max-width: 220px;
+  bottom: calc(100% + 0.65rem);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-burgundy);
+  color: var(--nahkya-text-inverse);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.45;
+  box-shadow: var(--shadow-burgundy);
+}
+
+.nk-tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 0.35rem);
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  transform: translateX(-50%) rotate(45deg);
+  border-right: 1px solid var(--nahkya-gold-soft);
+  border-bottom: 1px solid var(--nahkya-gold-soft);
+  background: var(--nahkya-burgundy);
+}
+
+.nk-guide-card {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+}
+
+.nk-guide-step {
+  color: var(--nahkya-gold);
+  font-size: 0.6875rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* 31. Layer Manager */
+.nk-layer-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.nk-layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  padding: 0.75rem 1rem;
+}
+
+.nk-layer-item.is-selected {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy-soft);
+}
+
+.nk-layer-item.is-hidden {
+  opacity: 0.52;
+}
+
+.nk-layer-item.is-locked {
+  border-style: dashed;
+}
+
+.nk-layer-name {
+  color: var(--nahkya-burgundy);
+  font-size: 0.875rem;
+  font-weight: 900;
+}
+
+.nk-layer-meta {
+  color: var(--nahkya-text-muted);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.nk-layer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 32. Upload States */
+.nk-upload-file {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-bg);
+  padding: 1rem;
+}
+
+.nk-upload-progress {
+  height: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-upload-progress-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-burgundy);
+}
+
+.nk-upload-success {
+  border-color: #B7D4BD;
+  background: var(--nahkya-success-soft);
+}
+
+.nk-upload-error {
+  border-color: #E5B8B1;
+  background: var(--nahkya-error-soft);
+}
+
+/* 33. Save / History Bar */
+.nk-history-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  padding: 0.5rem;
+}
+
+.nk-history-action {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-burgundy);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 900;
+}
+
+.nk-save-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.nk-save-status.is-saving {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-save-status.is-saved {
+  background: var(--nahkya-success-soft);
+  color: var(--nahkya-success);
+}
+
+.nk-save-status.is-unsaved {
+  background: var(--nahkya-error-soft);
+  color: var(--nahkya-error);
+}
+
+/* 34. Danger / Destructive Actions */
+.nk-btn-danger {
+  background: var(--nahkya-error-soft);
+  border-color: #E5B8B1;
+  color: var(--nahkya-error);
+}
+
+.nk-btn-danger:hover {
+  background: #F0CFC8;
+}
+
+.nk-alert-warning {
+  border-color: #E7C46A;
+  background: #FFF4D2;
+}
+
+.nk-alert-warning .nk-alert-title {
+  color: #8A5A00;
+}
+
+.nk-confirm-danger {
+  border: 1px solid #E5B8B1;
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-error-soft);
+  padding: 1rem;
+}
+
+/* 35. Export / Print Preview */
+.nk-export-panel {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  background: var(--nahkya-bg);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.nk-print-preview {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--workspace-canvas-border, #D9C9BA);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--workspace-canvas-surface, #FFFCF8);
+  overflow: hidden;
+}
+
+.nk-bleed-zone {
+  position: absolute;
+  inset: 5%;
+  border: 1px solid rgba(180, 35, 24, 0.38);
+  border-radius: 1rem;
+  pointer-events: none;
+}
+
+.nk-safe-zone {
+  position: absolute;
+  inset: 12%;
+  border: 1px dashed rgba(123, 30, 43, 0.45);
+  border-radius: 0.875rem;
+  pointer-events: none;
+}
+
+.nk-export-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* 36. Contrast Samples */
+.nk-contrast-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nk-contrast-sample {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  padding: 1rem;
+}
+
+
+/* 37. Creative Editor Advanced Pack */
+
+/* Font Governance */
+:root {
+  --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+}
+
+:is(h1, h2, h3, h4, .nk-display, .nk-section-title, .nk-card-title, .nk-modal-title, .nk-empty-title) {
+  font-family: var(--font-display);
+}
+
+:is(.nk-mono, .nk-slider-value, .nk-code-value, .nk-measurement, .nk-coordinate-value) {
+  font-family: var(--font-mono);
+}
+
+/* No inline styling should be required. Use semantic classes and tokens. */
+.nk-app {
+  background: var(--nahkya-bg);
+  color: var(--nahkya-text);
+  font-family: var(--font-sans);
+}
+
+.nk-display {
+  color: var(--nahkya-text);
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 8vw, 6.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.nk-section-title {
+  color: var(--nahkya-text);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.nk-card-title {
+  color: var(--nahkya-burgundy-dark);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+/* Template Picker */
+.nk-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem;
+}
+
+.nk-template-card {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.nk-template-card:hover,
+.nk-template-card.is-selected {
+  border-color: var(--nahkya-burgundy);
+  box-shadow: 0 0 0 4px var(--nahkya-burgundy-soft);
+  transform: translateY(-1px);
+}
+
+.nk-template-preview {
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--workspace-canvas-surface, #FFFCF8);
+  margin-bottom: 0.75rem;
+}
+
+/* Alignment / Transform Toolbar */
+.nk-transform-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 0.65rem;
+}
+
+.nk-transform-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-right: 1px solid var(--nahkya-border);
+  padding-right: 0.5rem;
+}
+
+.nk-transform-group:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.nk-transform-button {
+  display: inline-flex;
+  min-width: 36px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  color: var(--nahkya-burgundy);
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nk-transform-button:hover,
+.nk-transform-button.is-active {
+  border-color: var(--nahkya-gold-soft);
+  background: var(--nahkya-gold-veil);
+}
+
+/* Coordinate / Size Controls */
+.nk-coordinate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.nk-coordinate-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.nk-coordinate-label {
+  color: var(--nahkya-gold);
+  font-size: 0.6875rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nk-coordinate-input {
+  width: 100%;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.65rem 0.75rem;
+}
+
+.nk-lock-aspect {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--nahkya-burgundy);
+  font-size: 0.8125rem;
+  font-weight: 900;
+}
+
+/* Advanced Layer Controls */
+.nk-layer-drag {
+  color: var(--nahkya-gold);
+  font-family: var(--font-mono);
+  font-weight: 900;
+  cursor: grab;
+}
+
+.nk-layer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+
+.nk-layer-control {
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-burgundy);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.6875rem;
+  font-weight: 900;
+}
+
+.nk-layer-opacity {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+/* Palette Management */
+.nk-palette-manager {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.nk-palette-group {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+}
+
+.nk-palette-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.nk-palette-tag {
+  display: inline-flex;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nk-swatch-dot.is-locked::after {
+  content: "•";
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--nahkya-surface);
+  font-weight: 900;
+}
+
+/* Version History */
+.nk-version-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.nk-version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  padding: 0.8rem 1rem;
+}
+
+.nk-version-row.is-current {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy-soft);
+}
+
+.nk-version-meta {
+  color: var(--nahkya-text-muted);
+  font-size: 0.75rem;
+}
+
+.nk-restore-button {
+  border: 1px solid var(--nahkya-gold);
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-burgundy);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+/* Export Configuration */
+.nk-export-settings {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nk-export-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-surface);
+  padding: 0.85rem 1rem;
+}
+
+.nk-export-label {
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+}
+
+.nk-export-value {
+  color: var(--nahkya-gold);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.nk-export-quality {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-bg);
+  padding: 1rem;
+}
+
+/* Account / Member Area */
+.nk-account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.nk-account-card {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+}
+
+.nk-member-badge {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Accessibility Preferences */
+.nk-accessibility-panel {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-bg);
+  padding: 1rem;
+}
+
+.nk-density-comfortable {
+  --nk-control-padding-y: 0.85rem;
+  --nk-control-padding-x: 1rem;
+}
+
+.nk-density-compact {
+  --nk-control-padding-y: 0.55rem;
+  --nk-control-padding-x: 0.75rem;
+}
+
+.nk-high-contrast {
+  --nahkya-text: #1E1512;
+  --nahkya-text-muted: #4E3F38;
+  --nahkya-burgundy: #671421;
+  --nahkya-gold: #8A5D18;
+  --nahkya-border: #BFA36F;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Content Length Stress Rules */
+.nk-text-wrap,
+.nk-card-title,
+.nk-section-title,
+.nk-btn,
+.nk-sidebar-link,
+.nk-nav-link,
+.nk-table-title {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.nk-long-content {
+  max-width: 68ch;
+  line-height: 1.75;
+}
+
+.nk-button-wrap {
+  white-space: normal;
+  text-align: center;
+}
+
+/* Global Styling Boundary
+   Do not use inline style attributes for fonts, colors, spacing, shadows, or borders.
+   Use CSS variables and nk-* classes.
+   Only use inline CSS variables for dynamic runtime values when necessary, for example:
+   style=\"--nk-slider-progress: 64%;\"
+*/
+
+
+/* 38. Color Swatches Tool Pack */
+
+.nk-color-tool {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 280px;
+  gap: 0.875rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  background: var(--nahkya-bg);
+  padding: 0.875rem;
+}
+
+.nk-color-panel {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  padding: 1rem;
+}
+
+.nk-color-target-tabs {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.nk-color-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  color: var(--nahkya-text-muted);
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nk-color-target:hover,
+.nk-color-target.is-active {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy-soft);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-color-target-tag {
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  padding: 0.2rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Card variant for 2×2 grid layout */
+.nk-color-target-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  padding: 1rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.nk-color-target-card:hover,
+.nk-color-target-card.is-active {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy-soft);
+}
+
+.nk-color-target-card-swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--nahkya-gold-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.nk-color-target-card-title {
+  font-size: var(--text-ui);
+  font-weight: 800;
+  color: var(--nahkya-text);
+}
+
+.nk-color-target-card.is-active .nk-color-target-card-title {
+  color: var(--nahkya-burgundy);
+}
+
+.nk-color-target-card-desc {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--nahkya-text-muted);
+}
+
+.nk-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 0.75rem;
+}
+
+.nk-swatch-tile {
+  position: relative;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text-muted);
+  padding: 0.65rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+}
+
+.nk-swatch-tile:hover,
+.nk-swatch-tile.is-selected {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy-soft);
+  box-shadow: 0 0 0 4px rgba(123, 30, 43, 0.08);
+}
+
+.nk-swatch-tile.is-disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.nk-swatch-tile.is-locked::after,
+.nk-swatch-tile.is-brand::after {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  display: grid;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-burgundy);
+  color: var(--nahkya-text-inverse);
+  font-size: 0.58rem;
+  font-weight: 900;
+}
+
+.nk-swatch-tile.is-locked::after {
+  content: "L";
+}
+
+.nk-swatch-tile.is-brand::after {
+  content: "B";
+}
+
+.nk-swatch-circle {
+  width: 2.125rem;
+  height: 2.125rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 12px rgba(184, 139, 74, 0.14);
+}
+
+.nk-swatch-add-card {
+  display: grid;
+  min-height: 4.625rem;
+  place-items: center;
+  border: 1px dashed var(--nahkya-gold);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.nk-color-detail-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nk-color-preview-chip {
+  height: 5.25rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  box-shadow: inset 0 0 0 1px rgba(255, 249, 242, 0.28);
+}
+
+.nk-color-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  background: var(--nahkya-bg);
+  padding: 0.65rem 0.75rem;
+}
+
+.nk-color-value-label {
+  color: var(--nahkya-burgundy);
+  font-weight: 900;
+}
+
+.nk-contrast-warning {
+  border: 1px solid #E7C46A;
+  border-radius: var(--radius-nahkya-sm);
+  background: #FFF4D2;
+  color: #6B4700;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.nk-color-preview-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+}
+
+.nk-color-preview-strip > * {
+  min-height: 4rem;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.nk-color-preview-page {
+  background: var(--nahkya-bg);
+  color: var(--nahkya-text);
+}
+
+.nk-color-preview-action {
+  background: var(--nahkya-burgundy);
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-color-preview-hover {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-palette-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nk-color-note {
+  border-left: 3px solid var(--nahkya-gold);
+  border-radius: 0 var(--radius-nahkya-sm) var(--radius-nahkya-sm) 0;
+  background: var(--nahkya-bg);
+  padding: 0.75rem;
+}
+
+.nk-swatch-bg { background: var(--nahkya-bg); }
+.nk-swatch-surface { background: var(--nahkya-surface); }
+.nk-swatch-burgundy { background: var(--nahkya-burgundy); }
+.nk-swatch-gold { background: var(--nahkya-gold); }
+.nk-swatch-goldveil { background: var(--nahkya-gold-veil); }
+.nk-swatch-ink { background: var(--nahkya-text); }
+.nk-swatch-softpink { background: #EAD5D8; }
+.nk-swatch-cream { background: #F1E4DA; }
+.nk-swatch-charcoal { background: #3A302C; }
+.nk-swatch-ivorygold { background: #F6E7C9; }
+.nk-swatch-mutedrose { background: #C98C95; }
+.nk-swatch-sage { background: #A8B8A0; }
+
+@media (max-width: 980px) {
+  .nk-color-tool {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* 39. Refined Editorial Swatch Cards
+   Use this to replace loud pill/tall swatch cards.
+   Swatches should feel like small fabric samples, not app badges.
+*/
+
+.nk-swatch-grid-editorial {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 0.65rem;
+}
+
+.nk-swatch-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 58px;
+  border: 1px solid rgba(216, 190, 150, 0.72);
+  border-radius: var(--radius-nahkya-sm);
+  background: linear-gradient(180deg, rgba(255, 249, 242, 0.92), rgba(248, 241, 232, 0.66));
+  color: var(--nahkya-text-muted);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  box-shadow: 0 8px 22px rgba(184, 139, 74, 0.07);
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
+}
+
+.nk-swatch-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--nahkya-gold);
+  box-shadow: 0 12px 28px rgba(184, 139, 74, 0.12);
+}
+
+.nk-swatch-card.is-selected {
+  border-color: var(--nahkya-burgundy);
+  background: linear-gradient(180deg, rgba(255, 249, 242, 0.98), rgba(234, 213, 216, 0.52));
+  box-shadow: 0 0 0 3px rgba(123, 30, 43, 0.08), 0 14px 34px rgba(123, 30, 43, 0.12);
+}
+
+.nk-swatch-card.is-selected::before {
+  content: "";
+  position: absolute;
+  inset: 7px auto 7px 0;
+  width: 3px;
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  background: var(--nahkya-burgundy);
+}
+
+.nk-swatch-sample {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(184, 139, 74, 0.55);
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0 0 2px rgba(255, 249, 242, 0.55), 0 4px 12px rgba(184, 139, 74, 0.12);
+}
+
+.nk-swatch-info {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.nk-swatch-name {
+  overflow: hidden;
+  color: var(--nahkya-burgundy-dark);
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nk-swatch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.nk-swatch-status {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(184, 139, 74, 0.45);
+  border-radius: var(--radius-pill);
+  background: rgba(239, 226, 199, 0.72);
+  color: var(--nahkya-burgundy);
+  padding: 0.12rem 0.38rem;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nk-swatch-status.is-locked {
+  background: rgba(123, 30, 43, 0.08);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-swatch-add-editorial {
+  display: grid;
+  min-height: 58px;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px dashed var(--nahkya-gold);
+  border-radius: var(--radius-nahkya-sm);
+  background: rgba(239, 226, 199, 0.55);
+  color: var(--nahkya-burgundy);
+  padding: 0.55rem 0.65rem;
+  font-weight: 900;
+  text-align: left;
+}
+
+.nk-swatch-add-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(184, 139, 74, 0.52);
+  border-radius: 0.75rem;
+  background: var(--nahkya-surface);
+  font-size: 1.1rem;
+}
+
+.nk-swatch-add-copy {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.nk-swatch-add-copy small {
+  color: var(--nahkya-text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+
+/* 40. Safety / Export / Account Layout Refinement
+   Fixes awkward equal-height skinny columns.
+   Use this instead of a generic 3-column grid for mixed-content cards.
+*/
+
+.nk-grid-top {
+  align-items: start;
+}
+
+.nk-safety-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(420px, 1.15fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.nk-safety-side {
+  display: grid;
+  gap: 1rem;
+}
+
+.nk-safety-card {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-lg);
+  background: var(--nahkya-surface);
+  padding: 1.25rem;
+  box-shadow: 0 12px 34px rgba(184, 139, 74, 0.09);
+}
+
+.nk-compact-stack {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.nk-compact-row {
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-sm);
+  background: rgba(255, 249, 242, 0.72);
+  padding: 0.75rem 0.875rem;
+}
+
+.nk-export-panel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(220px, 0.8fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 0.75rem;
+}
+
+.nk-export-preview-compact {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-width: 260px;
+  width: 100%;
+  justify-self: center;
+  border: 1px solid var(--workspace-canvas-border, #D9C9BA);
+  border-radius: var(--radius-nahkya-md);
+  background:
+    radial-gradient(circle at 30% 28%, var(--nahkya-gold-veil) 0 8%, transparent 9%),
+    radial-gradient(circle at 52% 52%, var(--nahkya-burgundy-soft) 0 9%, transparent 10%),
+    radial-gradient(circle at 76% 72%, var(--nahkya-gold-veil) 0 8%, transparent 9%),
+    var(--workspace-canvas-surface, #FFFCF8);
+}
+
+.nk-chip-row-spaced {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 980px) {
+  .nk-safety-layout,
+  .nk-export-panel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nk-export-preview-compact {
+    max-width: 320px;
+  }
+}
+
+
+/* 41. Canvas Zoom Controls
+   Use these for zoom in/out, fit, 100%, and current zoom display.
+   Place near the canvas header or floating bottom canvas toolbar.
+*/
+
+.nk-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 249, 242, 0.78);
+  padding: 0.25rem;
+  box-shadow: 0 6px 18px rgba(184, 139, 74, 0.08);
+}
+
+.nk-zoom-pill {
+  display: inline-flex;
+  min-width: 34px;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--nahkya-burgundy);
+  padding: 0 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.nk-zoom-pill:hover {
+  border-color: var(--nahkya-gold-soft);
+  background: var(--nahkya-gold-veil);
+}
+
+.nk-zoom-pill:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.nk-zoom-pill.is-active {
+  border-color: var(--nahkya-burgundy);
+  background: var(--nahkya-burgundy);
+  color: var(--nahkya-text-inverse);
+}
+
+.nk-zoom-value {
+  min-width: 54px;
+  font-family: var(--font-mono);
+  color: var(--nahkya-gold);
+}
+
+.nk-zoom-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--nahkya-gold-soft);
+}
+
+.nk-canvas-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
+}
+
+.nk-canvas-floating-zoom {
+  position: absolute;
+  right: 0.875rem;
+  bottom: 0.875rem;
+  z-index: 20;
+}
+
+@media (max-width: 640px) {
+  .nk-zoom-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nk-zoom-pill {
+    flex: 1;
+  }
+
+  .nk-zoom-value {
+    flex: 1.2;
+  }
+}
+
+
+/* 42. Monogram Letter Tile — Necessary Exception
+   ------------------------------------------------
+   This is a specialized studio control. A square single-character input
+   that does not fit standard .nk-input patterns due to its unique sizing,
+   typography, and interaction requirements.
+
+   Use these classes instead of generic form utilities.
+*/
+
+.nk-monogram-letter {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface);
+  color: var(--nahkya-text);
+  font-family: var(--font-display);
+  font-size: 1.75rem;        /* 28px — matches text-heading-sm */
+  line-height: 52px;         /* vertical centre */
+  text-align: center;
+  text-transform: uppercase;
+  caret-color: var(--nahkya-gold);
+  padding: 0;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nk-monogram-letter::placeholder {
+  color: var(--nahkya-text-soft);
+}
+
+.nk-monogram-letter:focus {
+  outline: none;
+}
+
+.nk-monogram-letter.is-selected {
+  border-color: var(--nahkya-burgundy);
+  box-shadow: var(--focus-ring);
+}
+
+.nk-monogram-letter:hover:not(.is-selected) {
+  border-color: var(--nahkya-burgundy);
+}
+
+.nk-monogram-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--nahkya-text-muted);
+  color: var(--nahkya-text-inverse);
+  font-size: 0.625rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  cursor: pointer;
+}
+
+.nk-monogram-delete:hover {
+  background: var(--nahkya-burgundy);
+}
+
+.group:hover .nk-monogram-delete {
+  opacity: 1;
+}
+
+.nk-monogram-add {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px dashed var(--nahkya-gold-soft);
+  border-radius: var(--radius-nahkya-md);
+  background: var(--nahkya-surface-soft);
+  color: var(--nahkya-text-muted);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+  cursor: pointer;
+}
+
+.nk-monogram-add:hover {
+  border-color: var(--nahkya-burgundy);
+  color: var(--nahkya-burgundy);
+}
+/* 43. Icon Rail — vertical icon+label navigation
+   ------------------------------------------------
+   Purpose:
+   Ultra-narrow sidebar navigation where each item is a vertical stack
+   of icon + label. Used for collapsed sidebars across member, designer,
+   and admin layouts.
+
+   Why it is an exception:
+   The vertical stacked layout with tiny centered labels, tight padding,
+   and rounded pill active state is unique to narrow navigation rails.
+   Generic `.nk-sidebar-link` is horizontal (icon left, text right)
+   with larger padding and a left-border active indicator.
+*/
+
+.nk-icon-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nk-icon-rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--radius-nahkya-sm);
+  color: var(--nahkya-text-muted);
+  font-size: var(--text-eyebrow);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+.nk-icon-rail-item:hover {
+  background: var(--nahkya-gold-veil);
+  color: var(--nahkya-burgundy);
+}
+
+.nk-icon-rail-item.is-active {
+  background: var(--nahkya-burgundy-soft);
+  color: var(--nahkya-burgundy);
+}

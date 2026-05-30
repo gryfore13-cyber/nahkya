@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* shadcn/ui theme variables — kept for compatibility */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 8%;
+    --primary: 42 62% 56%;
+    --primary-foreground: 240 10% 8%;
+    --secondary: 30 9% 89%;
+    --secondary-foreground: 240 10% 8%;
+    --muted: 30 9% 89%;
+    --muted-foreground: 0 0% 43%;
+    --accent: 30 9% 89%;
+    --accent-foreground: 240 10% 8%;
+    --destructive: 7 47% 53%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 9% 89%;
+    --input: 30 9% 89%;
+    --ring: 42 62% 56%;
+    --radius: 2px;
+
+    /* Legacy Nahkya tokens — mapped by nahkya-v10.css, kept here for runtime safety */
+    --nahkya-teal: #5A8A8A;
+    --nahkya-fuchsia: #8A5A8A;
+    /* Workspace tokens — updated to v10 light workspace */
+    --workspace-bg: #F8F1E8;
+    --workspace-sidebar: #FFF9F2;
+    --workspace-panel: #FCF7F1;
+    --workspace-border: #D8BE96;
+    --workspace-hover: #EFE2C7;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  /* Custom scrollbar — app-specific, v10 does not define these */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--nahkya-taupe, var(--nahkya-text-muted));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--nahkya-text-secondary, var(--nahkya-text-muted));
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply px-5 sm:px-8 lg:px-12 xl:px-20;
+  }
+
+  .container-nahkya {
+    @apply max-w-container mx-auto section-padding;
+  }
+
+  /* Workspace dark theme scrollbar — retained for dark studio pages during migration */
+  .workspace-scroll::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .workspace-scroll::-webkit-scrollbar-track {
+    background: var(--workspace-bg);
+  }
+
+  .workspace-scroll::-webkit-scrollbar-thumb {
+    background: var(--workspace-hover);
+    border-radius: 2px;
+  }
+
+  .workspace-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--workspace-border);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-shadow-hero-label {
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .text-shadow-hero-title {
+    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-shadow-hero-subtitle {
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Hide scrollbars while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .drop-shadow-canvas {
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.3));
+  }
+
+  .rotate-card {
+    transform: rotate(5deg);
+  }
+
+  /* Dynamic font sizes tied to CSS variables for live theme preview */
+  .text-dynamic-display-xxl { font-size: var(--font-display-xxl); }
+  .text-dynamic-display-xl  { font-size: var(--font-display-xl); }
+  .text-dynamic-display-lg  { font-size: var(--font-display-lg); }
+  .text-dynamic-display-md  { font-size: var(--font-display-md); }
+  .text-dynamic-display-sm  { font-size: var(--font-display-sm); }
+  .text-dynamic-heading-lg  { font-size: var(--font-heading-lg); }
+  .text-dynamic-heading-md  { font-size: var(--font-heading-md); }
+  .text-dynamic-mono-lg     { font-size: var(--font-mono-lg); }
+  .text-dynamic-mono-md     { font-size: var(--font-mono-md); }
+  .text-dynamic-mono-sm     { font-size: var(--font-mono-sm); }
+}
+
+/* Silk drift animation for hero overlay */
+@keyframes silkDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 0; }
+}
