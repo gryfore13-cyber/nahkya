@@ -1,5 +1,4 @@
 import { Home, Paintbrush, Type, Grid3X3, FolderOpen, Package, User, ArrowRight } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { IconRailSidebar, IconRailSidebarContent } from './IconRailSidebar';
 import type { NavSection, NavItem } from './IconRailSidebar';

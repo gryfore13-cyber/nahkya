@@ -1,7 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper: look up user role from users collection
+    // ─── Helpers ───
+    // NOTE: getUserRole() causes +1 read per call. At scale, migrate to
+    // Firebase Admin SDK + custom claims (set via Cloud Function).
     function getUserRole(uid) {
       return get(/databases/$(database)/documents/users/$(uid)).data.role;
     }
@@ -15,25 +17,53 @@ service cloud.firestore {
       return request.auth != null && (request.auth.uid == userId || isSuperAdmin());
     }
 
-    // Config documents
+    // Validates that a write does not mutate any of the given fields
+    function fieldsUnchanged(fieldList) {
+      return fieldList.all(field => !(field in request.resource.data)
+        || request.resource.data[field] == resource.data[field]);
+    }
+
+    // Validates that userId on a document matches the authenticated user
+    function userIdMatchesAuth() {
+      return request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ─── Config documents ───
     match /config/{document} {
       allow read: if true;
       allow write: if request.auth != null && isSuperAdmin();
     }
 
-    // User profiles
+    // ─── User profiles ───
+    // CRITICAL FIX: Users can no longer self-promote their role or approval status.
     match /users/{userId} {
       allow read: if request.auth != null && isOwnerOrSuperAdmin(userId);
-      allow write: if request.auth != null && request.auth.uid == userId;
+
+      // Users can create their own profile doc, but only with safe fields.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.role == 'member'
+        && request.resource.data.approvalStatus == 'pending';
+
+      // Users can update their own profile, but CANNOT change role, approvalStatus,
+      // approvedAt, approvedBy, or registeredAt.
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && fieldsUnchanged(['role', 'approvalStatus', 'approvedAt', 'approvedBy', 'registeredAt']);
+
+      // Super admins can write anything to any user profile.
+      allow delete: if request.auth != null && isSuperAdmin();
+      allow write: if request.auth != null && isSuperAdmin();
     }
 
-    // Designers
+    // ─── Designers ───
     match /designers/{designerId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && isSuperAdmin();
     }
 
-    // Artworks — any auth user can read; any auth user can create; designer can update own pending; super_admin full access
+    // ─── Artworks ───
     match /artworks/{artworkId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
@@ -44,7 +74,7 @@ service cloud.firestore {
       allow delete: if request.auth != null && isSuperAdmin();
     }
 
-    // Commissions
+    // ─── Commissions ───
     match /commissions/{commissionId} {
       allow read: if request.auth != null && (
         isSuperAdmin() ||
@@ -55,32 +85,36 @@ service cloud.firestore {
       allow delete: if request.auth != null && isSuperAdmin();
     }
 
-    // Orders
+    // ─── Orders ───
+    // FIX: userId must match the authenticated user on create.
     match /orders/{orderId} {
       allow read: if request.auth != null && (
         isSuperAdmin() ||
         resource.data.userId == request.auth.uid
       );
-      allow create: if request.auth != null;
+      allow create: if request.auth != null && userIdMatchesAuth();
       allow update: if request.auth != null && (
         isSuperAdmin() ||
-        resource.data.userId == request.auth.uid
+        (resource.data.userId == request.auth.uid && userIdMatchesAuth())
       );
       allow delete: if request.auth != null && isSuperAdmin();
     }
 
-    // Saved designs
+    // ─── Saved designs ───
+    // FIX: userId must match the authenticated user on create and update.
     match /savedDesigns/{designId} {
       allow read: if request.auth != null && (
         isSuperAdmin() ||
         resource.data.userId == request.auth.uid
       );
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && userIdMatchesAuth();
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && userIdMatchesAuth();
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
-    // Articles / Editorial content
+    // ─── Articles / Editorial content ───
     match /articles/{articleId} {
       allow read: if true;
       allow write: if request.auth != null && isSuperAdmin();

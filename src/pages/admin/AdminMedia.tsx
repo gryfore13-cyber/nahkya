@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { ImageIcon, Trash2, Loader2 } from 'lucide-react';
 import { useArticleStore } from '@/stores/articleStore';
-import { uploadFile } from '@/lib/firebase/storage';
+import { uploadImage } from '@/lib/firebase/storage';
 
 export default function AdminMedia() {
   const { articles, fetchArticles } = useArticleStore();
@@ -28,7 +28,7 @@ export default function AdminMedia() {
     try {
       const timestamp = Date.now();
       const path = `uploads/media/${timestamp}_${file.name}`;
-      const url = await uploadFile(file, path);
+      const url = await uploadImage(file, path);
       setUploads((prev) => [
         ...prev,
         { id: `upload-${timestamp}`, src: url, name: file.name, type: 'image' },

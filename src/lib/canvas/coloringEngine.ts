@@ -145,6 +145,37 @@ export function bucketFill(
   return nextPaintLayer;
 }
 
+export function replaceColorInPaintLayer(
+  paintLayer: ImageData,
+  targetColorHex: string,
+  replacementColorHex: string,
+  tolerance: number
+): ImageData {
+  const target = hexToRgb(targetColorHex);
+  const replacement = hexToRgb(replacementColorHex);
+  const output = new ImageData(
+    new Uint8ClampedArray(paintLayer.data),
+    paintLayer.width,
+    paintLayer.height
+  );
+
+  for (let i = 0; i < output.data.length; i += 4) {
+    if (output.data[i + 3] === 0) continue;
+
+    if (
+      Math.abs(output.data[i] - target.r) <= tolerance &&
+      Math.abs(output.data[i + 1] - target.g) <= tolerance &&
+      Math.abs(output.data[i + 2] - target.b) <= tolerance
+    ) {
+      output.data[i] = replacement.r;
+      output.data[i + 1] = replacement.g;
+      output.data[i + 2] = replacement.b;
+    }
+  }
+
+  return output;
+}
+
 export function drawComposite(
   canvas: HTMLCanvasElement,
   paintLayer: ImageData | null,

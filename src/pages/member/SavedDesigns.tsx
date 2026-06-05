@@ -20,15 +20,16 @@ const TOOL_ROUTES: Record<string, string> = {
 export default function SavedDesigns() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { designs, fetchDesigns, deleteDesign } = useSavedDesignStore();
+  const { designs, fetchDesignsByUser, deleteDesign } = useSavedDesignStore();
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetchDesigns();
-  }, [fetchDesigns]);
+    if (user?.uid) {
+      fetchDesignsByUser(user.uid);
+    }
+  }, [fetchDesignsByUser, user?.uid]);
 
-  const myDesigns = designs.filter((d) => d.userId === user?.uid);
-  const filtered = myDesigns.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = designs.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="p-8 lg:p-12">

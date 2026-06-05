@@ -1,4 +1,24 @@
-import { doc, getDoc, setDoc, onSnapshot, collection, query, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, type QuerySnapshot, type DocumentData } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot,
+  collection,
+  query,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  type QuerySnapshot,
+  type DocumentData,
+  type QueryConstraint,
+  type QueryDocumentSnapshot,
+} from 'firebase/firestore';
 import { db } from './config';
 
 const CONFIG_DOC = (id: string) => doc(db, 'config', id);
@@ -44,6 +64,41 @@ export function getCollectionRef(path: string) {
 export async function getCollection<T = DocumentData>(path: string): Promise<T[]> {
   const snap = await getDocs(query(collection(db, path)));
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as T));
+}
+
+/**
+ * Fetch a collection with Firestore query constraints (where, orderBy, limit).
+ * Requires composite indexes for orderBy + where combinations.
+ */
+export async function getCollectionQuery<T = DocumentData>(
+  path: string,
+  ...constraints: QueryConstraint[]
+): Promise<T[]> {
+  const q = query(collection(db, path), ...constraints);
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as T));
+}
+
+/**
+ * Paginated collection fetch using cursor-based pagination.
+ */
+export async function getPaginatedCollection<T = DocumentData>(
+  path: string,
+  limitCount: number,
+  startAfterDoc?: QueryDocumentSnapshot<DocumentData>,
+  ...constraints: QueryConstraint[]
+): Promise<{ docs: T[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null }> {
+  const queryConstraints: QueryConstraint[] = [...constraints];
+  if (startAfterDoc) {
+    queryConstraints.push(startAfter(startAfterDoc));
+  }
+  queryConstraints.push(limit(limitCount));
+
+  const q = query(collection(db, path), ...queryConstraints);
+  const snap = await getDocs(q);
+  const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() } as T));
+  const lastDoc = snap.docs[snap.docs.length - 1] || null;
+  return { docs, lastDoc };
 }
 
 export async function getDocById<T = DocumentData>(path: string, id: string): Promise<T | null> {
@@ -103,3 +158,25 @@ export function subscribeCollection<T = DocumentData>(
     () => callback([])
   );
 }
+
+/**
+ * Subscribe to a collection with Firestore query constraints.
+ * Automatically falls back to an empty array on error.
+ */
+export function subscribeCollectionQuery<T = DocumentData>(
+  path: string,
+  callback: (data: T[]) => void,
+  ...constraints: QueryConstraint[]
+) {
+  const q = query(collection(db, path), ...constraints);
+  return onSnapshot(
+    q,
+    (snap: QuerySnapshot<DocumentData>) => {
+      callback(snap.docs.map((d) => ({ id: d.id, ...d.data() } as T)));
+    },
+    () => callback([])
+  );
+}
+
+export { where, orderBy, limit, startAfter };
+export type { QueryConstraint, QueryDocumentSnapshot };

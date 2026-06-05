@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { FONT_OPTIONS } from '@/lib/monogramConstants';
 import { getFontClasses } from '@/lib/monogram';
+import { TILE_FRAME_STYLES } from '@/lib/monogramConstants';
 import type { MonogramState } from '@/hooks/useMonogramState';
 import { cn } from '@/lib/utils';
 import { Plus, X } from 'lucide-react';
@@ -60,6 +61,8 @@ export default function MonogramControls({
     setBorderThicknessCm2,
     borderGapCm,
     setBorderGapCm,
+    borderStyle,
+    setBorderStyle,
     baseColor,
     borderColor,
     borderColor2,
@@ -200,7 +203,7 @@ export default function MonogramControls({
             label="Size"
             value={selectedLetter.fontSize}
             min={20}
-            max={250}
+            max={600}
             step={10}
             suffix="px"
             onChange={(v) => updateTextSize(selectedLetter.id, v)}
@@ -366,6 +369,23 @@ export default function MonogramControls({
         <p className="text-body-xs text-nahkya-text-muted mb-4">
           Frame your monogram with tailored borders.
         </p>
+
+        {/* Frame Style */}
+        <div className="mb-3">
+          <label className="text-body-xs text-nahkya-text-muted mb-1.5 block">Frame Style</label>
+          <Select value={borderStyle} onValueChange={setBorderStyle}>
+            <SelectTrigger className="w-full bg-workspace-panel border-workspace-border text-nahkya-text">
+              <SelectValue placeholder="Select frame style" />
+            </SelectTrigger>
+            <SelectContent className="bg-workspace-panel border-workspace-border">
+              {TILE_FRAME_STYLES.map((fs) => (
+                <SelectItem key={fs.key} value={fs.key} className="text-nahkya-text hover:bg-workspace-hover focus:bg-workspace-hover">
+                  {fs.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya mb-3">
           <span className="text-body-sm text-nahkya-text">Show Border</span>

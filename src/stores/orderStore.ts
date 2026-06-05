@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import type { Order, OrderStatus } from '@/types';
 import {
   getCollection,
+  getCollectionQuery,
   addDocToCollection,
   updateDocInCollection,
   deleteDocFromCollection,
   subscribeCollection,
+  where,
 } from '@/lib/firebase/db';
 
 const COLLECTION = 'orders';
@@ -15,6 +17,7 @@ interface OrderState {
   isLoading: boolean;
   error: string | null;
   fetchOrders: () => Promise<void>;
+  fetchOrdersByUser: (userId: string) => Promise<void>;
   addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
   updateOrder: (id: string, data: Partial<Order>) => Promise<void>;
   deleteOrder: (id: string) => Promise<void>;
@@ -63,25 +66,53 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     }
   },
 
+  fetchOrdersByUser: async (userId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const docs = await getCollectionQuery<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        where('userId', '==', userId)
+      );
+      set({ orders: docs.map(docToOrder), isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch orders', isLoading: false });
+    }
+  },
+
   addOrder: async (order) => {
     const id = await addDocToCollection(COLLECTION, order as Record<string, unknown>);
-    await get().fetchOrders();
+    await get().fetchOrdersByUser(order.userId);
     return id;
   },
 
   updateOrder: async (id, data) => {
     await updateDocInCollection(COLLECTION, id, data as Record<string, unknown>);
-    await get().fetchOrders();
+    const userId = get().orders.find((o) => o.id === id)?.userId;
+    if (userId) {
+      await get().fetchOrdersByUser(userId);
+    } else {
+      await get().fetchOrders();
+    }
   },
 
   deleteOrder: async (id) => {
     await deleteDocFromCollection(COLLECTION, id);
-    await get().fetchOrders();
+    const userId = get().orders.find((o) => o.id === id)?.userId;
+    if (userId) {
+      await get().fetchOrdersByUser(userId);
+    } else {
+      await get().fetchOrders();
+    }
   },
 
   updateStatus: async (id, status) => {
     await updateDocInCollection(COLLECTION, id, { status, updatedAt: new Date().toISOString() });
-    await get().fetchOrders();
+    const userId = get().orders.find((o) => o.id === id)?.userId;
+    if (userId) {
+      await get().fetchOrdersByUser(userId);
+    } else {
+      await get().fetchOrders();
+    }
   },
 
   subscribe: () => {

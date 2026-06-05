@@ -8,16 +8,20 @@ import { useAuthStore } from '@/stores/authStore';
 export default function DesignerEarnings() {
   const { user } = useAuthStore();
   const { designers } = useDesignerStore();
-  const { commissions, fetchCommissions } = useCommissionStore();
+  const { commissions, fetchCommissionsByDesigner } = useCommissionStore();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all');
 
-  useEffect(() => {
-    fetchCommissions();
-  }, [fetchCommissions]);
-
   const designer = designers.find((d) => d.email === user?.email) || designers[0];
-  const myCommissions = commissions.filter((c) => c.designerId === designer?.id);
+
+  useEffect(() => {
+    const id = designer?.id || user?.uid || '';
+    if (id) {
+      fetchCommissionsByDesigner(id);
+    }
+  }, [designer?.id, user?.uid, fetchCommissionsByDesigner]);
+
+  const myCommissions = commissions;
 
   const filtered = myCommissions.filter((c) => {
     const matchesSearch =

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AuthUser, UserRole } from '@/lib/firebase/auth';
-import { signIn, signUp, signOut, onAuthChange, signInWithGoogle, updateUserAvatar } from '@/lib/firebase/auth';
+import { signIn, signUp, signOut, onAuthChange, signInWithGoogle, getGoogleRedirectResult, updateUserAvatar } from '@/lib/firebase/auth';
 
 interface AuthState {
   user: AuthUser | null;
@@ -64,7 +64,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   googleLogin: async () => {
     const user = await signInWithGoogle();
-    get().setUser(user);
+    if (user) get().setUser(user);
+  },
+
+  handleGoogleRedirect: async () => {
+    const user = await getGoogleRedirectResult();
+    if (user) get().setUser(user);
   },
 
   init: () => {

@@ -1,891 +1,385 @@
 import { useState } from 'react';
-import {
-  Type, Palette, Ruler, Layers, Box, Check, Copy, Globe, RotateCcw, Save, Eye,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAppearanceStore } from '@/stores/appearanceStore';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { LuxuryButton } from '@/components/shared/LuxuryButton';
+import { Globe, Copy, Check } from 'lucide-react';
 import { AdminTopBar } from '@/components/admin/AdminTopBar';
-import { VisualCustomizerTab, type SelectedElement } from '@/components/admin/VisualCustomizerTab';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
-// ------------------------------------------------------------------
-// Token Data
-// ------------------------------------------------------------------
+// ── Token Data ──
 
-const FONT_FAMILIES = [
-  { token: 'font-display', name: 'Display', family: 'Playfair Display', purpose: 'Hero headlines, section titles, quotes, display text' },
-  { token: 'font-body', name: 'Body', family: 'Lora', purpose: 'Body paragraphs, UI labels, descriptions, form text' },
-  { token: 'font-mono', name: 'Mono', family: 'IBM Plex Mono', purpose: 'Eyebrow labels, badges, metadata, data, timestamps' },
+const COLOR_TOKENS = [
+  { category: 'Base', tokens: [
+    { name: 'nahkya-bg', class: 'bg-nahkya-bg', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-surface', class: 'bg-nahkya-surface', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-surface-soft', class: 'bg-nahkya-surface-soft', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-surface-warm', class: 'bg-nahkya-surface-warm', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Text', tokens: [
+    { name: 'nahkya-text', class: 'bg-nahkya-text', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-text-strong', class: 'bg-nahkya-text-strong', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-text-muted', class: 'bg-nahkya-text-muted', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-text-soft', class: 'bg-nahkya-text-soft', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-text-inverse', class: 'bg-nahkya-text-inverse', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Burgundy', tokens: [
+    { name: 'nahkya-burgundy', class: 'bg-nahkya-burgundy', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-burgundy-dark', class: 'bg-nahkya-burgundy-dark', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-burgundy-soft', class: 'bg-nahkya-burgundy-soft', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Gold', tokens: [
+    { name: 'nahkya-gold', class: 'bg-nahkya-gold', textClass: 'text-nahkya-soft-black' },
+    { name: 'nahkya-gold-soft', class: 'bg-nahkya-gold-soft', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-gold-muted', class: 'bg-nahkya-gold-muted', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-gold-veil', class: 'bg-nahkya-gold-veil', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Border', tokens: [
+    { name: 'nahkya-border', class: 'bg-nahkya-border', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-border-strong', class: 'bg-nahkya-border-strong', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Status', tokens: [
+    { name: 'nahkya-error', class: 'bg-nahkya-error', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-error-soft', class: 'bg-nahkya-error-soft', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-success', class: 'bg-nahkya-success', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-success-soft', class: 'bg-nahkya-success-soft', textClass: 'text-nahkya-text' },
+  ]},
+  { category: 'Legacy', tokens: [
+    { name: 'nahkya-ivory', class: 'bg-nahkya-ivory', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-cream', class: 'bg-nahkya-cream', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-stone', class: 'bg-nahkya-stone', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-taupe', class: 'bg-nahkya-taupe', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-sand', class: 'bg-nahkya-sand', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-charcoal', class: 'bg-nahkya-charcoal', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-soft-black', class: 'bg-nahkya-soft-black', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-gold-light', class: 'bg-nahkya-gold-light', textClass: 'text-nahkya-text' },
+    { name: 'nahkya-text-secondary', class: 'bg-nahkya-text-secondary', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-rose', class: 'bg-nahkya-rose', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-teal', class: 'bg-nahkya-teal', textClass: 'text-nahkya-text-inverse' },
+    { name: 'nahkya-fuchsia', class: 'bg-nahkya-fuchsia', textClass: 'text-nahkya-text-inverse' },
+  ]},
+  { category: 'Workspace', tokens: [
+    { name: 'workspace-bg', class: 'bg-workspace-bg', textClass: 'text-nahkya-text' },
+    { name: 'workspace-sidebar', class: 'bg-workspace-sidebar', textClass: 'text-nahkya-text' },
+    { name: 'workspace-panel', class: 'bg-workspace-panel', textClass: 'text-nahkya-text' },
+    { name: 'workspace-border', class: 'bg-workspace-border', textClass: 'text-nahkya-text' },
+    { name: 'workspace-hover', class: 'bg-workspace-hover', textClass: 'text-nahkya-text' },
+  ]},
 ];
 
-const FONT_SIZES = [
-  { token: 'text-display-xxl', size: '96px', lineHeight: '0.95', tracking: '-0.03em', sample: 'Display XXL', usage: 'Hero headline (desktop)' },
-  { token: 'text-display-xl', size: '72px', lineHeight: '0.98', tracking: '-0.02em', sample: 'Display XL', usage: 'Hero headline (tablet)' },
-  { token: 'text-display-lg', size: '56px', lineHeight: '1.05', tracking: '-0.02em', sample: 'Display LG', usage: 'Large section headlines' },
-  { token: 'text-display-md', size: '40px', lineHeight: '1.1', tracking: '-0.01em', sample: 'Display MD', usage: 'Medium section headlines' },
-  { token: 'text-display-sm', size: '32px', lineHeight: '1.15', tracking: '-0.01em', sample: 'Display SM', usage: 'Small headlines, page titles' },
-  { token: 'text-display-xs', size: '52px', lineHeight: '1.0', tracking: '-0.02em', sample: 'Display XS', usage: 'Responsive hero (mobile)' },
-  { token: 'text-heading-lg', size: '24px', lineHeight: '1.3', tracking: '-', sample: 'Heading LG', usage: 'Card titles, section subheads' },
-  { token: 'text-heading-md', size: '20px', lineHeight: '1.35', tracking: '-', sample: 'Heading MD', usage: 'Subsection titles' },
-  { token: 'text-heading-sm', size: '28px', lineHeight: '1.2', tracking: '-0.01em', sample: 'Heading SM', usage: 'Editorial headlines' },
-  { token: 'text-body-lg', size: '17px', lineHeight: '1.5', tracking: '-', sample: 'Body LG', usage: 'Large body text' },
-  { token: 'text-body-md', size: '15px', lineHeight: '1.5', tracking: '-', sample: 'Body MD', usage: 'Standard body text' },
-  { token: 'text-mono-lg', size: '13px', lineHeight: '1.4', tracking: '0.08em', sample: 'MONO LG', usage: 'Large labels, timestamps' },
-  { token: 'text-mono-md', size: '12px', lineHeight: '1.4', tracking: '0.1em', sample: 'MONO MD', usage: 'Standard labels' },
-  { token: 'text-mono-sm', size: '10px', lineHeight: '1.4', tracking: '0.12em', sample: 'MONO SM', usage: 'Small badges, metadata' },
-];
-
-const NAHKYA_COLOURS = [
-  { token: 'nahkya-ivory', hex: '#F5EDE3', usage: 'Light page background' },
-  { token: 'nahkya-cream', hex: '#EDE5DA', usage: 'Admin surface / card' },
-  { token: 'nahkya-stone', hex: '#DCC6A1', usage: 'Neutral / disabled surface' },
-  { token: 'nahkya-taupe', hex: '#9A8A7A', usage: 'Muted text, borders' },
-  { token: 'nahkya-sand', hex: '#B89A7A', usage: 'Borders, dividers' },
-  { token: 'nahkya-charcoal', hex: '#2C2420', usage: 'Dark surface / active state' },
-  { token: 'nahkya-soft-black', hex: '#1A1A1E', usage: 'Deepest dark background' },
-  { token: 'nahkya-gold', hex: '#B88B4A', usage: 'Primary accent, CTAs' },
-  { token: 'nahkya-gold-light', hex: '#D4B896', usage: 'Gold hover state' },
-  { token: 'nahkya-gold-muted', hex: '#9A7B52', usage: 'Gold subdued' },
-  { token: 'nahkya-text-secondary', hex: '#8A7A6E', usage: 'Secondary text' },
-  { token: 'nahkya-error', hex: '#DC2626', usage: 'Error states' },
-  { token: 'nahkya-success', hex: '#16A34A', usage: 'Success states' },
-];
-
-const WORKSPACE_COLOURS = [
-  { token: 'workspace-bg', hex: '#0C0C10', usage: 'Dark workspace background' },
-  { token: 'workspace-sidebar', hex: '#13131A', usage: 'Dark workspace sidebar' },
-  { token: 'workspace-panel', hex: '#1A1A22', usage: 'Dark workspace card' },
-  { token: 'workspace-border', hex: '#2A2A35', usage: 'Dark workspace border' },
-  { token: 'workspace-hover', hex: '#252530', usage: 'Dark workspace hover' },
+const TYPOGRAPHY_TOKENS = [
+  { category: 'Display', tokens: [
+    { name: 'text-display-mega', sample: 'Mega Display', size: '200px' },
+    { name: 'text-display-xxxl', sample: 'Display XXXL', size: '120px' },
+    { name: 'text-display-xxl', sample: 'Display XXL', size: '96px' },
+    { name: 'text-display-xl', sample: 'Display XL', size: '72px' },
+    { name: 'text-display-lg', sample: 'Display LG', size: '56px' },
+    { name: 'text-display-md', sample: 'Display MD', size: '40px' },
+    { name: 'text-display-sm', sample: 'Display SM', size: '32px' },
+    { name: 'text-display-xs', sample: 'Display XS', size: '52px' },
+  ]},
+  { category: 'Heading', tokens: [
+    { name: 'text-heading-lg', sample: 'Heading Large', size: '24px' },
+    { name: 'text-heading-md', sample: 'Heading Medium', size: '20px' },
+    { name: 'text-heading-sm', sample: 'Heading Small', size: '28px' },
+  ]},
+  { category: 'Body', tokens: [
+    { name: 'text-body-lg', sample: 'Body Large — The quick brown fox jumps over the lazy dog.', size: '17px' },
+    { name: 'text-body-md', sample: 'Body Medium — The quick brown fox jumps over the lazy dog.', size: '15px' },
+    { name: 'text-body-sm', sample: 'Body Small — The quick brown fox jumps over the lazy dog.', size: '13px' },
+    { name: 'text-body-xs', sample: 'Body XS — The quick brown fox jumps over the lazy dog.', size: '12px' },
+    { name: 'text-body-2xs', sample: 'Body 2XS — The quick brown fox jumps over the lazy dog.', size: '11px' },
+    { name: 'text-body-3xs', sample: 'Body 3XS — The quick brown fox jumps over the lazy dog.', size: '10px' },
+  ]},
+  { category: 'Mono', tokens: [
+    { name: 'text-mono-lg', sample: 'MONO LARGE', size: '13px' },
+    { name: 'text-mono-md', sample: 'MONO MEDIUM', size: '12px' },
+    { name: 'text-mono-sm', sample: 'MONO SMALL', size: '10px' },
+  ]},
 ];
 
 const SPACING_TOKENS = [
-  { token: 'sidebar-member', value: '240px', usage: 'Member sidebar width' },
-  { token: 'sidebar-admin', value: '260px', usage: 'Admin sidebar width' },
-  { token: 'panel-studio', value: '280px', usage: 'Studio tool panel' },
-  { token: 'panel-inspector', value: '330px', usage: 'Inspector panel' },
-  { token: 'button-sm', value: '36px', usage: 'Small button height' },
-  { token: 'button', value: '44px', usage: 'Standard button height' },
-  { token: 'button-lg', value: '52px', usage: 'Large button height' },
-  { token: 'nav', value: '72px', usage: 'Public nav height' },
-  { token: 'toolbar', value: '74px', usage: 'WYSIWYG toolbar height' },
+  { name: 'sidebar-member', value: '240px', desc: 'Member sidebar width' },
+  { name: 'sidebar-member-collapsed', value: '80px', desc: 'Collapsed sidebar' },
+  { name: 'sidebar-admin', value: '260px', desc: 'Admin sidebar width' },
+  { name: 'panel-studio', value: '280px', desc: 'Studio tool panel' },
+  { name: 'panel-inspector', value: '330px', desc: 'Inspector panel' },
+  { name: 'panel-preview', value: '380px', desc: 'Preview panel' },
+  { name: 'button-sm', value: '36px', desc: 'Small button height' },
+  { name: 'button', value: '44px', desc: 'Standard button height' },
+  { name: 'button-lg', value: '52px', desc: 'Large button height' },
+  { name: 'nav', value: '72px', desc: 'Nav bar height' },
+  { name: 'toolbar', value: '74px', desc: 'Toolbar height' },
 ];
 
-const SURFACE_TOKENS = [
-  { token: 'bg-nahkya-ivory', name: 'Ivory', role: 'Light page background', where: 'Public pages, admin layout root' },
-  { token: 'bg-nahkya-surface', name: 'Cream', role: 'Admin surface / card', where: 'Admin cards, inputs, tables, panels' },
-  { token: 'bg-nahkya-charcoal', name: 'Charcoal', role: 'Dark surface / active', where: 'Dark sections, active states, badges' },
-  { token: 'bg-nahkya-stone', name: 'Stone', role: 'Neutral / disabled', where: 'Hover states, toggles off, placeholders' },
-  { token: 'bg-workspace-bg', name: 'Workspace BG', role: 'Dark workspace background', where: 'Member area root, studio shell' },
-  { token: 'bg-workspace-panel', name: 'Workspace Panel', role: 'Dark workspace card', where: 'Member cards, panels, inputs' },
-  { token: 'bg-workspace-hover', name: 'Workspace Hover', role: 'Dark workspace hover', where: 'Sidebar nav hover, small controls' },
+const SHADOW_TOKENS = [
+  { name: 'shadow-gold-focus', sample: 'Gold Focus Ring' },
+  { name: 'shadow-gold-glow', sample: 'Gold Glow' },
+  { name: 'shadow-gold-glow-soft', sample: 'Gold Glow Soft' },
+  { name: 'shadow-soft', sample: 'Soft' },
+  { name: 'shadow-card', sample: 'Card' },
+  { name: 'shadow-burgundy', sample: 'Burgundy' },
+  { name: 'shadow-focus-ring', sample: 'Focus Ring' },
 ];
 
-// ------------------------------------------------------------------
-// Sub-components
-// ------------------------------------------------------------------
+const RADIUS_TOKENS = [
+  { name: 'rounded-nahkya', value: '2px' },
+  { name: 'rounded-nahkya-sm', value: 'var(--radius-nahkya-sm)' },
+  { name: 'rounded-nahkya-md', value: 'var(--radius-nahkya-md)' },
+  { name: 'rounded-nahkya-lg', value: 'var(--radius-nahkya-lg)' },
+  { name: 'rounded-nahkya-xl', value: 'var(--radius-nahkya-xl)' },
+  { name: 'rounded-nahkya-pill', value: 'var(--radius-pill)' },
+];
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="font-display text-heading-lg text-nahkya-text mb-2">{children}</h3>;
-}
+const ZINDEX_TOKENS = [
+  { name: 'z-behind', value: '-10' },
+  { name: 'z-content', value: '10' },
+  { name: 'z-dropdown', value: '20' },
+  { name: 'z-toolbar', value: '30' },
+  { name: 'z-nav', value: '50' },
+  { name: 'z-modal', value: '60' },
+  { name: 'z-toast', value: '80' },
+  { name: 'z-loading', value: '100' },
+];
 
-function SectionDesc({ children }: { children: React.ReactNode }) {
-  return <p className="text-body-md text-nahkya-text-muted font-body mb-6">{children}</p>;
-}
+const COMPONENT_CLASSES = [
+  { name: '.nk-btn', desc: 'Base button', example: <button className="nk-btn">Base Button</button> },
+  { name: '.nk-btn-primary', desc: 'Primary CTA', example: <button className="nk-btn nk-btn-primary">Primary</button> },
+  { name: '.nk-btn-secondary', desc: 'Secondary action', example: <button className="nk-btn nk-btn-secondary">Secondary</button> },
+  { name: '.nk-btn-ghost', desc: 'Ghost / subtle', example: <button className="nk-btn nk-btn-ghost">Ghost</button> },
+  { name: '.nk-card', desc: 'Content card', example: <div className="nk-card p-4">Card content</div> },
+  { name: '.nk-card-subtle', desc: 'Subtle card', example: <div className="nk-card-subtle p-4">Subtle card</div> },
+  { name: '.nk-input', desc: 'Text input', example: <input className="nk-input" placeholder="Placeholder" readOnly /> },
+  { name: '.nk-badge', desc: 'Status badge', example: <span className="nk-badge">Badge</span> },
+  { name: '.nk-alert', desc: 'Alert box', example: <div className="nk-alert"><span className="nk-alert-title">Alert</span> Message here</div> },
+  { name: '.nk-alert-success', desc: 'Success alert', example: <div className="nk-alert nk-alert-success"><span className="nk-alert-title">Success</span> Saved</div> },
+  { name: '.nk-alert-error', desc: 'Error alert', example: <div className="nk-alert nk-alert-error"><span className="nk-alert-title">Error</span> Failed</div> },
+  { name: '.nk-status', desc: 'Status pill', example: <span className="nk-status">Pending</span> },
+  { name: '.nk-empty-state', desc: 'Empty state container', example: <div className="nk-empty-state"><span className="nk-empty-title">Nothing here</span></div> },
+  { name: '.nk-display', desc: 'Display heading', example: <span className="nk-display">Display</span> },
+  { name: '.nk-section-title', desc: 'Section heading', example: <span className="nk-section-title">Section</span> },
+  { name: '.nk-eyebrow', desc: 'Eyebrow label', example: <span className="nk-eyebrow">EYEBROW</span> },
+];
 
-function TokenCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn('bg-workspace-panel border border-workspace-border rounded-nahkya p-5', className)}>
-      {children}
-    </div>
-  );
-}
+// ── Copy Helper ──
 
-function CopyButton({ text }: { text: string }) {
+function CopyToken({ token }: { token: string }) {
   const [copied, setCopied] = useState(false);
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(token);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
+
   return (
-    <button onClick={handleCopy} className="text-nahkya-text-muted hover:text-nahkya-gold transition-colors">
-      {copied ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
+    <button
+      onClick={handleCopy}
+      type="button"
+      className="flex items-center gap-1 text-nahkya-text-muted hover:text-nahkya-gold transition-colors"
+      title="Copy token"
+    >
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      <span className="font-mono text-mono-xs">{token}</span>
     </button>
   );
 }
 
-// ------------------------------------------------------------------
-// Typography Tab
-// ------------------------------------------------------------------
-
-function TypographyTab() {
-  return (
-    <div className="space-y-10">
-      <div>
-        <SectionHeading>Font Families</SectionHeading>
-        <SectionDesc>Three typefaces serve distinct roles across the entire experience.</SectionDesc>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {FONT_FAMILIES.map((f) => (
-            <TokenCard key={f.token}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-mono-sm text-nahkya-text-muted uppercase">{f.token}</span>
-                <CopyButton text={f.token} />
-              </div>
-              <p className={cn('text-display-sm text-nahkya-text mb-2', f.token)}>{f.family}</p>
-              <p className="text-body-md text-nahkya-text-muted font-body mb-3">{f.purpose}</p>
-              <div className="text-mono-sm text-nahkya-gold uppercase">{f.name}</div>
-            </TokenCard>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Type Scale</SectionHeading>
-        <SectionDesc>Every size is intentional. Display for impact, heading for structure, body for reading, mono for metadata.</SectionDesc>
-        <div className="space-y-3">
-          {FONT_SIZES.map((fs) => (
-            <TokenCard key={fs.token} className="flex items-center gap-6">
-              <div className="w-44 shrink-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-mono-sm text-nahkya-text-muted">{fs.token}</span>
-                  <CopyButton text={fs.token} />
-                </div>
-                <div className="text-mono-sm text-nahkya-gold">{fs.size} / {fs.lineHeight} / {fs.tracking}</div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={cn('text-nahkya-text', fs.token)}>{fs.sample}</p>
-              </div>
-              <div className="w-sidebar-member shrink-0 text-right">
-                <p className="text-body-md text-nahkya-text-muted font-body">{fs.usage}</p>
-              </div>
-            </TokenCard>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ------------------------------------------------------------------
-// Colours Tab
-// ------------------------------------------------------------------
-
-function Swatch({ token, hex, usage, isActive, onClick }: {
-  token: string; hex: string; usage: string; isActive: boolean; onClick: () => void;
-}) {
-  return (
-    <button onClick={onClick} className="text-left w-full group">
-      <div className={cn(
-        'border rounded-nahkya p-3 transition-all',
-        isActive ? 'border-nahkya-gold bg-workspace-panel' : 'border-workspace-border bg-workspace-panel hover:border-nahkya-taupe'
-      )}>
-        <div className="flex items-start gap-3 mb-3">
-          <div
-            className="w-12 h-12 rounded-nahkya border border-workspace-border shrink-0"
-            style={{ backgroundColor: hex }}
-          />
-          <div className="min-w-0">
-            <p className="text-body-md text-nahkya-text font-body truncate">{token}</p>
-            <p className="text-mono-sm text-nahkya-text-muted uppercase">{hex}</p>
-          </div>
-        </div>
-        <p className="text-body-md text-nahkya-text-muted font-body">{usage}</p>
-      </div>
-    </button>
-  );
-}
-
-function ColoursTab({ selectedToken, onSelectToken }: {
-  selectedToken: string | null;
-  onSelectToken: (token: string) => void;
-}) {
-  const store = useAppearanceStore();
-
-  const editableMap: Record<string, string | undefined> = {
-    'nahkya-gold': store.colors.gold,
-    'nahkya-gold-light': store.colors.goldLight,
-    'nahkya-gold-muted': store.colors.goldMuted,
-    'nahkya-charcoal': store.colors.charcoal,
-    'nahkya-text-secondary': store.colors.textSecondary,
-    'nahkya-ivory': store.colors.ivory,
-  };
-  return (
-    <div className="space-y-10">
-      <div>
-        <SectionHeading>Brand Palette</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-          {NAHKYA_COLOURS.map((c) => (
-            <Swatch
-              key={c.token}
-              token={c.token}
-              hex={editableMap[c.token] || c.hex}
-              usage={c.usage}
-              isActive={selectedToken === c.token}
-              onClick={() => onSelectToken(c.token)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Workspace Palette</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-          {WORKSPACE_COLOURS.map((c) => (
-            <Swatch
-              key={c.token}
-              token={c.token}
-              hex={c.hex}
-              usage={c.usage}
-              isActive={selectedToken === c.token}
-              onClick={() => onSelectToken(c.token)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-// ------------------------------------------------------------------
-// Spacing Tab
-// ------------------------------------------------------------------
-
-function SpacingBar({ token, value, usage }: { token: string; value: string; usage: string }) {
-  const numeric = parseInt(value);
-  const max = 330;
-  const pct = Math.min((numeric / max) * 100, 100);
-
-  return (
-    <TokenCard className="flex items-center gap-4">
-      <div className="w-44 shrink-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-mono-sm text-nahkya-text-muted">{token}</span>
-          <CopyButton text={token} />
-        </div>
-        <span className="text-mono-sm text-nahkya-gold">{value}</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="h-6 bg-workspace-hover rounded-nahkya overflow-hidden">
-          <div className="h-full bg-nahkya-gold rounded-nahkya transition-all" style={{ width: `${pct}%` }} />
-        </div>
-      </div>
-      <div className="w-52 shrink-0 text-right">
-        <p className="text-body-md text-nahkya-text-muted font-body">{usage}</p>
-      </div>
-    </TokenCard>
-  );
-}
-
-function SpacingTab() {
-  return (
-    <div className="space-y-10">
-      <div>
-        <SectionHeading>Design Spacing Tokens</SectionHeading>
-        <SectionDesc>Named spacing values used across the application for consistent layout rhythm.</SectionDesc>
-        <div className="space-y-3">
-          {SPACING_TOKENS.map((s) => (
-            <SpacingBar key={s.token} token={s.token} value={s.value} usage={s.usage} />
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Standard Tailwind Spacing</SectionHeading>
-        <SectionDesc>Rem-based spacing for padding, margin, and gap utilities.</SectionDesc>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-          {[1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 32].map((n) => (
-            <div key={n} className="bg-workspace-panel border border-workspace-border rounded-nahkya p-3 text-center">
-              <span className="text-mono-sm text-nahkya-text-muted block">{n}</span>
-              <span className="text-body-md text-nahkya-text font-body">{n * 0.25}rem</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ------------------------------------------------------------------
-// Surfaces Tab
-// ------------------------------------------------------------------
-
-function SurfacesTab() {
-  const store = useAppearanceStore();
-  const [previewDark, setPreviewDark] = useState(false);
-
-  return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <SectionHeading>Surface Tokens</SectionHeading>
-          <SectionDesc>Background hierarchy from light page surfaces to dark workspace environments.</SectionDesc>
-        </div>
-        <LuxuryButton variant="ghost" onClick={() => setPreviewDark(!previewDark)}>
-          {previewDark ? 'Light Preview' : 'Dark Preview'}
-        </LuxuryButton>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        {SURFACE_TOKENS.map((s) => (
-          <TokenCard key={s.token} className="overflow-hidden">
-            <div className={cn('h-24 rounded-nahkya mb-4 border border-workspace-border', s.token)} />
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-mono-sm text-nahkya-text-muted">{s.token}</span>
-              <CopyButton text={s.token} />
-            </div>
-            <p className="text-body-md text-nahkya-text font-body mb-1">{s.name}</p>
-            <p className="text-body-md text-nahkya-text-muted font-body mb-2">{s.role}</p>
-            <p className="text-mono-sm text-nahkya-gold">{s.where}</p>
-          </TokenCard>
-        ))}
-      </div>
-
-      <div>
-        <SectionHeading>Surface Hierarchy</SectionHeading>
-        <SectionDesc>How backgrounds nest within each other across the application.</SectionDesc>
-        <div className={cn('rounded-nahkya border border-workspace-border p-6 transition-colors', previewDark ? 'bg-workspace-bg' : 'bg-nahkya-ivory')}>
-          <div className={cn('rounded-nahkya border p-6 mb-4', previewDark ? 'bg-workspace-panel border-workspace-border' : 'bg-nahkya-surface border-nahkya-gold-soft')}>
-            <p className={cn('font-display text-heading-md mb-2', previewDark ? 'text-nahkya-text-inverse' : 'text-nahkya-text')}>
-              Card Surface
-            </p>
-            <p className={cn('text-body-md font-body mb-4', previewDark ? 'text-nahkya-text-muted' : 'text-nahkya-text-muted')}>
-              Content lives on a card surface, which sits on the page background.
-            </p>
-            <div className={cn('rounded-nahkya border p-3 text-mono-sm', previewDark ? 'bg-workspace-hover border-workspace-border text-nahkya-text-muted' : 'bg-nahkya-stone border-nahkya-gold-soft text-nahkya-text-muted')}>
-              Hover / Active Surface
-            </div>
-          </div>
-          <p className={cn('text-mono-sm', previewDark ? 'text-nahkya-text-muted' : 'text-nahkya-text-muted')}>
-            Page Background
-          </p>
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Dynamic Store Values</SectionHeading>
-        <SectionDesc>Live values from the appearance store that can be edited in the inspector panel.</SectionDesc>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {[
-            { label: 'Gold', value: store.colors.gold },
-            { label: 'Gold Light', value: store.colors.goldLight },
-            { label: 'Gold Muted', value: store.colors.goldMuted },
-            { label: 'Charcoal', value: store.colors.charcoal },
-            { label: 'Text Secondary', value: store.colors.textSecondary },
-            { label: 'Ivory', value: store.colors.ivory },
-          ].map((item) => (
-            <div key={item.label} className="bg-workspace-panel border border-workspace-border rounded-nahkya p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 rounded-nahkya border border-workspace-border" style={{ backgroundColor: item.value }} />
-                <span className="text-mono-sm text-nahkya-text-muted">{item.label}</span>
-              </div>
-              <p className="text-body-md text-nahkya-text font-body uppercase">{item.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ------------------------------------------------------------------
-// Components Tab
-// ------------------------------------------------------------------
-
-function ComponentsTab() {
-  const [btnVariant, setBtnVariant] = useState<string>('primary');
-  const variants = ['primary', 'secondary', 'ghost', 'dark-primary', 'dark-ghost'] as const;
-
-  return (
-    <div className="space-y-10">
-      <div>
-        <SectionHeading>Buttons</SectionHeading>
-        <SectionDesc>LuxuryButton variants for every context — light surfaces, dark surfaces, and inline actions.</SectionDesc>
-        <div className="flex flex-wrap gap-3 mb-6">
-          {variants.map((v) => (
-            <button
-              key={v}
-              onClick={() => setBtnVariant(v)}
-              className={cn(
-                'px-4 py-2 text-mono-sm uppercase rounded-nahkya border transition-all',
-                btnVariant === v
-                  ? 'border-nahkya-gold bg-workspace-panel text-nahkya-gold'
-                  : 'border-workspace-border text-nahkya-text-muted hover:border-nahkya-taupe'
-              )}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TokenCard className="flex flex-col items-center justify-center gap-4 min-h-40">
-            <LuxuryButton variant={btnVariant as never}>
-              Primary Action
-            </LuxuryButton>
-            <span className="text-mono-sm text-nahkya-text-muted">Standard</span>
-          </TokenCard>
-
-          <TokenCard className="flex flex-col items-center justify-center gap-4 min-h-40">
-            <LuxuryButton variant={btnVariant as never} disabled>
-              Disabled
-            </LuxuryButton>
-            <span className="text-mono-sm text-nahkya-text-muted">Disabled State</span>
-          </TokenCard>
-        </div>
-
-        <div className="mt-4 p-4 bg-workspace-bg border border-workspace-border rounded-nahkya flex flex-col items-center justify-center gap-4 min-h-40">
-          <LuxuryButton variant={btnVariant as never}>
-            Dark Surface
-          </LuxuryButton>
-          <span className="text-mono-sm text-nahkya-text-muted">On dark background</span>
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Inputs</SectionHeading>
-        <SectionDesc>Form controls on both light and dark surfaces.</SectionDesc>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TokenCard className="space-y-4">
-            <p className="text-mono-sm text-nahkya-text-muted uppercase mb-3">Light Surface</p>
-            <input
-              type="text"
-              placeholder="Placeholder text"
-              className="w-full h-11 px-4 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold transition-colors"
-            />
-            <input
-              type="text"
-              value="Filled value"
-              readOnly
-              className="w-full h-11 px-4 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body"
-            />
-            <input
-              type="text"
-              disabled
-              placeholder="Disabled input"
-              className="w-full h-11 px-4 bg-workspace-hover border border-workspace-border rounded-nahkya text-body-md text-nahkya-text-muted font-body cursor-not-allowed"
-            />
-          </TokenCard>
-
-          <div className="bg-workspace-panel border border-workspace-border rounded-nahkya p-5 space-y-4">
-            <p className="text-mono-sm text-nahkya-text-muted uppercase mb-3">Dark Surface</p>
-            <input
-              type="text"
-              placeholder="Placeholder text"
-              className="w-full h-11 px-4 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold transition-colors"
-            />
-            <input
-              type="text"
-              value="Filled value"
-              readOnly
-              className="w-full h-11 px-4 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body"
-            />
-            <input
-              type="text"
-              disabled
-              placeholder="Disabled input"
-              className="w-full h-11 px-4 bg-workspace-hover border border-workspace-border rounded-nahkya text-body-md text-nahkya-text-muted font-body cursor-not-allowed"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Cards &amp; Panels</SectionHeading>
-        <SectionDesc>Surface containers for grouping content.</SectionDesc>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <TokenCard>
-            <p className="text-mono-sm text-nahkya-text-muted uppercase mb-2">Standard Card</p>
-            <p className="font-display text-heading-md text-nahkya-text mb-2">Title</p>
-            <p className="text-body-md text-nahkya-text-muted font-body">Description text on a dark surface.</p>
-          </TokenCard>
-
-          <TokenCard className="bg-workspace-bg border-workspace-border">
-            <p className="text-mono-sm text-nahkya-text-muted uppercase mb-2">Deep Card</p>
-            <p className="font-display text-heading-md text-nahkya-text mb-2">Title</p>
-            <p className="text-body-md text-nahkya-text-muted font-body">Description on the deepest dark surface.</p>
-          </TokenCard>
-
-          <TokenCard>
-            <div className="h-2 bg-nahkya-gold rounded-full mb-3" />
-            <p className="text-mono-sm text-nahkya-text-muted uppercase mb-2">Accent Card</p>
-            <p className="font-display text-heading-md text-nahkya-text mb-2">Highlighted</p>
-            <p className="text-body-md text-nahkya-text-muted font-body">Card with a gold accent strip.</p>
-          </TokenCard>
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Badges &amp; Labels</SectionHeading>
-        <SectionDesc>Small status and category indicators.</SectionDesc>
-        <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center px-3 py-1 bg-nahkya-gold/10 border border-nahkya-gold/30 rounded-nahkya text-mono-sm text-nahkya-gold uppercase">
-            Active
-          </span>
-          <span className="inline-flex items-center px-3 py-1 bg-workspace-hover border border-workspace-border rounded-nahkya text-mono-sm text-nahkya-text-muted uppercase">
-            Inactive
-          </span>
-          <span className="inline-flex items-center px-3 py-1 bg-nahkya-error/10 border border-nahkya-error/30 rounded-nahkya text-mono-sm text-nahkya-error uppercase">
-            Error
-          </span>
-          <span className="inline-flex items-center px-3 py-1 bg-nahkya-success/10 border border-nahkya-success/30 rounded-nahkya text-mono-sm text-nahkya-success uppercase">
-            Success
-          </span>
-          <span className="inline-flex items-center px-3 py-1 bg-workspace-panel border border-workspace-border rounded-nahkya text-mono-sm text-nahkya-text-muted uppercase">
-            Dark
-          </span>
-        </div>
-      </div>
-
-      <div>
-        <SectionHeading>Typography in Context</SectionHeading>
-        <SectionDesc>Real-world usage patterns combining font families and sizes.</SectionDesc>
-        <div className="space-y-6">
-          <div className="bg-workspace-panel border border-workspace-border rounded-nahkya p-6">
-            <span className="text-mono-md text-nahkya-gold uppercase block mb-3">Collection</span>
-            <h1 className="font-display text-display-md text-nahkya-text mb-4">The Silk Collection</h1>
-            <p className="text-body-lg text-nahkya-text-muted font-body max-w-prose">
-              Hand-woven silk scarves crafted in limited editions. Each piece tells a story of heritage and modern elegance.
-            </p>
-          </div>
-
-          <div className="bg-workspace-bg border border-workspace-border rounded-nahkya p-6">
-            <span className="text-mono-md text-nahkya-gold uppercase block mb-3">Dashboard</span>
-            <h1 className="font-display text-display-sm text-nahkya-text mb-4">Design System</h1>
-            <p className="text-body-md text-nahkya-text-muted font-body max-w-prose">
-              Monitor and edit the global design tokens that power every surface across the application.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-// ------------------------------------------------------------------
-// Inspector Panel
-// ------------------------------------------------------------------
-
-function Inspector({ selectedToken, selectedElement }: { selectedToken: string | null; selectedElement: SelectedElement | null }) {
-  const store = useAppearanceStore();
-  const editableKeys = ['gold', 'goldLight', 'goldMuted', 'charcoal', 'textSecondary', 'ivory'];
-  const [hexInput, setHexInput] = useState('');
-
-  const tokenKey = selectedToken?.replace('nahkya-', '');
-  const isEditable = tokenKey ? editableKeys.includes(tokenKey) : false;
-  const currentValue = tokenKey ? store.colors[tokenKey as keyof typeof store.colors] : undefined;
-
-  const handleSave = () => {
-    if (tokenKey && isEditable) {
-      store.updateColor(tokenKey, hexInput);
-    }
-  };
-
-  const getTokenValue = (name: string) => {
-    const style = getComputedStyle(document.documentElement);
-    return style.getPropertyValue(`--${name}`).trim();
-  };
-
-  const setTokenValue = (name: string, value: string) => {
-    store.setToken(name, value);
-  };
-
-  return (
-    <aside className="w-panel-inspector shrink-0 h-full bg-workspace-panel border-l border-workspace-border overflow-auto workspace-scroll">
-      {/* Header */}
-      <div className="p-6 border-b border-workspace-border">
-        <div className="text-mono-sm text-nahkya-text-muted uppercase">Context Panel</div>
-        <h2 className="font-display text-heading-lg mt-2 text-nahkya-text">Inspector</h2>
-        <p className="text-sm text-nahkya-text-muted mt-2 font-body">
-          {selectedElement ? 'Edit the tokens for the selected element.' : 'Edit brand colours and view selected token details.'}
-        </p>
-      </div>
-
-      {/* Selected Element from Visual Tab */}
-      {selectedElement && (
-        <div className="p-6 border-b border-workspace-border space-y-6">
-          <div className="text-mono-sm text-nahkya-text-muted uppercase">Selected Element</div>
-          <div className="bg-workspace-bg border border-workspace-border rounded-nahkya p-4">
-            <p className="text-body-md text-nahkya-text font-body">{selectedElement.label}</p>
-          </div>
-
-          {selectedElement.tokens.map((t) => {
-            const current = getTokenValue(t.name);
-            if (t.type === 'color') {
-              return (
-                <div key={t.name} className="space-y-2">
-                  <label className="text-mono-sm text-nahkya-text-muted uppercase block">{t.name}</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={current || '#000000'}
-                      onChange={(e) => setTokenValue(t.name, e.target.value)}
-                      className="w-10 h-10 rounded-nahkya border border-workspace-border cursor-pointer bg-transparent shrink-0"
-                    />
-                    <input
-                      type="text"
-                      value={current}
-                      onChange={(e) => setTokenValue(t.name, e.target.value)}
-                      className="flex-1 h-10 px-3 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold transition-colors uppercase"
-                    />
-                  </div>
-                </div>
-              );
-            }
-            if (t.type === 'text') {
-              const sizes = ['font-display-xxl', 'font-display-xl', 'font-display-lg', 'font-display-md', 'font-display-sm', 'font-heading-lg', 'font-heading-md', 'font-heading-sm', 'font-body-lg', 'font-body-md', 'font-body-sm', 'font-mono-lg', 'font-mono-md', 'font-mono-sm'];
-              return (
-                <div key={t.name} className="space-y-2">
-                  <label className="text-mono-sm text-nahkya-text-muted uppercase block">{t.name}</label>
-                  <select
-                    value={current}
-                    onChange={(e) => setTokenValue(t.name, e.target.value)}
-                    className="w-full h-10 px-3 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold"
-                  >
-                    {sizes.map((s) => (
-                      <option key={s} value={getTokenValue(s) || '1rem'}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-              );
-            }
-            if (t.type === 'font') {
-              const families = [
-                { name: 'font-display', value: '"Playfair Display", serif' },
-                { name: 'font-body', value: 'Lora, serif' },
-                { name: 'font-mono', value: '"IBM Plex Mono", monospace' },
-              ];
-              return (
-                <div key={t.name} className="space-y-2">
-                  <label className="text-mono-sm text-nahkya-text-muted uppercase block">{t.name}</label>
-                  <select
-                    value={current}
-                    onChange={(e) => setTokenValue(t.name, e.target.value)}
-                    className="w-full h-10 px-3 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold"
-                  >
-                    {families.map((f) => (
-                      <option key={f.name} value={f.value}>{f.name}</option>
-                    ))}
-                  </select>
-                </div>
-              );
-            }
-            return (
-              <div key={t.name} className="space-y-2">
-                <label className="text-mono-sm text-nahkya-text-muted uppercase block">{t.name}</label>
-                <input
-                  type="text"
-                  value={current}
-                  onChange={(e) => setTokenValue(t.name, e.target.value)}
-                  className="w-full h-10 px-3 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold transition-colors"
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Selected Token from Colour Tab */}
-      {selectedToken && isEditable && (
-        <div className="p-6 border-b border-workspace-border space-y-4">
-          <div className="text-mono-sm text-nahkya-text-muted uppercase">Selected Token</div>
-          <div className="bg-workspace-bg border border-workspace-border rounded-nahkya p-4">
-            <p className="text-body-md text-nahkya-text font-body mb-1">{selectedToken}</p>
-            <p className="text-mono-sm text-nahkya-gold uppercase">{currentValue}</p>
-          </div>
-          <div>
-            <label className="text-mono-sm text-nahkya-text-muted uppercase block mb-2">New Hex Value</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={hexInput || (currentValue as string) || '#000000'}
-                onChange={(e) => setHexInput(e.target.value)}
-                className="w-10 h-10 rounded-nahkya border border-workspace-border cursor-pointer bg-transparent"
-              />
-              <input
-                type="text"
-                value={hexInput || (currentValue as string) || ''}
-                onChange={(e) => setHexInput(e.target.value)}
-                className="flex-1 h-10 px-3 bg-workspace-bg border border-workspace-border rounded-nahkya text-body-md text-nahkya-text font-body focus:outline-none focus:border-nahkya-gold transition-colors uppercase"
-              />
-            </div>
-          </div>
-          <LuxuryButton variant="primary" className="w-full" onClick={handleSave}>
-            Save Change
-          </LuxuryButton>
-        </div>
-      )}
-
-      {selectedToken && !isEditable && (
-        <div className="p-6 border-b border-workspace-border">
-          <div className="text-mono-sm text-nahkya-text-muted uppercase mb-2">Selected Token</div>
-          <p className="text-body-md text-nahkya-text font-body">{selectedToken}</p>
-          <p className="text-sm text-nahkya-text-muted font-body mt-2">This token is not editable via the store.</p>
-        </div>
-      )}
-
-      {/* Brand Colours */}
-      <div className="p-6 space-y-4">
-        <div className="text-mono-sm text-nahkya-text-muted uppercase">Brand Colours</div>
-        {Object.entries(store.colors).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between">
-            <span className="text-sm text-nahkya-text font-body">
-              {key.charAt(0).toUpperCase() + key.slice(1)}
-            </span>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={value}
-                onChange={(e) => store.updateColor(key, e.target.value)}
-                className="w-8 h-8 rounded-nahkya border border-workspace-border cursor-pointer"
-              />
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => store.updateColor(key, e.target.value)}
-                className="w-20 bg-workspace-bg border border-workspace-border text-nahkya-text font-mono text-mono-sm px-2 py-1 rounded-nahkya focus:outline-none focus:border-nahkya-gold"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </aside>
-  );
-}
-
-// ------------------------------------------------------------------
-// Main Page
-// ------------------------------------------------------------------
+// ── Page ──
 
 export default function AdminGlobal() {
-  const store = useAppearanceStore();
-  const [activeTab, setActiveTab] = useState('typography');
-  const [selectedToken, setSelectedToken] = useState<string | null>(null);
-  const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleReset = () => {
-    store.reset();
-    setSelectedToken(null);
-  };
-
-  const handleSelectToken = (token: string) => {
-    setSelectedToken(token);
-    setSelectedElement(null);
-    const key = token.replace('nahkya-', '');
-    const value = store.colors[key as keyof typeof store.colors];
-    if (value) {
-      // hexInput is managed inside Inspector, so we just trigger re-selection
-    }
-  };
-
-  const handleSelectElement = (el: SelectedElement | null) => {
-    setSelectedElement(el);
-    setSelectedToken(null);
-  };
-
   return (
-    <div className="min-h-screen bg-workspace-bg text-nahkya-text flex flex-col">
+    <div className="flex flex-col h-full bg-nahkya-bg">
       <AdminTopBar
         icon={<Globe size={17} strokeWidth={1.5} />}
-        label="Global Site"
-
-        actions={
-          <>
-            <LuxuryButton variant="ghost" size="sm" onClick={handleReset}>
-              <RotateCcw size={15} strokeWidth={1.5} className="mr-1.5" /> Reset
-            </LuxuryButton>
-            <LuxuryButton variant="primary" size="sm" onClick={handleSave}>
-              <Save size={15} strokeWidth={1.5} className="mr-1.5" /> {saved ? 'Saved!' : 'Save'}
-            </LuxuryButton>
-          </>
-        }
+        label="Global Design Tokens"
+        hint="Visual reference for all reusable tokens & components"
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 overflow-auto p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-workspace-panel border border-workspace-border rounded-nahkya p-1 mb-8 h-auto flex-wrap gap-1">
-              <TabsTrigger
-                value="typography"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Type size={14} strokeWidth={1.5} />
-                Typography
-              </TabsTrigger>
-              <TabsTrigger
-                value="colours"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Palette size={14} strokeWidth={1.5} />
-                Colours
-              </TabsTrigger>
-              <TabsTrigger
-                value="spacing"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Ruler size={14} strokeWidth={1.5} />
-                Spacing
-              </TabsTrigger>
-              <TabsTrigger
-                value="surfaces"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Layers size={14} strokeWidth={1.5} />
-                Surfaces
-              </TabsTrigger>
-              <TabsTrigger
-                value="components"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Box size={14} strokeWidth={1.5} />
-                Components
-              </TabsTrigger>
-              <TabsTrigger
-                value="visual"
-                className="font-body text-sm data-[state=active]:bg-nahkya-burgundy data-[state=active]:text-nahkya-text-inverse text-nahkya-text-muted rounded-nahkya px-4 py-2 flex items-center gap-2"
-              >
-                <Eye size={14} strokeWidth={1.5} />
-                Visual
-              </TabsTrigger>
-            </TabsList>
+      <ScrollArea className="flex-1">
+        <div className="max-w-5xl mx-auto p-8 space-y-12">
 
-            <TabsContent value="typography">
-              <TypographyTab />
-            </TabsContent>
+          {/* ── Colours ── */}
+          <TokenSection title="Colours" id="colours">
+            {COLOR_TOKENS.map((group) => (
+              <div key={group.category} className="space-y-3">
+                <h3 className="font-mono text-mono-sm text-nahkya-text-muted uppercase tracking-wider">
+                  {group.category}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {group.tokens.map((t) => (
+                    <div
+                      key={t.name}
+                      className={cn(
+                        'rounded-nahkya border border-nahkya-border overflow-hidden',
+                        'group hover:ring-1 hover:ring-nahkya-gold/40 transition-all'
+                      )}
+                    >
+                      <div className={cn('h-14 w-full', t.class)} />
+                      <div className="p-2 bg-nahkya-surface space-y-1">
+                        <CopyToken token={t.name} />
+                        <p className={cn('font-body text-body-2xs truncate', t.textClass === 'text-nahkya-text-inverse' ? 'text-nahkya-text-muted' : '')}>
+                          {t.name}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </TokenSection>
 
-            <TabsContent value="colours">
-              <ColoursTab selectedToken={selectedToken} onSelectToken={handleSelectToken} />
-            </TabsContent>
+          {/* ── Typography ── */}
+          <TokenSection title="Typography" id="typography">
+            {TYPOGRAPHY_TOKENS.map((group) => (
+              <div key={group.category} className="space-y-3">
+                <h3 className="font-mono text-mono-sm text-nahkya-text-muted uppercase tracking-wider">
+                  {group.category}
+                </h3>
+                <div className="space-y-3">
+                  {group.tokens.map((t) => (
+                    <div
+                      key={t.name}
+                      className="flex items-baseline justify-between p-4 bg-nahkya-surface rounded-nahkya border border-nahkya-border"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className={cn(t.name, 'truncate')}>{t.sample}</p>
+                      </div>
+                      <div className="shrink-0 ml-4">
+                        <CopyToken token={t.name} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="p-4 bg-nahkya-surface rounded-nahkya border border-nahkya-border space-y-2">
+              <h4 className="font-mono text-mono-xs text-nahkya-text-muted uppercase">Font Families</h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-display-sm">font-display — Playfair Display</span>
+                  <CopyToken token="font-display" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-body text-body-lg">font-body — Inter</span>
+                  <CopyToken token="font-body" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-mono-lg">font-mono — IBM Plex Mono</span>
+                  <CopyToken token="font-mono" />
+                </div>
+              </div>
+            </div>
+          </TokenSection>
 
-            <TabsContent value="spacing">
-              <SpacingTab />
-            </TabsContent>
+          {/* ── Spacing ── */}
+          <TokenSection title="Spacing" id="spacing">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SPACING_TOKENS.map((t) => (
+                <div
+                  key={t.name}
+                  className="flex items-center gap-4 p-4 bg-nahkya-surface rounded-nahkya border border-nahkya-border"
+                >
+                  <div className="w-24 shrink-0">
+                    <CopyToken token={t.name} />
+                  </div>
+                  <div className="flex-1 flex items-center gap-3">
+                    <div
+                      className="h-4 bg-nahkya-gold rounded-nahkya"
+                      style={{ width: t.value }}
+                    />
+                    <span className="font-mono text-mono-xs text-nahkya-text-muted">{t.value}</span>
+                  </div>
+                  <span className="font-body text-body-2xs text-nahkya-text-muted shrink-0">{t.desc}</span>
+                </div>
+              ))}
+            </div>
+          </TokenSection>
 
-            <TabsContent value="surfaces">
-              <SurfacesTab />
-            </TabsContent>
+          {/* ── Shadows ── */}
+          <TokenSection title="Shadows" id="shadows">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {SHADOW_TOKENS.map((t) => (
+                <div
+                  key={t.name}
+                  className={cn(
+                    'p-6 bg-nahkya-surface rounded-nahkya border border-nahkya-border',
+                    'flex flex-col items-center justify-center gap-3',
+                    t.name
+                  )}
+                >
+                  <div className={cn('w-12 h-12 bg-nahkya-gold rounded-nahkya', t.name)} />
+                  <CopyToken token={t.name} />
+                </div>
+              ))}
+            </div>
+          </TokenSection>
 
-            <TabsContent value="components">
-              <ComponentsTab />
-            </TabsContent>
+          {/* ── Border Radius ── */}
+          <TokenSection title="Border Radius" id="radius">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {RADIUS_TOKENS.map((t) => (
+                <div
+                  key={t.name}
+                  className="flex flex-col items-center gap-3 p-4 bg-nahkya-surface rounded-nahkya border border-nahkya-border"
+                >
+                  <div className={cn('w-14 h-14 bg-nahkya-gold', t.name)} />
+                  <CopyToken token={t.name} />
+                  <span className="font-mono text-mono-xs text-nahkya-text-muted">{t.value}</span>
+                </div>
+              ))}
+            </div>
+          </TokenSection>
 
-            <TabsContent value="visual">
-              <VisualCustomizerTab selectedElement={selectedElement} onSelectElement={handleSelectElement} />
-            </TabsContent>
-          </Tabs>
-        </main>
+          {/* ── Z-Index ── */}
+          <TokenSection title="Z-Index" id="zindex">
+            <div className="space-y-2">
+              {ZINDEX_TOKENS.map((t) => (
+                <div
+                  key={t.name}
+                  className="flex items-center justify-between p-3 bg-nahkya-surface rounded-nahkya border border-nahkya-border"
+                >
+                  <CopyToken token={t.name} />
+                  <span className="font-mono text-mono-lg text-nahkya-gold">{t.value}</span>
+                </div>
+              ))}
+            </div>
+          </TokenSection>
 
-        <Inspector selectedToken={selectedToken} selectedElement={selectedElement} />
-      </div>
+          {/* ── Component Classes ── */}
+          <TokenSection title="Component Classes (.nk-*)" id="components">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {COMPONENT_CLASSES.map((t) => (
+                <div
+                  key={t.name}
+                  className="flex flex-col gap-3 p-4 bg-nahkya-surface rounded-nahkya border border-nahkya-border"
+                >
+                  <div className="flex items-center justify-between">
+                    <CopyToken token={t.name} />
+                    <span className="font-body text-body-2xs text-nahkya-text-muted">{t.desc}</span>
+                  </div>
+                  <div className="flex items-center justify-center p-4 bg-nahkya-bg rounded-nahkya">
+                    {t.example}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TokenSection>
+
+        </div>
+      </ScrollArea>
     </div>
+  );
+}
+
+// ── Section Wrapper ──
+
+function TokenSection({ title, id, children }: { title: string; id: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="space-y-4">
+      <h2 className="font-display text-heading-sm font-medium text-nahkya-text border-b border-nahkya-border pb-2">
+        {title}
+      </h2>
+      <div className="space-y-6">
+        {children}
+      </div>
+    </section>
   );
 }

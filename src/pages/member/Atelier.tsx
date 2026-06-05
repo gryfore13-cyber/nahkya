@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Layers } from 'lucide-react';
@@ -18,8 +18,9 @@ export default function Atelier() {
   const { selectedColour, addToRecent } = useColourStore();
 
   // Set initial active layer
-  useMemo(() => {
+  useEffect(() => {
     if (artwork && artwork.layers.length > 0 && !activeLayerId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveLayerId(artwork.layers[0].id);
     }
   }, [artwork, activeLayerId]);
@@ -61,7 +62,7 @@ export default function Atelier() {
       <div>
         <StudioSectionLabel>Layers</StudioSectionLabel>
         <div className="space-y-1">
-          {artwork.layers.map((layer) => {
+          {artwork.layers.map((layer: ArtworkLayer) => {
             const isActive = activeLayerId === layer.id;
             const currentColour = getLayerColour(layer);
             return (
@@ -104,14 +105,14 @@ export default function Atelier() {
   const canvas = (
     <>
       <svg viewBox="0 0 500 500" className="w-full h-full max-w-canvas max-h-canvas drop-shadow-canvas">
-        {artwork.layers.map((layer) => {
+        {artwork.layers.map((layer: ArtworkLayer) => {
           const colour = getLayerColour(layer);
           const layerOp = layer.id === activeLayerId ? (opacity / 100).toFixed(2) : '1';
           const isActive = activeLayerId === layer.id;
           return (
             <g key={layer.id} opacity={layerOp} className={isActive ? 'cursor-pointer transition-opacity duration-150' : 'pointer-events-none transition-opacity duration-150'}
               onClick={() => handleLayerClick(layer.id)}>
-              {layer.paths.map((d, i) => (
+              {layer.paths.map((d: string, i: number) => (
                 <path key={`${layer.id}-${i}`} d={d} fill={colour}
                   stroke={isActive ? 'var(--nahkya-gold)' : 'none'} strokeWidth={isActive ? '0.5' : '0'} strokeOpacity={isActive ? '0.25' : '0'}
                   className="transition-colors duration-200" />
@@ -124,7 +125,7 @@ export default function Atelier() {
       </svg>
       <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-workspace-panel/80 backdrop-blur-sm border border-workspace-border rounded-nahkya px-3 py-1.5">
         <Layers className="w-3.5 h-3.5 text-nahkya-gold" strokeWidth={1.5} />
-        <span className="font-mono text-mono-sm text-nahkya-text-muted">{artwork.layers.find((l) => l.id === activeLayerId)?.name || 'Select a layer'}</span>
+        <span className="font-mono text-mono-sm text-nahkya-text-muted">{artwork.layers.find((l: ArtworkLayer) => l.id === activeLayerId)?.name || 'Select a layer'}</span>
       </div>
     </>
   );

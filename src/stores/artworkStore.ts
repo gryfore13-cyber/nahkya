@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import type { ArtworkDoc, ArtworkStatus } from '@/types';
 import {
   getCollection,
+  getCollectionQuery,
   addDocToCollection,
   updateDocInCollection,
   deleteDocFromCollection,
   subscribeCollection,
+  where,
 } from '@/lib/firebase/db';
 
 const COLLECTION = 'artworks';
@@ -15,6 +17,8 @@ interface ArtworkState {
   isLoading: boolean;
   error: string | null;
   fetchArtworks: () => Promise<void>;
+  fetchArtworksByDesigner: (designerId: string) => Promise<void>;
+  fetchArtworksByStatus: (status: ArtworkStatus) => Promise<void>;
   addArtwork: (artwork: Omit<ArtworkDoc, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
   updateArtwork: (id: string, data: Partial<ArtworkDoc>) => Promise<void>;
   deleteArtwork: (id: string) => Promise<void>;
@@ -58,20 +62,56 @@ export const useArtworkStore = create<ArtworkState>((set, get) => ({
     }
   },
 
+  fetchArtworksByDesigner: async (designerId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const docs = await getCollectionQuery<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        where('designerId', '==', designerId)
+      );
+      set({ artworks: docs.map(docToArtwork), isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch artworks', isLoading: false });
+    }
+  },
+
+  fetchArtworksByStatus: async (status: ArtworkStatus) => {
+    set({ isLoading: true, error: null });
+    try {
+      const docs = await getCollectionQuery<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        where('status', '==', status)
+      );
+      set({ artworks: docs.map(docToArtwork), isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch artworks', isLoading: false });
+    }
+  },
+
   addArtwork: async (artwork) => {
     const id = await addDocToCollection(COLLECTION, artwork as Record<string, unknown>);
-    await get().fetchArtworks();
+    await get().fetchArtworksByDesigner(artwork.designerId);
     return id;
   },
 
   updateArtwork: async (id, data) => {
     await updateDocInCollection(COLLECTION, id, data as Record<string, unknown>);
-    await get().fetchArtworks();
+    const designerId = get().artworks.find((a) => a.id === id)?.designerId;
+    if (designerId) {
+      await get().fetchArtworksByDesigner(designerId);
+    } else {
+      await get().fetchArtworks();
+    }
   },
 
   deleteArtwork: async (id) => {
     await deleteDocFromCollection(COLLECTION, id);
-    await get().fetchArtworks();
+    const designerId = get().artworks.find((a) => a.id === id)?.designerId;
+    if (designerId) {
+      await get().fetchArtworksByDesigner(designerId);
+    } else {
+      await get().fetchArtworks();
+    }
   },
 
   approveArtwork: async (id) => {
@@ -80,7 +120,12 @@ export const useArtworkStore = create<ArtworkState>((set, get) => ({
       available: true,
       reviewNotes: '',
     });
-    await get().fetchArtworks();
+    const designerId = get().artworks.find((a) => a.id === id)?.designerId;
+    if (designerId) {
+      await get().fetchArtworksByDesigner(designerId);
+    } else {
+      await get().fetchArtworks();
+    }
   },
 
   rejectArtwork: async (id, notes) => {
@@ -89,7 +134,12 @@ export const useArtworkStore = create<ArtworkState>((set, get) => ({
       available: false,
       reviewNotes: notes,
     });
-    await get().fetchArtworks();
+    const designerId = get().artworks.find((a) => a.id === id)?.designerId;
+    if (designerId) {
+      await get().fetchArtworksByDesigner(designerId);
+    } else {
+      await get().fetchArtworks();
+    }
   },
 
   subscribe: () => {

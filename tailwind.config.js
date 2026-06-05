@@ -129,7 +129,7 @@ module.exports = {
         'auth': '420px',
         'auth-lg': '440px',
         'canvas': '500px',
-        'stage-source': '400px',
+        'stage-source': '640px',
         'stage-preview': '520px',
         'prose': '560px',
         'content': '600px',

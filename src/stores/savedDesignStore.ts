@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import type { SavedDesign } from '@/types';
 import {
   getCollection,
+  getCollectionQuery,
   addDocToCollection,
   updateDocInCollection,
   deleteDocFromCollection,
   subscribeCollection,
+  where,
 } from '@/lib/firebase/db';
 
 const COLLECTION = 'savedDesigns';
@@ -15,6 +17,7 @@ interface SavedDesignState {
   isLoading: boolean;
   error: string | null;
   fetchDesigns: () => Promise<void>;
+  fetchDesignsByUser: (userId: string) => Promise<void>;
   addDesign: (design: Omit<SavedDesign, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
   updateDesign: (id: string, data: Partial<SavedDesign>) => Promise<void>;
   deleteDesign: (id: string) => Promise<void>;
@@ -50,20 +53,47 @@ export const useSavedDesignStore = create<SavedDesignState>((set, get) => ({
     }
   },
 
+  fetchDesignsByUser: async (userId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const docs = await getCollectionQuery<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        where('userId', '==', userId)
+      );
+      set({ designs: docs.map(docToDesign), isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch designs', isLoading: false });
+    }
+  },
+
   addDesign: async (design) => {
     const id = await addDocToCollection(COLLECTION, design as Record<string, unknown>);
-    await get().fetchDesigns();
+    if (design.userId) {
+      await get().fetchDesignsByUser(design.userId);
+    } else {
+      await get().fetchDesigns();
+    }
     return id;
   },
 
   updateDesign: async (id, data) => {
     await updateDocInCollection(COLLECTION, id, data as Record<string, unknown>);
-    await get().fetchDesigns();
+    const userId = get().designs.find((d) => d.id === id)?.userId;
+    if (userId) {
+      await get().fetchDesignsByUser(userId);
+    } else {
+      await get().fetchDesigns();
+    }
   },
 
   deleteDesign: async (id) => {
     await deleteDocFromCollection(COLLECTION, id);
-    await get().fetchDesigns();
+    const userId = get().designs.find((d) => d.id === id)?.userId;
+    if (userId) {
+      await get().fetchDesignsByUser(userId);
+    } else {
+      await get().fetchDesigns();
+    }
   },
 
   subscribe: () => {

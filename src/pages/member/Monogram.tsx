@@ -12,6 +12,7 @@ import { useMonogramState } from '@/hooks/useMonogramState';
 import { generateMonogramThumbnail } from '@/lib/monogramExport';
 import MonogramControls from '@/components/monogram/MonogramControls';
 import MonogramCanvas from '@/components/monogram/MonogramCanvas';
+import { StudioViewPill } from '@/components/studio/StudioViewPill';
 
 export default function Monogram() {
   const state = useMonogramState();
@@ -119,10 +120,13 @@ export default function Monogram() {
         />
       }
       canvas={<MonogramCanvas state={state} />}
+      topBarMiddle={
+        <StudioViewPill value={state.viewMode} onChange={state.setViewMode} />
+      }
       onSave={handleSave}
       onSubmit={handleSubmit}
       zoom={state.effectiveZoom / 100}
-      onZoomIn={() => state.setZoom((z) => Math.min(state.viewMode === 'both' ? 100 : 200, z + 10))}
+      onZoomIn={() => state.setZoom((z) => Math.min(200, z + 10))}
       onZoomOut={() => state.setZoom((z) => Math.max(50, z - 10))}
       onZoomReset={() => state.setZoom(100)}
     />

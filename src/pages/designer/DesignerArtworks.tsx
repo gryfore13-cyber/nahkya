@@ -3,7 +3,7 @@ import { ImageIcon, Pencil, Plus, X, Loader2 } from 'lucide-react';
 import { useArtworkStore } from '@/stores/artworkStore';
 import { useDesignerStore } from '@/stores/designerStore';
 import { useAuthStore } from '@/stores/authStore';
-import { uploadFile } from '@/lib/firebase/storage';
+import { uploadFile, uploadImage } from '@/lib/firebase/storage';
 import { createThumbnail } from '@/lib/image';
 
 const CATEGORIES = ['Floral', 'Geometric', 'Abstract', 'Heritage', 'Minimal'];
@@ -11,7 +11,7 @@ const CATEGORIES = ['Floral', 'Geometric', 'Abstract', 'Heritage', 'Minimal'];
 export default function DesignerArtworks() {
   const { user } = useAuthStore();
   const { designers, fetchDesigners } = useDesignerStore();
-  const { artworks, fetchArtworks, addArtwork } = useArtworkStore();
+  const { artworks, fetchArtworksByDesigner, addArtwork } = useArtworkStore();
   const [uploadModal, setUploadModal] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -27,12 +27,17 @@ export default function DesignerArtworks() {
 
   const designer = designers.find((d) => d.email === user?.email);
   const designerId = designer?.id || user?.uid || '';
-  const myArtworks = artworks.filter((a) => a.designerId === designerId);
+  const myArtworks = artworks;
 
   useEffect(() => {
-    fetchArtworks();
     fetchDesigners();
-  }, [fetchArtworks, fetchDesigners]);
+  }, [fetchDesigners]);
+
+  useEffect(() => {
+    if (designerId) {
+      fetchArtworksByDesigner(designerId);
+    }
+  }, [designerId, fetchArtworksByDesigner]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,7 +48,7 @@ export default function DesignerArtworks() {
       const designerId = designer?.id || user?.uid || 'unknown';
       const timestamp = Date.now();
       const origPath = `uploads/artworks/${designerId}/${timestamp}_${file.name}`;
-      const imageUrl = await uploadFile(file, origPath);
+      const imageUrl = await uploadImage(file, origPath);
 
       let thumbnailUrl = imageUrl;
       if (!file.name.toLowerCase().endsWith('.svg')) {

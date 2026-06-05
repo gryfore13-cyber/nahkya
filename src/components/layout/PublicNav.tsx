@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
@@ -17,7 +17,8 @@ export function PublicNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => setMobileOpen(false), [location.pathname]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useLayoutEffect(() => setMobileOpen(false), [location.pathname]);
 
   const isHome = location.pathname === '/';
 

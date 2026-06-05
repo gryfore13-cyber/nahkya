@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAppearanceStore } from '@/stores/appearanceStore';
 import { subscribeToTheme } from '@/lib/themeService';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import './index.css';
 import '@/styles/nahkya-v10.css';
 import App from './App';
@@ -23,6 +24,8 @@ subscribeToTheme((tokens) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );

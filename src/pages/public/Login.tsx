@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
@@ -14,7 +14,19 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((s) => s.login);
   const googleLogin = useAuthStore((s) => s.googleLogin);
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      if (user.approvalStatus === 'pending') navigate('/pending-approval');
+      else if (user.approvalStatus === 'rejected') navigate('/rejected');
+      else if (user.role === 'super_admin') navigate('/admin');
+      else if (user.role === 'designer') navigate('/designer/dashboard');
+      else navigate('/member/home');
+    }
+  }, [isLoading, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +42,9 @@ export default function Login() {
       if (role === 'super_admin') navigate('/admin');
       else if (role === 'designer') navigate('/designer/dashboard');
       else navigate('/member/home');
-    } catch {
-      setError('Invalid credentials. Please try again.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Invalid credentials. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -108,8 +121,9 @@ export default function Login() {
                 if (role === 'super_admin') navigate('/admin');
                 else if (role === 'designer') navigate('/designer/dashboard');
                 else navigate('/member/home');
-              } catch {
-                setError('Google sign-in failed. Please try again.');
+              } catch (err) {
+                const message = err instanceof Error ? err.message : 'Google sign-in failed. Please try again.';
+                setError(message);
               } finally {
                 setLoading(false);
               }

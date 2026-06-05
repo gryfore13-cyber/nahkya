@@ -4,9 +4,10 @@ interface StudioTopBarProps {
   toolName: string;
   onSave?: () => void;
   onSubmit?: () => void;
+  middle?: React.ReactNode;
 }
 
-export function StudioTopBar({ toolName, onSave, onSubmit }: StudioTopBarProps) {
+export function StudioTopBar({ toolName, onSave, onSubmit, middle }: StudioTopBarProps) {
   return (
     <div className="h-14 bg-nahkya-surface border-b border-nahkya-border flex items-center justify-between px-6 flex-shrink-0">
       <div>
@@ -17,6 +18,7 @@ export function StudioTopBar({ toolName, onSave, onSubmit }: StudioTopBarProps) 
           {toolName}
         </div>
       </div>
+      {middle && <div className="absolute left-1/2 -translate-x-1/2">{middle}</div>}
       <div className="flex items-center gap-3">
         <LuxuryButton variant="ghost" size="sm" onClick={onSave}>
           Save

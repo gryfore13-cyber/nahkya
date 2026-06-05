@@ -92,7 +92,7 @@ export function createDefaultLetter(index = 0): MonogramLetter {
     id: generateLetterId(),
     char: chars[index] ?? '?',
     fontId: 'classic-serif',
-    fontSize: 120,
+    fontSize: 250,
     rotation: 0,
     x: 50,
     y: 50,

@@ -49,6 +49,8 @@ export interface MonogramState {
   setBorderThicknessCm2: (n: number) => void;
   borderGapCm: number;
   setBorderGapCm: (n: number) => void;
+  borderStyle: string;
+  setBorderStyle: (s: string) => void;
 
   // Colors
   baseColor: string;
@@ -70,8 +72,8 @@ export interface MonogramState {
   zoom: number;
   setZoom: React.Dispatch<React.SetStateAction<number>>;
   effectiveZoom: number;
-  viewMode: 'both' | 'workspace' | 'preview';
-  setViewMode: (m: 'both' | 'workspace' | 'preview') => void;
+  viewMode: 'workspace' | 'preview';
+  setViewMode: (m: 'workspace' | 'preview') => void;
 
   // Drag
   dragState: MonogramDragState | null;
@@ -137,6 +139,7 @@ export function useMonogramState(): MonogramState {
   const [showBorder2, setShowBorder2] = useState(false);
   const [borderThicknessCm2, setBorderThicknessCm2] = useState(1);
   const [borderGapCm, setBorderGapCm] = useState(1);
+  const [borderStyle, setBorderStyle] = useState('simple');
 
   const [baseColor, setBaseColor] = useState('#F5F0E8');
   const [borderColor, setBorderColor] = useState('#D4AF37');
@@ -147,7 +150,7 @@ export function useMonogramState(): MonogramState {
   const [moveAsGroup, setMoveAsGroup] = useState(false);
 
   const [zoom, setZoom] = useState(100);
-  const [viewMode, setViewMode] = useState<'both' | 'workspace' | 'preview'>('both');
+  const [viewMode, setViewMode] = useState<'workspace' | 'preview'>('workspace');
 
   const [dragState, setDragState] = useState<MonogramDragState | null>(null);
   const [activeSnapGuides, setActiveSnapGuides] = useState<MonogramSnapGuides>({ x: null, y: null });
@@ -162,13 +165,10 @@ export function useMonogramState(): MonogramState {
     [letters, selectedLetterId]
   );
 
-  const effectiveZoom = useMemo(() => {
-    if (viewMode === 'both') return Math.min(zoom, 100);
-    return zoom;
-  }, [zoom, viewMode]);
+  const effectiveZoom = useMemo(() => zoom, [zoom]);
 
   // Source tile geometry
-  const sourceTileSize = SOURCE_VIEWPORT_SIZE * 0.65;
+  const sourceTileSize = SOURCE_VIEWPORT_SIZE * 0.65 * (effectiveZoom / 100);
   const sourceTileOrigin = (SOURCE_VIEWPORT_SIZE - sourceTileSize) / 2;
   const sourceScale = sourceTileSize / TILE_SIZE;
   const repeatStep = sourceTileSize;
@@ -320,9 +320,8 @@ export function useMonogramState(): MonogramState {
       const letter = letters.find((l) => l.id === dragState.letterId);
       if (!letter) return;
 
-      const scale = effectiveZoom / 100;
-      const dx = (event.clientX - dragState.startX) / scale;
-      const dy = (event.clientY - dragState.startY) / scale;
+      const dx = event.clientX - dragState.startX;
+      const dy = event.clientY - dragState.startY;
 
       if (dragState.mode === 'move') {
         const newX = dragState.origX + (dx / sourceTileSize) * 100;
@@ -367,7 +366,7 @@ export function useMonogramState(): MonogramState {
         }
       } else if (dragState.mode === 'resize') {
         const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-        const newSize = clamp(Math.round((dragState.origFontSize + delta * 0.5) / 10) * 10, 20, 250);
+        const newSize = clamp(Math.round((dragState.origFontSize + delta * 0.5) / 10) * 10, 20, 600);
         setLetters((prev) =>
           prev.map((l) => {
             if (l.id === letter.id) return { ...l, fontSize: newSize };
@@ -382,7 +381,7 @@ export function useMonogramState(): MonogramState {
         );
       }
     },
-    [dragState, letters, sourceTileSize, snapEnabled, moveAsGroup, linkTextSize, effectiveZoom]
+    [dragState, letters, sourceTileSize, snapEnabled, moveAsGroup, linkTextSize]
   );
 
   const stopDragging = useCallback(() => {
@@ -417,6 +416,7 @@ export function useMonogramState(): MonogramState {
         showBorder2,
         borderThicknessCm2,
         borderGapCm,
+        borderStyle,
         snapEnabled,
         showSourceGuides,
         moveAsGroup,
@@ -427,7 +427,7 @@ export function useMonogramState(): MonogramState {
     };
   }, [
     letters, baseColor, borderColor, borderColor2, previewTiles, tileSpacingCm,
-    showBorder, borderThicknessCm, showBorder2, borderThicknessCm2, borderGapCm,
+    showBorder, borderThicknessCm, showBorder2, borderThicknessCm2, borderGapCm, borderStyle,
     snapEnabled, showSourceGuides, moveAsGroup, zoom, viewMode, selectedLetterId,
   ]);
 
@@ -444,6 +444,7 @@ export function useMonogramState(): MonogramState {
     setShowBorder2(snapshot.config.showBorder2);
     setBorderThicknessCm2(snapshot.config.borderThicknessCm2);
     setBorderGapCm(snapshot.config.borderGapCm);
+    setBorderStyle(snapshot.config.borderStyle ?? 'simple');
     setSnapEnabled(snapshot.config.snapEnabled);
     setShowSourceGuides(snapshot.config.showSourceGuides);
     setMoveAsGroup(snapshot.config.moveAsGroup);
@@ -464,14 +465,15 @@ export function useMonogramState(): MonogramState {
     setShowBorder2(false);
     setBorderThicknessCm2(1);
     setBorderGapCm(1);
+    setBorderStyle('simple');
     setBaseColor('#F5F0E8');
     setBorderColor('#D4AF37');
     setBorderColor2('#8A8278');
     setSnapEnabled(true);
     setShowSourceGuides(true);
     setMoveAsGroup(false);
-    setZoom(100);
-    setViewMode('both');
+    setZoom(50);
+    setViewMode('workspace');
     setDragState(null);
     setActiveSnapGuides({ x: null, y: null });
   }, []);
@@ -503,6 +505,8 @@ export function useMonogramState(): MonogramState {
     setBorderThicknessCm2,
     borderGapCm,
     setBorderGapCm,
+    borderStyle,
+    setBorderStyle,
     baseColor,
     setBaseColor,
     borderColor,

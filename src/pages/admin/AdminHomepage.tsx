@@ -1,5 +1,5 @@
-import { PageAtelier } from '@/components/admin/PageAtelier';
+import { AdminHomepageBuilder } from '@/components/admin/AdminHomepageBuilder';
 
-export default function AdminHomepage() {
-  return <PageAtelier />;
+export default function AdminHomePage() {
+  return <AdminHomepageBuilder />;
 }

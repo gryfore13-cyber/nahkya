@@ -5,6 +5,76 @@ import type { MonogramSnapshot, MonogramLetter } from '@/types';
 const CANVAS_SIZE = 1024;
 const ARTWORK_CM = 110;
 
+function drawTileFrame(
+  ctx: CanvasRenderingContext2D,
+  style: string,
+  left: number,
+  top: number,
+  size: number,
+  color: string,
+  color2?: string
+) {
+  const inset = size * 0.04;
+
+  switch (style) {
+    case 'simple': {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, size * 0.02);
+      ctx.strokeRect(left + inset, top + inset, size - inset * 2, size - inset * 2);
+      break;
+    }
+    case 'double': {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, size * 0.025);
+      ctx.strokeRect(left + inset, top + inset, size - inset * 2, size - inset * 2);
+      ctx.strokeStyle = color2 || color;
+      ctx.lineWidth = Math.max(1, size * 0.015);
+      const innerInset = inset + size * 0.05;
+      ctx.strokeRect(left + innerInset, top + innerInset, size - innerInset * 2, size - innerInset * 2);
+      break;
+    }
+    case 'corner-dots': {
+      ctx.fillStyle = color;
+      const dotR = Math.max(1, size * 0.02);
+      [
+        [left + inset, top + inset],
+        [left + size - inset, top + inset],
+        [left + inset, top + size - inset],
+        [left + size - inset, top + size - inset],
+      ].forEach(([cx, cy]) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, size * 0.012);
+      const seg = size * 0.06;
+      ctx.beginPath(); ctx.moveTo(left + inset + seg, top + inset); ctx.lineTo(left + size - inset - seg, top + inset); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + inset + seg, top + size - inset); ctx.lineTo(left + size - inset - seg, top + size - inset); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + inset, top + inset + seg); ctx.lineTo(left + inset, top + size - inset - seg); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + size - inset, top + inset + seg); ctx.lineTo(left + size - inset, top + size - inset - seg); ctx.stroke();
+      break;
+    }
+    case 'miter': {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, size * 0.025);
+      ctx.lineCap = 'square';
+      const m = size * 0.1;
+      ctx.beginPath(); ctx.moveTo(left + inset, top + inset + m); ctx.lineTo(left + inset, top + inset); ctx.lineTo(left + inset + m, top + inset); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + size - inset - m, top + inset); ctx.lineTo(left + size - inset, top + inset); ctx.lineTo(left + size - inset, top + inset + m); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + size - inset, top + size - inset - m); ctx.lineTo(left + size - inset, top + size - inset); ctx.lineTo(left + size - inset - m, top + size - inset); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(left + inset + m, top + size - inset); ctx.lineTo(left + inset, top + size - inset); ctx.lineTo(left + inset, top + size - inset - m); ctx.stroke();
+      break;
+    }
+    default: {
+      // Fallback to simple rectangle for unsupported styles
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, size * 0.02);
+      ctx.strokeRect(left + inset, top + inset, size - inset * 2, size - inset * 2);
+    }
+  }
+}
+
 function getCanvasFont(letter: MonogramLetter, scale: number): string {
   const weight = letter.fontId === 'modern-sans' ? '500' : letter.fontId === 'fashion-serif' ? '400' : '900';
   const style = letter.fontId === 'fashion-serif' ? 'italic' : 'normal';
@@ -51,6 +121,10 @@ export function renderMonogramToCanvas(
       const oy = j - originTile;
       const tileLeft = centerOffset + ox * (tileSize + gapPx);
       const tileTop = centerOffset + oy * (tileSize + gapPx);
+
+      if (config.borderStyle && config.borderStyle !== 'none') {
+        drawTileFrame(ctx, config.borderStyle, tileLeft, tileTop, tileSize, config.borderColor, config.border2Color);
+      }
 
       for (const letter of letters) {
         const char = letter.char || '?';

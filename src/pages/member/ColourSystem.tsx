@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useColourStore } from '@/stores/colourStore';
 import { Plus, X, Pencil, Trash2, Lock } from 'lucide-react';
 
@@ -14,9 +14,11 @@ export default function ColourSystem() {
   const [editingColour, setEditingColour] = useState<{ catId: string; colId: string } | null>(null);
   const [editName, setEditName] = useState('');
 
-  const handleAddColour = (catId: string) => {
-    addColourToCategory(catId, { id: `c-${Date.now()}`, name: selectedColour.name, hex: selectedColour.hex });
-  };
+  const colourCounterRef = useRef(0);
+  const handleAddColour = useCallback((catId: string) => {
+    colourCounterRef.current += 1;
+    addColourToCategory(catId, { id: `c-${colourCounterRef.current}`, name: selectedColour.name, hex: selectedColour.hex });
+  }, [addColourToCategory, selectedColour]);
 
   const startEditColour = (catId: string, colId: string, _hex: string, name: string) => {
     setEditingColour({ catId, colId });

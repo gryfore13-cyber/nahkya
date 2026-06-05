@@ -6,6 +6,7 @@ import { MemberLayout } from '@/components/layout/MemberLayout';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { DesignerLayout } from '@/components/layout/DesignerLayout';
 import { useAuthStore } from '@/stores/authStore';
+import { getGoogleRedirectResult } from '@/lib/firebase/auth';
 
 /* Eager-loaded: public homepage */
 import Home from '@/pages/public/Home';
@@ -45,10 +46,12 @@ const AdminMembers = lazy(() => import('@/pages/admin/AdminMembers'));
 const AdminArtworks = lazy(() => import('@/pages/admin/AdminArtworks'));
 const AdminColour = lazy(() => import('@/pages/admin/AdminColour'));
 const AdminAppearance = lazy(() => import('@/pages/admin/AdminAppearance'));
-const AdminHomepage = lazy(() => import('@/pages/admin/AdminHomepage'));
+const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
-const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
 const AdminGlobal = lazy(() => import('@/pages/admin/AdminGlobal'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+
 const AdminLog = lazy(() => import('@/pages/admin/AdminLog'));
 const AdminDesigners = lazy(() => import('@/pages/admin/AdminDesigners'));
 const AdminCommissions = lazy(() => import('@/pages/admin/AdminCommissions'));
@@ -81,12 +84,28 @@ function NotFound() {
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const init = useAuthStore((s) => s.init);
+  const setUser = useAuthStore((s) => s.setUser);
   const isLoading = useAuthStore((s) => s.isLoading);
 
   useEffect(() => {
-    const unsubscribe = init();
-    return () => unsubscribe();
-  }, [init]);
+    let unsubscribe: (() => void) | undefined;
+
+    async function bootstrap() {
+      try {
+        const user = await getGoogleRedirectResult();
+        if (user) setUser(user);
+      } catch {
+        // Redirect result error (e.g. user denied OAuth) — ignore
+      }
+      unsubscribe = init();
+    }
+
+    bootstrap();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [init, setUser]);
 
   if (isLoading) {
     return (
@@ -149,10 +168,12 @@ export default function App() {
             <Route path="/admin/artworks" element={<AdminArtworks />} />
             <Route path="/admin/colours" element={<AdminColour />} />
             <Route path="/admin/appearance" element={<AdminAppearance />} />
-            <Route path="/admin/homepage" element={<AdminHomepage />} />
+            <Route path="/admin/homepage" element={<AdminHomePage />} />
 
-            <Route path="/admin/settings" element={<AdminSettings />} />
+
             <Route path="/admin/global" element={<AdminGlobal />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+
             <Route path="/admin/log" element={<AdminLog />} />
             <Route path="/admin/designers" element={<AdminDesigners />} />
             <Route path="/admin/commissions" element={<AdminCommissions />} />

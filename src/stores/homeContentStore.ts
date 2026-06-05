@@ -1,111 +1,191 @@
 import { create } from 'zustand';
-import { subscribeConfig, setConfig } from '@/lib/firebase/db';
-
-const DEFAULT_HERO = {
-  label: 'WRAPPED WITH INTENTION',
-  headline: 'Create your identity \u2014 not from shelf, but from yourself.',
-  subline: 'A digital scarf atelier where colour, pattern, and personal identity are wrapped with intention.',
-  ctaPrimary: 'Enter the Boutique', ctaSecondary: 'Explore the Atelier',
-  backgroundImage: '/assets/hero-editorial-scarf.jpg',
-};
-
-const DEFAULT_BRAND = {
-  label: 'THE HOUSE', headline: 'Where Malay heritage meets the digital atelier',
-  paragraph1: 'NAHKYA is a Brunei-born digital fashion house dedicated to the art of the headscarf. We believe that what covers the head should uncover the self \u2014 every scarf is a canvas for personal identity, cultural expression, and quiet luxury.',
-  paragraph2: 'Our atelier brings together centuries of Malay textile tradition with contemporary digital design tools. Members do not choose from a rack \u2014 they create. Colour by colour. Pattern by pattern. Intention by intention.',
-  linkText: 'Discover Our Story', image: '/assets/brand-atelier-workspace.jpg',
-};
-
-const DEFAULT_PHILOSOPHY = {
-  quote: '\u201cA scarf is not an accessory. It is the first thing the world sees of your inner landscape.\u201d',
-  attribution: '\u2014 NAHKYA Design Philosophy',
-};
-
-const DEFAULT_TOOLS = [
-  { num: '01', label: 'ATELIER', title: 'The Colouring Atelier', description: 'Colour existing scarf artworks layer by layer. Silk tone, motif fills, and ink lines \u2014 each controlled separately with curated pigment palettes.', image: '/assets/tool-preview-atelier.jpg' },
-  { num: '02', label: 'MONOGRAM', title: 'The Monogram Studio', description: 'Transform your initials into a repeating scarf pattern. Choose fonts, rotate, scale, and arrange \u2014 then wrap yourself in your own signature.', image: '/assets/tool-preview-monogram.jpg' },
-  { num: '03', label: 'PETAK', title: 'The Petak Composer', description: 'Paint geometric tiles that repeat into a complete scarf composition. Inspired by traditional grid-based textile design, made for modern expression.', image: '/assets/tool-preview-petak.jpg' },
-];
-
-const DEFAULT_STEPS = [
-  { num: '01', title: 'Choose Your Canvas', description: 'Select from our curated artworks or start a pattern from scratch. Each piece is designed by NAHKYA artists with intentional negative space for your personal expression.' },
-  { num: '02', title: 'Design With Colour', description: 'Use our curated pigment palettes or your own custom colours. Every tool is built for the specific craft of scarf design \u2014 not a generic image editor.' },
-  { num: '03', title: 'Save & Refine', description: 'Your designs are saved to your personal gallery. Return anytime to refine colours, adjust patterns, or explore new variations.' },
-  { num: '04', title: 'Submit for Production', description: 'When your design is complete, submit it for production. Our artisans in Brunei will craft your scarf in pure silk, ready for collection.' },
-];
-
-const DEFAULT_MEMBERSHIP = {
-  label: 'MEMBERSHIP', headline: 'Join the atelier',
-  benefits: ['Access to all three design tools', 'Save unlimited designs to your personal gallery', 'Submit designs for artisan production', 'Track your orders from loom to doorstep', 'Exclusive access to new artworks and collections', 'Member-only editorial content'],
-  ctaText: 'Become a Member',
-};
-
-const DEFAULT_CONTACT = { headline: 'Begin a conversation', subline: 'Whether you seek membership, collaboration, or simply wish to learn more about the atelier \u2014 we are here.', ctaText: 'Get in Touch' };
+import {
+  subscribeConfig,
+  setConfig,
+} from '@/lib/firebase/db';
+import {
+  type HomepageConfig,
+  type HomepageSection,
+  type TemplateType,
+  type SectionSettings,
+  DEFAULT_HOMEPAGE_CONFIG,
+  getDefaultContent,
+} from '@/types/homepage';
 
 interface HomeContentState {
-  hero: typeof DEFAULT_HERO;
-  brandIntro: typeof DEFAULT_BRAND;
-  philosophy: typeof DEFAULT_PHILOSOPHY;
-  toolPreviews: typeof DEFAULT_TOOLS;
-  howItWorks: { label: string; headline: string; steps: typeof DEFAULT_STEPS };
-  membership: typeof DEFAULT_MEMBERSHIP;
-  contact: typeof DEFAULT_CONTACT;
+  config: HomepageConfig;
   isLoaded: boolean;
-  updateHero: (d: Partial<typeof DEFAULT_HERO>) => void;
-  updateBrandIntro: (d: Partial<typeof DEFAULT_BRAND>) => void;
-  updatePhilosophy: (d: Partial<typeof DEFAULT_PHILOSOPHY>) => void;
-  updateMembership: (d: Partial<typeof DEFAULT_MEMBERSHIP>) => void;
-  updateContact: (d: Partial<typeof DEFAULT_CONTACT>) => void;
-  reset: () => void;
+  isSaving: boolean;
+
+  // Actions
+  addSection: (templateType: TemplateType) => void;
+  removeSection: (id: string) => void;
+  moveSection: (id: string, direction: 'up' | 'down') => void;
+  duplicateSection: (id: string) => void;
+  updateSectionContent: (
+    id: string,
+    updates: Partial<HomepageSection['content']>
+  ) => void;
+  updateSectionSettings: (id: string, updates: Partial<SectionSettings>) => void;
+  toggleVisibility: (id: string) => void;
+  reorderSections: (newOrder: string[]) => void;
+  setConfigState: (config: HomepageConfig) => void;
+  saveConfig: () => Promise<void>;
+  resetConfig: () => void;
 }
 
-const FALLBACK = {
-  hero: DEFAULT_HERO, brandIntro: DEFAULT_BRAND, philosophy: DEFAULT_PHILOSOPHY,
-  toolPreviews: DEFAULT_TOOLS,
-  howItWorks: { label: 'THE JOURNEY', headline: 'From imagination to adornment', steps: DEFAULT_STEPS },
-  membership: DEFAULT_MEMBERSHIP, contact: DEFAULT_CONTACT,
-};
+function generateId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
 
-export const useHomeContentStore = create<HomeContentState>((set, get) => ({
-  ...FALLBACK,
+function sortSections(sections: HomepageSection[]): HomepageSection[] {
+  return [...sections].sort((a, b) => a.order - b.order);
+}
+
+export const useHomeContentStore = create<HomeContentState>()((set, get) => ({
+  config: { ...DEFAULT_HOMEPAGE_CONFIG },
   isLoaded: false,
+  isSaving: false,
 
-  updateHero: (d) => {
-    const next = { hero: { ...get().hero, ...d } };
-    set(next);
-    setConfig('homeContent', { ...get(), ...next });
+  addSection: (templateType) => {
+    const sections = [...(get().config.sections ?? [])];
+    const maxOrder = sections.reduce((max, s) => Math.max(max, s.order), -1);
+    const newSection: HomepageSection = {
+      id: generateId(),
+      order: maxOrder + 1,
+      templateType,
+      settings: {
+        backgroundColor: 'nahkya-ivory',
+        textColor: 'nahkya-text',
+        padding: 'lg',
+        fullWidth: false,
+        isVisible: true,
+      },
+      content: getDefaultContent(templateType),
+    } as HomepageSection;
+
+    set({
+      config: {
+        ...get().config,
+        sections: sortSections([...sections, newSection]),
+      },
+    });
   },
 
-  updateBrandIntro: (d) => {
-    const next = { brandIntro: { ...get().brandIntro, ...d } };
-    set(next);
-    setConfig('homeContent', { ...get(), ...next });
+  removeSection: (id) => {
+    const sections = (get().config.sections ?? []).filter((s) => s.id !== id);
+    // Re-order remaining
+    const reordered = sections.map((s, idx) => ({ ...s, order: idx }));
+    set({ config: { ...get().config, sections: reordered } });
   },
 
-  updatePhilosophy: (d) => {
-    const next = { philosophy: { ...get().philosophy, ...d } };
-    set(next);
-    setConfig('homeContent', { ...get(), ...next });
+  moveSection: (id, direction) => {
+    const sections = sortSections([...(get().config.sections ?? [])]);
+    const idx = sections.findIndex((s) => s.id === id);
+    if (idx === -1) return;
+
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= sections.length) return;
+
+    // Swap orders
+    const temp = sections[idx].order;
+    sections[idx].order = sections[targetIdx].order;
+    sections[targetIdx].order = temp;
+
+    set({ config: { ...get().config, sections: sortSections(sections) } });
   },
 
-  updateMembership: (d) => {
-    const next = { membership: { ...get().membership, ...d } };
-    set(next);
-    setConfig('homeContent', { ...get(), ...next });
+  duplicateSection: (id) => {
+    const original = (get().config.sections ?? []).find((s) => s.id === id);
+    if (!original) return;
+
+    const sections = [...(get().config.sections ?? [])];
+    const maxOrder = sections.reduce((max, s) => Math.max(max, s.order), -1);
+    const copy: HomepageSection = {
+      ...original,
+      id: generateId(),
+      order: maxOrder + 1,
+      settings: original.settings ? { ...original.settings } : {
+        backgroundColor: 'nahkya-ivory',
+        textColor: 'nahkya-text',
+        padding: 'lg',
+        fullWidth: false,
+        isVisible: true,
+      },
+      content: JSON.parse(JSON.stringify(original.content)),
+    } as HomepageSection;
+
+    set({
+      config: {
+        ...get().config,
+        sections: sortSections([...sections, copy]),
+      },
+    });
   },
 
-  updateContact: (d) => {
-    const next = { contact: { ...get().contact, ...d } };
-    set(next);
-    setConfig('homeContent', { ...get(), ...next });
+  updateSectionContent: (id, updates) => {
+    const sections = (get().config.sections ?? []).map((s) => {
+      if (s.id !== id) return s;
+      return { ...s, content: { ...s.content, ...updates } } as HomepageSection;
+    });
+    set({ config: { ...get().config, sections } });
   },
 
-  reset: () => {
-    set(FALLBACK);
-    setConfig('homeContent', FALLBACK);
+  updateSectionSettings: (id, updates) => {
+    const sections = (get().config.sections ?? []).map((s) => {
+      if (s.id !== id) return s;
+      return { ...s, settings: { ...s.settings, ...updates } } as HomepageSection;
+    });
+    set({ config: { ...get().config, sections } });
+  },
+
+  toggleVisibility: (id) => {
+    const sections = (get().config.sections ?? []).map((s) => {
+      if (s.id !== id) return s;
+      return { ...s, settings: { ...s.settings, isVisible: !(s.settings?.isVisible ?? true) } } as HomepageSection;
+    });
+    set({ config: { ...get().config, sections } });
+  },
+
+  reorderSections: (newOrder) => {
+    const sections = (get().config.sections ?? []).map((s) => {
+      const newIndex = newOrder.indexOf(s.id);
+      return { ...s, order: newIndex >= 0 ? newIndex : s.order };
+    });
+    set({ config: { ...get().config, sections: sortSections(sections) } });
+  },
+
+  setConfigState: (config) => {
+    set({ config });
+  },
+
+  saveConfig: async () => {
+    set({ isSaving: true });
+    try {
+      // Only pass plain data — never spread the entire store state
+      const { config } = get();
+      await setConfig('homepage', config);
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  resetConfig: () => {
+    set({ config: { ...DEFAULT_HOMEPAGE_CONFIG } });
   },
 }));
 
-subscribeConfig('homeContent', FALLBACK, (data) => {
-  useHomeContentStore.setState({ ...data, isLoaded: true });
-});
+// Firestore subscription for homepage config
+subscribeConfig<HomepageConfig>(
+  'homepage',
+  { ...DEFAULT_HOMEPAGE_CONFIG },
+  (data) => {
+    useHomeContentStore.setState({
+      config: {
+        ...data,
+        sections: Array.isArray(data.sections) ? data.sections : DEFAULT_HOMEPAGE_CONFIG.sections,
+      },
+      isLoaded: true,
+    });
+  }
+);

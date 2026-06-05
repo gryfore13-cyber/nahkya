@@ -2,8 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import { getFontStack, getFontStyle, getFontWeight } from '@/lib/monogram';
-import { SOURCE_OFFSETS } from '@/lib/monogramConstants';
-import { StudioViewPill } from '@/components/studio/StudioViewPill';
+import { SOURCE_VIEWPORT_SIZE, PREVIEW_VIEWPORT_SIZE } from '@/lib/monogramConstants';
+import { MonogramTileFrame } from '@/components/monogram/MonogramTileFrame';
 import type { MonogramState } from '@/hooks/useMonogramState';
 import type { MonogramLetter } from '@/types';
 
@@ -24,6 +24,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
     showBorder2,
     borderThicknessCm2,
     borderGapCm,
+    borderStyle,
     showSourceGuides,
     snapEnabled,
     activeSnapGuides,
@@ -31,7 +32,6 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
     previewTiles,
     tileSpacingCm,
     viewMode,
-    setViewMode,
     effectiveZoom,
     startDraggingLetter,
     startResize,
@@ -47,43 +47,53 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
     moveAsGroup,
   } = state;
 
-  const showSource = viewMode === 'both' || viewMode === 'workspace';
-  const showPreview = viewMode === 'both' || viewMode === 'preview';
+  const showSource = viewMode === 'workspace';
+  const showPreview = viewMode === 'preview';
+
+  const sourceGapPx = SOURCE_VIEWPORT_SIZE * (tileSpacingCm / 110) * (effectiveZoom / 100);
 
   return (
-    <div className="flex-1 flex items-center justify-center relative bg-workspace-bg min-w-0 min-h-0 p-6 gap-6 overflow-auto">
-      <StudioViewPill value={viewMode} onChange={setViewMode} />
+    <div className="flex-1 flex flex-row items-start justify-center relative bg-workspace-bg min-w-0 min-h-0 p-6 gap-6 overflow-auto">
       {/* Source Stage */}
       {showSource && (
-        <div className="flex flex-col gap-3 pt-10">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col h-full flex-1 relative">
+          <div className="flex items-center justify-between absolute top-6 left-4 right-4 z-10">
             <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text">Design Canvas</span>
           </div>
-          <div
-            ref={sourceStageRef}
-            className="relative aspect-square w-full max-w-stage-source overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-xl"
-            onPointerMove={updateDrag}
-            onPointerUp={stopDragging}
-            onPointerLeave={stopDragging}
-          >
+          <div className="flex items-center justify-center flex-1 min-h-0">
             <div
-              className="absolute inset-0"
-              style={{
-                transform: `scale(${effectiveZoom / 100})`,
-                transformOrigin: 'center center',
-              }}
+              ref={sourceStageRef}
+              className="relative w-full overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-xl max-w-none aspect-square max-h-full"
+              onPointerMove={updateDrag}
+              onPointerUp={stopDragging}
+              onPointerLeave={stopDragging}
             >
-              {/* Tile Background */}
-              <div
-                className="absolute"
-                style={{
-                  left: sourceTileOrigin,
-                  top: sourceTileOrigin,
-                  width: sourceTileSize,
-                  height: sourceTileSize,
-                  backgroundColor: baseColor,
-                }}
-              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div
+                  style={{
+                    width: SOURCE_VIEWPORT_SIZE,
+                    height: SOURCE_VIEWPORT_SIZE,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    transformOrigin: 'center center',
+                  }}
+                >
+              {/* Tile Backgrounds — all tiles in the grid */}
+              {previewOffsets.map((ox) =>
+                previewOffsets.map((oy) => (
+                  <div
+                    key={`bg-${ox}-${oy}`}
+                    className="absolute"
+                    style={{
+                      left: sourceTileOrigin + ox * (sourceTileSize + sourceGapPx),
+                      top: sourceTileOrigin + oy * (sourceTileSize + sourceGapPx),
+                      width: sourceTileSize,
+                      height: sourceTileSize,
+                      backgroundColor: baseColor,
+                    }}
+                  />
+                ))
+              )}
 
               {/* Guides */}
               {showSourceGuides && (
@@ -145,14 +155,37 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
                 </div>
               )}
 
+              {/* Tile Frames — follow the monogram pattern in design canvas */}
+              {borderStyle !== 'none' && previewOffsets.map((ox) =>
+                previewOffsets.map((oy) => (
+                  <div
+                    key={`frame-${ox}-${oy}`}
+                    className="absolute pointer-events-none z-10"
+                    style={{
+                      left: sourceTileOrigin + ox * (sourceTileSize + sourceGapPx),
+                      top: sourceTileOrigin + oy * (sourceTileSize + sourceGapPx),
+                      width: sourceTileSize,
+                      height: sourceTileSize,
+                    }}
+                  >
+                    <MonogramTileFrame
+                      style={borderStyle as import('@/lib/monogramConstants').TileFrameStyle}
+                      size={sourceTileSize}
+                      color={borderColor}
+                      color2={borderColor2}
+                    />
+                  </div>
+                ))
+              )}
+
               {/* Letters */}
               {letters.map((letter) =>
-                SOURCE_OFFSETS.map((ox) =>
-                  SOURCE_OFFSETS.map((oy) => {
+                previewOffsets.map((ox) =>
+                  previewOffsets.map((oy) => {
                     const isMain = ox === 0 && oy === 0;
                     const isSelected = isMain && letter.id === selectedLetterId;
-                    const left = sourceTileOrigin + (letter.x / 100) * sourceTileSize + ox * sourceTileSize;
-                    const top = sourceTileOrigin + (letter.y / 100) * sourceTileSize + oy * sourceTileSize;
+                    const left = sourceTileOrigin + (letter.x / 100) * sourceTileSize + ox * (sourceTileSize + sourceGapPx);
+                    const top = sourceTileOrigin + (letter.y / 100) * sourceTileSize + oy * (sourceTileSize + sourceGapPx);
 
                     return (
                       <LetterElement
@@ -162,7 +195,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
                         top={top}
                         isMain={isMain}
                         isSelected={isSelected}
-                        scale={1}
+                        scale={effectiveZoom / 100}
                         onPointerDown={(e) => {
                           if (isMain) startDraggingLetter(e, letter);
                         }}
@@ -177,79 +210,114 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
                   })
                 )
               )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+    <div className="h-14 flex-shrink-0" />
+  </div>
+)}
 
       {/* Preview Stage */}
       {showPreview && (
-        <div className="flex flex-col gap-3 pt-10">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col h-full flex-1 relative">
+          <div className="flex items-center justify-between absolute top-6 left-4 right-4 z-10">
             <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text">Repeat Preview</span>
             <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text-muted bg-workspace-hover px-2.5 py-1 rounded-nahkya">
               {previewTiles} × {previewTiles}
             </span>
           </div>
 
-          <div
-            ref={previewStageRef}
-            className="relative aspect-square w-full max-w-stage-preview overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-2xl"
-          >
+          <div className="flex items-center justify-center flex-1 min-h-0">
             <div
-              className="absolute inset-0"
-              style={{
-                transform: `scale(${effectiveZoom / 100})`,
-                transformOrigin: 'center center',
-                backgroundColor: baseColor,
-              }}
+              ref={previewStageRef}
+              className="relative w-full overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-2xl max-w-none aspect-square max-h-full"
             >
-              {/* Tiled Letters */}
-              {(() => {
-                const gapRatio = tileSpacingCm / 110;
-                const gapPx = previewViewportSize * gapRatio;
-                const totalGap = gapPx * (previewTiles - 1);
-                const tileSize = (previewViewportSize - totalGap) / previewTiles;
-                const centerOffset = (previewViewportSize - tileSize) / 2;
+              <div className="absolute inset-0 flex items-center justify-center">
+                {(() => {
+                  const gapRatio = tileSpacingCm / 110;
+                  const gapPx = previewViewportSize * gapRatio;
+                  const totalGap = gapPx * (previewTiles - 1);
+                  const tileSize = (previewViewportSize - totalGap) / previewTiles;
+                  const centerOffset = (previewViewportSize - tileSize) / 2;
 
-                return letters.map((letter) =>
-                  previewOffsets.map((ox) =>
-                    previewOffsets.map((oy) => {
-                      const left = centerOffset + (letter.x / 100) * tileSize + ox * (tileSize + gapPx);
-                      const top = centerOffset + (letter.y / 100) * tileSize + oy * (tileSize + gapPx);
+                  return (
+                    <div
+                      style={{
+                        width: PREVIEW_VIEWPORT_SIZE,
+                        height: PREVIEW_VIEWPORT_SIZE,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        transform: `scale(${effectiveZoom / 100})`,
+                        transformOrigin: 'center center',
+                        backgroundColor: baseColor,
+                      }}
+                    >
+                      {/* Tiled Frames */}
+                      {previewOffsets.map((ox) =>
+                        previewOffsets.map((oy) => {
+                          const left = centerOffset + ox * (tileSize + gapPx);
+                          const top = centerOffset + oy * (tileSize + gapPx);
+                          return (
+                            <div
+                              key={`frame-${ox}-${oy}`}
+                              className="absolute pointer-events-none z-10"
+                              style={{ left, top, width: tileSize, height: tileSize }}
+                            >
+                              <MonogramTileFrame
+                                style={borderStyle as import('@/lib/monogramConstants').TileFrameStyle}
+                                size={tileSize}
+                                color={borderColor}
+                                color2={borderColor2}
+                              />
+                            </div>
+                          );
+                        })
+                      )}
 
-                      return (
-                        <LetterElement
-                          key={`prev-${letter.id}-${ox}-${oy}`}
-                          letter={letter}
-                          left={left}
-                          top={top}
-                          isMain={false}
-                          isSelected={false}
-                          scale={tileSize / 260}
+                      {/* Tiled Letters */}
+                      {letters.map((letter) =>
+                        previewOffsets.map((ox) =>
+                          previewOffsets.map((oy) => {
+                            const left = centerOffset + (letter.x / 100) * tileSize + ox * (tileSize + gapPx);
+                            const top = centerOffset + (letter.y / 100) * tileSize + oy * (tileSize + gapPx);
+
+                            return (
+                              <LetterElement
+                                key={`prev-${letter.id}-${ox}-${oy}`}
+                                letter={letter}
+                                left={left}
+                                top={top}
+                                isMain={false}
+                                isSelected={false}
+                                scale={tileSize / 260}
+                              />
+                            );
+                          })
+                        )
+                      )}
+
+                      {/* Border — unified in the same scaled coordinate space */}
+                      {showBorder && (
+                        <PreviewBorders
+                          size={PREVIEW_VIEWPORT_SIZE}
+                          borderThicknessCm={borderThicknessCm}
+                          borderColor={borderColor}
+                          showBorder2={showBorder2}
+                          borderThicknessCm2={borderThicknessCm2}
+                          borderColor2={borderColor2}
+                          borderGapCm={borderGapCm}
                         />
-                      );
-                    })
-                  )
-                );
-              })()}
-
-              {/* Borders */}
-              {showBorder && (
-                <PreviewBorders
-                  size={previewViewportSize}
-                  borderThicknessCm={borderThicknessCm}
-                  borderColor={borderColor}
-                  showBorder2={showBorder2}
-                  borderThicknessCm2={borderThicknessCm2}
-                  borderColor2={borderColor2}
-                  borderGapCm={borderGapCm}
-                />
-              )}
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+    <div className="h-14 flex-shrink-0" />
+  </div>
+)}
 
 
     </div>
@@ -285,7 +353,7 @@ function LetterElement({
     <div
       className={cn(
         'absolute leading-none select-none',
-        isMain ? 'cursor-grab active:cursor-grabbing z-10' : 'opacity-20 pointer-events-none z-0',
+        isMain ? 'cursor-grab active:cursor-grabbing z-10' : 'pointer-events-none z-0',
         isSelected && 'z-30'
       )}
       style={{

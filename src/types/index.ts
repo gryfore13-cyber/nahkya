@@ -171,11 +171,12 @@ export interface MonogramConfig {
   showBorder2: boolean;
   borderThicknessCm2: number;
   borderGapCm: number;
+  borderStyle: string;
   snapEnabled: boolean;
   showSourceGuides: boolean;
   moveAsGroup: boolean;
   zoom: number;
-  viewMode: 'both' | 'workspace' | 'preview';
+  viewMode: 'workspace' | 'preview';
 }
 
 export interface MonogramSnapshot {
@@ -200,3 +201,6 @@ export interface MonogramSnapGuides {
   x: number | null;
   y: number | null;
 }
+
+// ── Homepage Section Types ──
+export * from './homepage';

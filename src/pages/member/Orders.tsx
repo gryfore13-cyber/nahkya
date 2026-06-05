@@ -15,24 +15,25 @@ const FILTERS = [
 
 export default function Orders() {
   const { user } = useAuthStore();
-  const { orders, fetchOrders } = useOrderStore();
+  const { orders, fetchOrdersByUser } = useOrderStore();
   const [filter, setFilter] = useState<string>('all');
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    if (user?.uid) {
+      fetchOrdersByUser(user.uid);
+    }
+  }, [fetchOrdersByUser, user?.uid]);
 
-  const myOrders = orders.filter((o) => o.userId === user?.uid);
-  const filtered = filter === 'all' ? myOrders : myOrders.filter((o) => o.status === filter);
-  const order = myOrders.find((o) => o.id === selected);
+  const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
+  const order = orders.find((o) => o.id === selected);
 
   const counts = {
-    all: myOrders.length,
-    submitted: myOrders.filter((o) => o.status === 'submitted').length,
-    in_production: myOrders.filter((o) => o.status === 'in_production').length,
-    ready_for_collection: myOrders.filter((o) => o.status === 'ready_for_collection').length,
-    completed: myOrders.filter((o) => o.status === 'completed').length,
+    all: orders.length,
+    submitted: orders.filter((o) => o.status === 'submitted').length,
+    in_production: orders.filter((o) => o.status === 'in_production').length,
+    ready_for_collection: orders.filter((o) => o.status === 'ready_for_collection').length,
+    completed: orders.filter((o) => o.status === 'completed').length,
   };
 
   return (

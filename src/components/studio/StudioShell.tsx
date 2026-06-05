@@ -8,6 +8,7 @@ interface StudioShellProps {
   canvas: React.ReactNode;
   onSave?: () => void;
   onSubmit?: () => void;
+  topBarMiddle?: React.ReactNode;
   zoom?: number;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -24,6 +25,7 @@ export function StudioShell({
   canvas,
   onSave,
   onSubmit,
+  topBarMiddle,
   zoom,
   onZoomIn,
   onZoomOut,
@@ -36,7 +38,7 @@ export function StudioShell({
   return (
     <div className="h-screen flex flex-col bg-nahkya-bg">
       {/* Top Bar — shared across all tools */}
-      <StudioTopBar toolName={toolName} onSave={onSave} onSubmit={onSubmit} />
+      <StudioTopBar toolName={toolName} onSave={onSave} onSubmit={onSubmit} middle={topBarMiddle} />
 
       {/* Main workspace */}
       <div className="flex flex-1 overflow-hidden">

@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useAppearanceStore, DEFAULT_TOKENS } from '@/stores/appearanceStore';
-import { ThemePreview } from './ThemePreview';
 
 type Viewport = 'desktop' | 'tablet' | 'mobile';
 
@@ -124,10 +123,13 @@ export function AppearanceBuilder() {
         {/* Preview frame */}
         <div className="flex-1 overflow-auto p-6 flex justify-center bg-nahkya-stone">
           <div
-            className="overflow-hidden rounded-nahkya shadow-lg border border-nahkya-charcoal transition-all duration-300 max-w-full"
-            style={{ width: VIEWPORT_WIDTHS[viewport] }}
+            className="overflow-hidden rounded-nahkya shadow-lg border border-nahkya-charcoal transition-all duration-300 max-w-full flex items-center justify-center bg-nahkya-ivory"
+            style={{ width: VIEWPORT_WIDTHS[viewport], minHeight: '60vh' }}
           >
-            <ThemePreview />
+            <div className="text-center p-8">
+              <p className="font-display text-heading-md text-nahkya-text mb-2">Homepage Preview</p>
+              <p className="font-body text-body-md text-nahkya-text-muted">Disabled while homepage is being redesigned.</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,61 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Maximum file size: 5 MB
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Only allow image files
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    // User must be authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // User avatar uploads
+    match /uploads/avatars/users/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && request.auth.uid == userId
+        && isValidSize()
+        && isImage();
+    }
+
+    // Designer avatar uploads
+    match /uploads/avatars/designers/{designerId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && isValidSize()
+        && isImage();
+      // NOTE: If you want to restrict designer avatars to the designer
+      // themselves or admins, add a Firestore lookup or custom claim check.
+    }
+
+    // Artwork image uploads (original + thumbnail)
+    match /uploads/artworks/{designerId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && isValidSize()
+        && isImage();
+    }
+
+    // Admin media library uploads
+    match /uploads/media/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && isValidSize()
+        && isImage();
+      // NOTE: Restrict to admin roles if you add custom claims or
+      // Firestore role lookup in rules.
+    }
+
+    // Default deny for any unmatched paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

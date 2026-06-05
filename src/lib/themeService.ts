@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from './firebase/config';
 
 const THEME_DOC = doc(db, 'config', 'theme');
 

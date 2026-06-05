@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import type { Commission } from '@/types';
 import {
   getCollection,
+  getCollectionQuery,
   addDocToCollection,
   updateDocInCollection,
   subscribeCollection,
+  where,
 } from '@/lib/firebase/db';
 
 const COLLECTION = 'commissions';
@@ -14,6 +16,7 @@ interface CommissionState {
   isLoading: boolean;
   error: string | null;
   fetchCommissions: () => Promise<void>;
+  fetchCommissionsByDesigner: (designerId: string) => Promise<void>;
   createCommission: (commission: Omit<Commission, 'id' | 'createdAt'>) => Promise<string>;
   markAsPaid: (id: string) => Promise<void>;
   subscribe: () => (() => void);
@@ -54,9 +57,22 @@ export const useCommissionStore = create<CommissionState>((set, get) => ({
     }
   },
 
+  fetchCommissionsByDesigner: async (designerId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const docs = await getCollectionQuery<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        where('designerId', '==', designerId)
+      );
+      set({ commissions: docs.map(docToCommission), isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch commissions', isLoading: false });
+    }
+  },
+
   createCommission: async (commission) => {
     const id = await addDocToCollection(COLLECTION, commission as Record<string, unknown>);
-    await get().fetchCommissions();
+    await get().fetchCommissionsByDesigner(commission.designerId);
     return id;
   },
 
@@ -65,7 +81,12 @@ export const useCommissionStore = create<CommissionState>((set, get) => ({
       status: 'paid',
       paidAt: new Date().toISOString(),
     });
-    await get().fetchCommissions();
+    const designerId = get().commissions.find((c) => c.id === id)?.designerId;
+    if (designerId) {
+      await get().fetchCommissionsByDesigner(designerId);
+    } else {
+      await get().fetchCommissions();
+    }
   },
 
   subscribe: () => {

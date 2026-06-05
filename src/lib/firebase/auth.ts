@@ -2,6 +2,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
@@ -72,7 +74,15 @@ export async function signIn(email: string, password: string): Promise<AuthUser>
   const data = await getUserData(cred.user.uid);
   // Preserve existing approval status; default legacy users to approved
   const approvalStatus = data.approvalStatus || 'approved';
-  return createUserDoc(cred.user, data.role, undefined, data.avatar, approvalStatus);
+  return {
+    uid: cred.user.uid,
+    email: cred.user.email || '',
+    displayName: cred.user.displayName || cred.user.email?.split('@')[0] || 'User',
+    role: data.role,
+    avatar: data.avatar || cred.user.photoURL || undefined,
+    approvalStatus,
+    registeredAt: data.registeredAt,
+  };
 }
 
 export async function signOut(): Promise<void> {
@@ -98,14 +108,58 @@ export function onAuthChange(callback: (user: AuthUser | null) => void) {
   });
 }
 
-export async function signInWithGoogle(): Promise<AuthUser> {
-  const provider = new GoogleAuthProvider();
-  const cred = await signInWithPopup(auth, provider);
-  const data = await getUserData(cred.user.uid);
+async function processGoogleCredential(firebaseUser: FirebaseUser): Promise<AuthUser> {
+  const data = await getUserData(firebaseUser.uid);
   // If user exists, preserve approval status; if new, default to pending
   const isNewUser = !data.approvalStatus;
   const approvalStatus = data.approvalStatus || (isNewUser ? 'pending' : 'approved');
-  return createUserDoc(cred.user, data.role || 'member', cred.user.displayName || undefined, data.avatar || cred.user.photoURL || undefined, approvalStatus);
+
+  if (isNewUser) {
+    return createUserDoc(
+      firebaseUser,
+      data.role || 'member',
+      firebaseUser.displayName || undefined,
+      data.avatar || firebaseUser.photoURL || undefined,
+      approvalStatus
+    );
+  }
+
+  return {
+    uid: firebaseUser.uid,
+    email: firebaseUser.email || '',
+    displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+    role: data.role,
+    avatar: data.avatar || firebaseUser.photoURL || undefined,
+    approvalStatus,
+    registeredAt: data.registeredAt,
+  };
+}
+
+export async function signInWithGoogle(): Promise<AuthUser | null> {
+  const provider = new GoogleAuthProvider();
+  try {
+    const cred = await signInWithPopup(auth, provider);
+    return processGoogleCredential(cred.user);
+  } catch (error: unknown) {
+    // Popup blocked, closed by user, or COOP-related failure — fall back to redirect
+    const authError = error as { code?: string };
+    if (
+      authError.code === 'auth/popup-blocked' ||
+      authError.code === 'auth/popup-closed-by-user' ||
+      authError.code === 'auth/cancelled-popup-request' ||
+      authError.code === 'auth/network-request-failed'
+    ) {
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function getGoogleRedirectResult(): Promise<AuthUser | null> {
+  const result = await getRedirectResult(auth);
+  if (!result) return null;
+  return processGoogleCredential(result.user);
 }
 
 export async function updateUserAvatar(uid: string, avatar: string): Promise<void> {

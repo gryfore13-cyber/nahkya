@@ -9,16 +9,18 @@ import { useEffect } from 'react';
 
 export default function MemberHome() {
   const { user } = useAuthStore();
-  const { designs, fetchDesigns } = useSavedDesignStore();
-  const { orders, fetchOrders } = useOrderStore();
+  const { designs, fetchDesignsByUser } = useSavedDesignStore();
+  const { orders, fetchOrdersByUser } = useOrderStore();
 
   useEffect(() => {
-    fetchDesigns();
-    fetchOrders();
-  }, [fetchDesigns, fetchOrders]);
+    if (user?.uid) {
+      fetchDesignsByUser(user.uid);
+      fetchOrdersByUser(user.uid);
+    }
+  }, [fetchDesignsByUser, fetchOrdersByUser, user?.uid]);
 
-  const myDesigns = designs.filter((d) => (d as unknown as Record<string, string>).userId === user?.uid);
-  const myOrders = orders.filter((o) => o.userId === user?.uid);
+  const myDesigns = designs;
+  const myOrders = orders;
 
   const inProduction = myOrders.filter((o) => o.status === 'in_production').length;
   const ready = myOrders.filter((o) => o.status === 'ready_for_collection').length;

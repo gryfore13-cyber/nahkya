@@ -7,7 +7,7 @@ import {
   type MaskLayer,
 } from '@/lib/canvas/coloringEngine';
 
-type ToolMode = 'paint' | 'picker';
+type ToolMode = 'paint' | 'picker' | 'replace';
 type Layer = 'base' | 'paint' | 'lineart';
 
 interface ColoringEngineOptions {
@@ -113,6 +113,23 @@ export function useColoringEngine(options: ColoringEngineOptions = {}): Coloring
     [canvasSize, lineThreshold, getCanvas, baseColor, lineColor]
   );
 
+  const applyColorToActiveLayer = useCallback(
+    (value: string) => {
+      if (!isValidHex(value)) return;
+
+      if (activeLayer === 'base') {
+        setBaseColor(value);
+        return;
+      }
+      if (activeLayer === 'lineart') {
+        setLineColor(value);
+        return;
+      }
+      setPaintColor(value);
+    },
+    [activeLayer]
+  );
+
   const handleCanvasClick = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement>) => {
       if (!hasImage || !maskLayerRef.current || !paintLayerRef.current) return;
@@ -162,24 +179,7 @@ export function useColoringEngine(options: ColoringEngineOptions = {}): Coloring
         drawComposite(canvas, nextPaintLayer, maskLayerRef.current, baseColor, lineColor);
       }
     },
-    [hasImage, mode, paintColor, baseColor, bucketTolerance, getCanvas]
-  );
-
-  const applyColorToActiveLayer = useCallback(
-    (value: string) => {
-      if (!isValidHex(value)) return;
-
-      if (activeLayer === 'base') {
-        setBaseColor(value);
-        return;
-      }
-      if (activeLayer === 'lineart') {
-        setLineColor(value);
-        return;
-      }
-      setPaintColor(value);
-    },
-    [activeLayer]
+    [hasImage, mode, paintColor, baseColor, lineColor, bucketTolerance, getCanvas, applyColorToActiveLayer]
   );
 
   // Redraw canvas when base or lineart colour changes

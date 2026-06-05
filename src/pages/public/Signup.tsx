@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
@@ -17,7 +17,15 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const signup = useAuthStore((s) => s.register);
   const googleLogin = useAuthStore((s) => s.googleLogin);
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate('/pending-approval');
+    }
+  }, [isLoading, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +37,9 @@ export default function Signup() {
     try {
       await signup(email, password, name.trim());
       navigate('/pending-approval');
-    } catch {
-      setError('An account with this email already exists.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An account with this email already exists.';
+      setError(message);
     } finally {
       setLoading(false);
     }

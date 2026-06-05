@@ -5,13 +5,13 @@ import { ARTWORK_TEMPLATES } from '@/lib/artworks';
 import { useArtworkStore } from '@/stores/artworkStore';
 
 export default function AtelierGallery() {
-  const { artworks, fetchArtworks } = useArtworkStore();
+  const { artworks, fetchArtworksByStatus } = useArtworkStore();
 
   useEffect(() => {
-    fetchArtworks();
-  }, [fetchArtworks]);
+    fetchArtworksByStatus('approved');
+  }, [fetchArtworksByStatus]);
 
-  const approvedArtworks = artworks.filter((a) => a.status === 'approved');
+  const approvedArtworks = artworks;
   const totalCount = ARTWORK_TEMPLATES.length + approvedArtworks.length;
 
   return (
