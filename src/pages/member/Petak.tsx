@@ -4,7 +4,13 @@ import { Plus, Minus, Trash2 } from 'lucide-react';
 import { StudioShell } from '@/components/studio/StudioShell';
 import { StudioSectionLabel } from '@/components/studio/StudioSectionLabel';
 import { useColourStore } from '@/stores/colourStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useSavedDesignStore } from '@/stores/savedDesignStore';
+import { useOrderStore } from '@/stores/orderStore';
+import { usePlatformStore } from '@/stores/platformStore';
 import { SCARF_SIZES } from '@/lib/constants';
+import { generatePetakThumbnail } from '@/lib/petakExport';
+import { toast } from 'sonner';
 import type { ScarfSize } from '@/types';
 
 export default function Petak() {
@@ -19,6 +25,15 @@ export default function Petak() {
   const [isDragging, setIsDragging] = useState(false);
 
   const { selectedColour, addToRecent } = useColourStore();
+  const { user } = useAuthStore();
+  const { addDesign } = useSavedDesignStore();
+  const { addOrder } = useOrderStore();
+  const { pricing } = usePlatformStore();
+
+  const getDefaultPrice = useCallback(() => {
+    const row = pricing.find((p) => p.size === '90 x 90');
+    return row?.member ?? 180;
+  }, [pricing]);
 
   const paintCell = useCallback((r: number, c: number) => {
     const key = `${r},${c}`;
@@ -192,8 +207,55 @@ export default function Petak() {
       toolName="Petak Studio"
       leftPanel={leftPanel}
       canvas={canvas}
-      onSave={() => console.log('Save Petak')}
-      onSubmit={() => console.log('Submit Petak')}
+      onSave={async () => {
+        if (!user) { toast.error('Please sign in to save designs.'); return; }
+        try {
+          const thumbnail = generatePetakThumbnail(cells, rows, cols);
+          const name = `Petak ${rows}×${cols}`;
+          await addDesign({
+            name,
+            tool: 'petak',
+            thumbnail,
+            userId: user.uid,
+            snapshot: { cells, rows, cols, scarfSize, tileScale, borderWidth, symmetry },
+          });
+          toast.success(`"${name}" saved to your collection.`);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : 'Failed to save design.');
+        }
+      }}
+      onSubmit={async () => {
+        if (!user) { toast.error('Please sign in to submit orders.'); return; }
+        try {
+          const thumbnail = generatePetakThumbnail(cells, rows, cols);
+          const name = `Petak ${rows}×${cols}`;
+          const designId = await addDesign({
+            name,
+            tool: 'petak',
+            thumbnail,
+            userId: user.uid,
+            snapshot: { cells, rows, cols, scarfSize, tileScale, borderWidth, symmetry },
+          });
+          const amount = getDefaultPrice();
+          const sizeLabel = SCARF_SIZES.find((s) => s.value === scarfSize)?.label ?? '90 × 90 cm';
+          await addOrder({
+            userId: user.uid,
+            userName: user.displayName || user.email || 'Member',
+            designId,
+            designName: name,
+            tool: 'petak',
+            size: sizeLabel,
+            amount,
+            currency: 'BND',
+            status: 'submitted',
+            notes: '',
+            adminNotes: '',
+          });
+          toast.success('Design submitted for production. Track it in Orders.');
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : 'Failed to submit order.');
+        }
+      }}
     />
   );
 }

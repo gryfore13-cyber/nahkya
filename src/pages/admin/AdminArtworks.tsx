@@ -3,19 +3,24 @@ import { cn } from '@/lib/utils';
 import { Pencil, Copy, Trash2, ImageIcon, X, CheckCircle, XCircle } from 'lucide-react';
 import { useArtworkStore } from '@/stores/artworkStore';
 import { useDesignerStore } from '@/stores/designerStore';
-// Artwork types come from the store
+import { toast } from 'sonner';
 
 const CATEGORIES = ['All', 'Floral', 'Geometric', 'Abstract', 'Heritage', 'Minimal'];
 const STATUS_TABS = ['All', 'Pending Review', 'Approved', 'Rejected'] as const;
 
 export default function AdminArtworks() {
-  const { artworks, fetchArtworks, deleteArtwork, approveArtwork, rejectArtwork } = useArtworkStore();
+  const { artworks, fetchArtworks, addArtwork, updateArtwork, deleteArtwork, approveArtwork, rejectArtwork } = useArtworkStore();
   const { designers, fetchDesigners } = useDesignerStore();
   const [activeCat, setActiveCat] = useState('All');
   const [activeStatus, setActiveStatus] = useState<string>('All');
   const [editing, setEditing] = useState<string | null>(null);
   const [rejectModal, setRejectModal] = useState<string | null>(null);
   const [rejectNotes, setRejectNotes] = useState('');
+
+  // Edit form state
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editDesignerId, setEditDesignerId] = useState('');
 
   useEffect(() => {
     fetchDesigners();
@@ -32,6 +37,45 @@ export default function AdminArtworks() {
   });
 
   const editArt = artworks.find((a) => a.id === editing);
+
+  const handleSaveEdit = async () => {
+    if (!editArt) return;
+    await updateArtwork(editArt.id, {
+      name: editName,
+      category: editCategory,
+      designerId: editDesignerId,
+      designerName: designers.find((d) => d.id === editDesignerId)?.name || editArt.designerName,
+    });
+    toast.success('Artwork updated.');
+    setEditing(null);
+  };
+
+  const startEditing = (id: string) => {
+    const art = artworks.find((a) => a.id === id);
+    if (art) {
+      setEditName(art.name);
+      setEditCategory(art.category);
+      setEditDesignerId(art.designerId);
+    }
+    setEditing(id);
+  };
+
+  const handleCopy = async (art: typeof artworks[0]) => {
+    const newName = `${art.name} (Copy)`;
+    await addArtwork({
+      name: newName,
+      category: art.category,
+      image: art.image,
+      thumbnail: art.thumbnail,
+      description: art.description,
+      designerId: art.designerId,
+      designerName: art.designerName,
+      status: 'pending_review',
+      reviewNotes: '',
+      available: false,
+    });
+    toast.success(`"${newName}" created.`);
+  };
 
   const handleApprove = async (id: string) => {
     await approveArtwork(id);
@@ -76,11 +120,11 @@ export default function AdminArtworks() {
           <div className="space-y-6">
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Name</label>
-              <input defaultValue={editArt.name} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold" />
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold" />
             </div>
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Category</label>
-              <select defaultValue={editArt.category} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
+              <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
                 {CATEGORIES.filter((c) => c !== 'All').map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -88,7 +132,7 @@ export default function AdminArtworks() {
             </div>
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Designer</label>
-              <select defaultValue={editArt.designerId} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
+              <select value={editDesignerId} onChange={(e) => setEditDesignerId(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
                 <option value="">Select a designer</option>
                 {designers.filter((d) => d.isActive).map((d) => (
                   <option key={d.id} value={d.id}>{d.name}</option>
@@ -108,7 +152,7 @@ export default function AdminArtworks() {
               </div>
             )}
             <div className="pt-6 border-t border-nahkya-gold-soft flex gap-3">
-              <button onClick={() => setEditing(null)} className="px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors">Save Artwork</button>
+              <button onClick={handleSaveEdit} className="px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors">Save Artwork</button>
               <button onClick={() => setEditing(null)} className="px-6 py-2.5 border border-nahkya-gold-soft text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-burgundy transition-colors">Cancel</button>
             </div>
           </div>
@@ -147,29 +191,26 @@ export default function AdminArtworks() {
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((art) => (
-          <div key={art.id} className="group bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden hover:border-nahkya-gold/30 transition-all">
-            <div className="aspect-square bg-nahkya-ivory flex items-center justify-center border-b border-nahkya-gold-soft">
+          <div key={art.id} className="group bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden hover:shadow-gold-glow-soft transition-shadow">
+            <div className="aspect-square bg-nahkya-ivory p-6 flex items-center justify-center">
               {art.image ? (
-                <img src={art.thumbnail || art.image} alt={art.name} className="w-full h-full object-cover" />
+                <img src={art.image} alt={art.name} className="w-full h-full object-contain" />
               ) : (
-                <div className="w-3/4 h-3/4 border border-nahkya-gold-soft/50 rounded-nahkya flex items-center justify-center">
-                  <span className="font-display text-5xl text-nahkya-stone/30">{art.name[0]}</span>
+                <div className="w-full h-full border-2 border-dashed border-nahkya-gold-soft rounded-nahkya flex flex-col items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
+                  <p className="text-sm text-nahkya-text-muted font-body">SVG Preview</p>
                 </div>
               )}
             </div>
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="text-base font-body font-medium text-nahkya-text">{art.name}</h3>
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-body text-body-sm font-medium text-nahkya-text">{art.name}</h3>
                 {statusBadge(art.status)}
               </div>
-              <p className="font-mono text-mono-sm text-nahkya-gold uppercase tracking-label mb-1">{art.category}</p>
-              {art.designerName && (
-                <p className="font-mono text-mono-sm text-nahkya-text-muted mb-2">by {art.designerName}</p>
-              )}
+              <p className="text-body-xs text-nahkya-text-muted font-body">{art.designerName}</p>
 
-              {/* Approval Actions for Pending */}
               {art.status === 'pending_review' && (
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => handleApprove(art.id)}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-nahkya-success/15 text-nahkya-success text-xs font-body font-medium rounded-nahkya hover:bg-nahkya-success/25 transition-colors"
@@ -192,8 +233,8 @@ export default function AdminArtworks() {
                   <div className={cn('w-3 h-3 rounded-full bg-white mt-0.5 transition-transform ', art.available ? 'translate-x-4' : 'translate-x-0.5')} />
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => setEditing(art.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-gold"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button className="p-1.5 text-nahkya-text-muted hover:text-nahkya-text"><Copy className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => startEditing(art.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-gold"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleCopy(art)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-text"><Copy className="w-3.5 h-3.5" /></button>
                   <button onClick={() => deleteArtwork(art.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-error"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>

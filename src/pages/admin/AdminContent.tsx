@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { useArticleStore } from '@/stores/articleStore';
+import { toast } from 'sonner';
 
 const COLUMNS = ['by-nahkya', 'silk-report', 'herstory', 'silk-wire'] as const;
 
 export default function AdminContent() {
-  const { articles, fetchArticles, addArticle, deleteArticle } = useArticleStore();
+  const { articles, fetchArticles, addArticle, updateArticle, deleteArticle } = useArticleStore();
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: '',
     excerpt: '',
@@ -30,10 +32,7 @@ export default function AdminContent() {
     a.author.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSubmit = async () => {
-    if (!form.title.trim() || !form.author.trim()) return;
-    await addArticle(form);
-    setModalOpen(false);
+  const resetForm = () => {
     setForm({
       title: '',
       excerpt: '',
@@ -45,6 +44,41 @@ export default function AdminContent() {
       readTime: '5 min read',
       featured: false,
     });
+    setEditingId(null);
+  };
+
+  const openNew = () => {
+    resetForm();
+    setModalOpen(true);
+  };
+
+  const openEdit = (article: typeof articles[0]) => {
+    setForm({
+      title: article.title,
+      excerpt: article.excerpt,
+      category: article.category,
+      column: (article.column || 'by-nahkya') as typeof COLUMNS[number],
+      author: article.author,
+      date: article.date,
+      image: article.image,
+      readTime: article.readTime || '5 min read',
+      featured: article.featured || false,
+    });
+    setEditingId(article.id);
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!form.title.trim() || !form.author.trim()) return;
+    if (editingId) {
+      await updateArticle(editingId, form);
+      toast.success('Article updated.');
+    } else {
+      await addArticle(form);
+      toast.success('Article published.');
+    }
+    setModalOpen(false);
+    resetForm();
   };
 
   return (
@@ -52,7 +86,7 @@ export default function AdminContent() {
       <div className="flex items-center justify-between mb-2">
         <h1 className="font-display text-display-sm text-nahkya-text font-medium">Content</h1>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={openNew}
           className="flex items-center gap-2 px-4 py-2.5 bg-nahkya-gold text-nahkya-text text-body-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors"
         >
           <Plus className="w-4 h-4" strokeWidth={1.5} />
@@ -87,7 +121,7 @@ export default function AdminContent() {
               <div className="flex items-center justify-between">
                 <span className="font-mono text-mono-sm text-nahkya-text-muted">{a.author} · {a.date}</span>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-1.5 text-nahkya-text-muted hover:text-nahkya-gold"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => openEdit(a)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-gold"><Pencil className="w-3.5 h-3.5" /></button>
                   <button onClick={() => deleteArticle(a.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-error"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
@@ -95,7 +129,7 @@ export default function AdminContent() {
           </div>
         ))}
         <div
-          onClick={() => setModalOpen(true)}
+          onClick={openNew}
           className="border-2 border-dashed border-nahkya-gold-soft rounded-nahkya flex flex-col items-center justify-center aspect-4/3 cursor-pointer hover:border-nahkya-gold/40 transition-colors"
         >
           <Plus className="w-8 h-8 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
@@ -103,7 +137,7 @@ export default function AdminContent() {
         </div>
       </div>
 
-      {/* New Article Modal */}
+      {/* Article Modal (New / Edit) */}
       {modalOpen && (
         <div className="fixed inset-0 z-modal flex items-center justify-center">
           <div className="absolute inset-0 bg-nahkya-charcoal/50" onClick={() => setModalOpen(false)} />
@@ -111,7 +145,7 @@ export default function AdminContent() {
             <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 text-nahkya-text-muted hover:text-nahkya-text">
               <X className="w-5 h-5" />
             </button>
-            <h2 className="font-display text-xl text-nahkya-text font-medium mb-6">New Article</h2>
+            <h2 className="font-display text-xl text-nahkya-text font-medium mb-6">{editingId ? 'Edit Article' : 'New Article'}</h2>
             <div className="space-y-5">
               <div>
                 <label className="block font-mono text-mono-sm font-medium uppercase tracking-widest text-nahkya-text-muted mb-2">Title</label>
@@ -205,7 +239,7 @@ export default function AdminContent() {
                 onClick={handleSubmit}
                 className="px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-body-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors"
               >
-                Publish Article
+                {editingId ? 'Update Article' : 'Publish Article'}
               </button>
               <button
                 onClick={() => setModalOpen(false)}

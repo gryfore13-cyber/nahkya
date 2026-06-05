@@ -1,11 +1,17 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Layers } from 'lucide-react';
 import { StudioShell } from '@/components/studio/StudioShell';
 import { StudioSectionLabel } from '@/components/studio/StudioSectionLabel';
 import { useColourStore } from '@/stores/colourStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useSavedDesignStore } from '@/stores/savedDesignStore';
+import { useOrderStore } from '@/stores/orderStore';
+import { usePlatformStore } from '@/stores/platformStore';
 import { getArtworkById } from '@/lib/artworks';
+import { generateSvgThumbnail } from '@/lib/atelierExport';
+import { toast } from 'sonner';
 import type { ArtworkLayer } from '@/lib/artworks';
 
 export default function Atelier() {
@@ -14,8 +20,13 @@ export default function Atelier() {
   const [activeLayerId, setActiveLayerId] = useState('');
   const [layerColours, setLayerColours] = useState<Record<string, string>>({});
   const [opacity, setOpacity] = useState(100);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const { selectedColour, addToRecent } = useColourStore();
+  const { user } = useAuthStore();
+  const { addDesign } = useSavedDesignStore();
+  const { addOrder } = useOrderStore();
+  const { pricing } = usePlatformStore();
 
   // Set initial active layer
   useEffect(() => {
@@ -33,6 +44,69 @@ export default function Atelier() {
 
   const getLayerColour = (layer: ArtworkLayer) => layerColours[layer.id] ?? layer.defaultColor;
 
+  const getDefaultPrice = useCallback(() => {
+    const row = pricing.find((p) => p.size === '90 x 90');
+    return row?.member ?? 180;
+  }, [pricing]);
+
+  const handleSave = useCallback(async () => {
+    if (!user) {
+      toast.error('Please sign in to save designs.');
+      return;
+    }
+    if (!artwork || !svgRef.current) return;
+    try {
+      const thumbnail = generateSvgThumbnail(svgRef.current, 512);
+      const name = artwork.title;
+      await addDesign({
+        name,
+        tool: 'atelier',
+        thumbnail,
+        userId: user.uid,
+        snapshot: { artworkId: artwork.id, layerColours, opacity },
+      });
+      toast.success(`"${name}" saved to your collection.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save design.');
+    }
+  }, [user, artwork, svgRef, addDesign, layerColours, opacity]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!user) {
+      toast.error('Please sign in to submit orders.');
+      return;
+    }
+    if (!artwork || !svgRef.current) return;
+    try {
+      const thumbnail = generateSvgThumbnail(svgRef.current, 512);
+      const name = artwork.title;
+      const designId = await addDesign({
+        name,
+        tool: 'atelier',
+        thumbnail,
+        userId: user.uid,
+        snapshot: { artworkId: artwork.id, layerColours, opacity },
+      });
+      const amount = getDefaultPrice();
+      await addOrder({
+        userId: user.uid,
+        userName: user.displayName || user.email || 'Member',
+        designId,
+        designName: name,
+        tool: 'atelier',
+        size: '90 x 90 CM',
+        amount,
+        currency: 'BND',
+        status: 'submitted',
+        notes: '',
+        adminNotes: '',
+      });
+      toast.success('Design submitted for production. Track it in Orders.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to submit order.');
+    }
+  }, [user, artwork, svgRef, addDesign, addOrder, layerColours, opacity, getDefaultPrice]);
+
   if (!artwork) {
     return (
       <div className="h-screen flex flex-col bg-workspace-bg items-center justify-center">
@@ -48,55 +122,63 @@ export default function Atelier() {
       <div>
         <StudioSectionLabel>Artwork</StudioSectionLabel>
         <div className="flex items-center gap-2 mb-2">
-          <span className="font-mono text-body-3xs text-nahkya-gold tracking-label uppercase">{artwork.category}</span>
-          <span className="text-workspace-border">&middot;</span>
-          <span className="font-mono text-body-3xs text-nahkya-text-muted">{artwork.artist}</span>
+          <Link to="/member/atelier" className="text-nahkya-text-muted hover:text-nahkya-gold transition-colors">
+            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+          </Link>
+          <span className="font-body text-body-sm text-nahkya-text">{artwork.title}</span>
         </div>
-        <h3 className="font-display text-base text-nahkya-text font-medium">{artwork.title}</h3>
-        <Link to="/member/atelier" className="inline-flex items-center gap-1.5 mt-3 text-body-xs text-nahkya-text-muted hover:text-nahkya-gold transition-colors font-body">
-          <ArrowLeft className="w-3 h-3" strokeWidth={1.5} /> Back to Gallery
-        </Link>
       </div>
 
-      {/* Layer Controls */}
+      {/* Layers */}
       <div>
         <StudioSectionLabel>Layers</StudioSectionLabel>
-        <div className="space-y-1">
-          {artwork.layers.map((layer: ArtworkLayer) => {
+        <div className="space-y-1.5">
+          {artwork.layers.map((layer) => {
+            const colour = getLayerColour(layer);
             const isActive = activeLayerId === layer.id;
-            const currentColour = getLayerColour(layer);
             return (
-              <button key={layer.id} onClick={() => handleLayerClick(layer.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-nahkya transition-all duration-150 ${
-                  isActive ? 'bg-workspace-hover text-nahkya-gold border border-nahkya-gold/30' : 'text-nahkya-text-muted hover:bg-workspace-hover hover:text-nahkya-text border border-transparent'
-                }`}>
-                <div className="w-4 h-4 rounded-nahkya border border-workspace-border flex-shrink-0" style={{ backgroundColor: currentColour }} />
-                <div className="text-left flex-1 min-w-0">
-                  <p className="text-body-sm font-body truncate">{layer.name}</p>
-                  <p className="text-body-3xs text-nahkya-text-muted capitalize">{layer.type}</p>
-                </div>
-                <div className={cn('w-2 h-2 rounded-full flex-shrink-0 ', isActive ? 'bg-nahkya-gold' : 'bg-workspace-border')} />
+              <button
+                key={layer.id}
+                onClick={() => handleLayerClick(layer.id)}
+                className={cn(
+                  'w-full flex items-center gap-3 px-3 py-2 rounded-nahkya border transition-all',
+                  isActive
+                    ? 'border-nahkya-gold bg-nahkya-gold/5'
+                    : 'border-workspace-border bg-workspace-hover hover:border-nahkya-gold/30'
+                )}
+              >
+                <span
+                  className="w-5 h-5 rounded-nahkya border border-workspace-border flex-shrink-0"
+                  style={{ backgroundColor: colour }}
+                />
+                <span className="font-body text-body-sm text-nahkya-text flex-1 text-left">{layer.name}</span>
+                {isActive && <Layers className="w-3.5 h-3.5 text-nahkya-gold" strokeWidth={1.5} />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Settings */}
+      {/* Opacity */}
       <div>
-        <StudioSectionLabel>Settings</StudioSectionLabel>
-        <div>
-          <div className="flex justify-between mb-2">
-            <span className="text-body-xs text-nahkya-text-muted font-body">Preview Opacity</span>
-            <span className="font-mono text-mono-sm text-nahkya-text-muted">{opacity}%</span>
-          </div>
-          <input type="range" min={10} max={100} value={opacity}
-            onChange={(e) => setOpacity(Number(e.target.value))}
-            className="w-full h-1 bg-workspace-border rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-nahkya-gold [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer" />
+        <StudioSectionLabel>Opacity</StudioSectionLabel>
+        <div className="flex justify-between mb-1">
+          <span className="text-body-xs text-nahkya-text-muted">Active layer</span>
+          <span className="font-mono text-mono-sm text-nahkya-text-muted">{opacity}%</span>
         </div>
+        <input
+          type="range"
+          min={10}
+          max={100}
+          value={opacity}
+          onChange={(e) => setOpacity(Number(e.target.value))}
+          className="w-full h-1 bg-workspace-hover rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-nahkya-gold [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
+        />
       </div>
 
-      <div className="pt-4 border-t border-workspace-border">
+      {/* Hint */}
+      <div>
+        <StudioSectionLabel>How to use</StudioSectionLabel>
         <p className="text-body-2xs text-nahkya-text-muted font-body leading-relaxed">Select a layer, then choose a colour. Click on the artwork to apply.</p>
       </div>
     </>
@@ -104,7 +186,7 @@ export default function Atelier() {
 
   const canvas = (
     <>
-      <svg viewBox="0 0 500 500" className="w-full h-full max-w-canvas max-h-canvas drop-shadow-canvas">
+      <svg ref={svgRef} viewBox="0 0 500 500" className="w-full h-full max-w-canvas max-h-canvas drop-shadow-canvas">
         {artwork.layers.map((layer: ArtworkLayer) => {
           const colour = getLayerColour(layer);
           const layerOp = layer.id === activeLayerId ? (opacity / 100).toFixed(2) : '1';
@@ -131,7 +213,12 @@ export default function Atelier() {
   );
 
   return (
-    <StudioShell toolName="Atelier" leftPanel={leftPanel} canvas={canvas}
-      onSave={() => console.log('Save:', artwork.id)} onSubmit={() => console.log('Submit:', artwork.id)} />
+    <StudioShell
+      toolName="Atelier"
+      leftPanel={leftPanel}
+      canvas={canvas}
+      onSave={handleSave}
+      onSubmit={handleSubmit}
+    />
   );
 }

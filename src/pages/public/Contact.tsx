@@ -2,19 +2,37 @@ import { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { LuxuryButton } from '@/components/shared/LuxuryButton';
 import { usePlatformStore } from '@/stores/platformStore';
+import { addDocToCollection } from '@/lib/firebase/db';
+import { toast } from 'sonner';
 
 export default function Contact() {
   const { platformName, contactEmail, address } = usePlatformStore();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('General Inquiry');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await addDocToCollection('contactSubmissions', {
+        name: name.trim(),
+        email: email.trim(),
+        subject,
+        message: message.trim(),
+        createdAt: new Date().toISOString(),
+        read: false,
+      });
       setSubmitted(true);
-    }, 1500);
+    } catch {
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -69,28 +87,33 @@ export default function Contact() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text mb-3">Your Name</label>
-              <input type="text" required className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors" />
+              <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors" />
             </div>
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text mb-3">Email Address</label>
-              <input type="email" required className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors" />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors" />
             </div>
             <div>
               <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text mb-3">Subject</label>
-              <select className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors">
+              <select value={subject} onChange={(e) => setSubject(e.target.value)}
+                className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors">
                 <option>General Inquiry</option>
                 <option>Membership</option>
                 <option>Press</option>
                 <option>Collaboration</option>
-                <option>Order Question</option>
-                <option>Other</option>
+                <option>Order Support</option>
               </select>
             </div>
             <div>
-              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text mb-3">Your Message</label>
-              <textarea rows={6} required className="w-full bg-nahkya-ivory border border-nahkya-gold-soft text-nahkya-text font-body text-base p-4 focus:outline-none focus:border-nahkya-gold transition-colors resize-y" />
+              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text mb-3">Message</label>
+              <textarea required value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
+                className="w-full bg-transparent border-0 border-b-2 border-nahkya-gold-soft text-nahkya-text font-body text-base pb-3 focus:outline-none focus:border-nahkya-gold transition-colors resize-none" />
             </div>
-            <LuxuryButton type="submit" variant="primary" size="lg" loading={loading} className="w-full sm:w-auto">Send Message</LuxuryButton>
+            <LuxuryButton type="submit" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Message'}
+            </LuxuryButton>
           </form>
         )}
       </div>

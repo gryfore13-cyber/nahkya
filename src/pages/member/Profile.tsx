@@ -1,20 +1,33 @@
 import { useState, useRef } from 'react';
-import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { LuxuryButton } from '@/components/shared/LuxuryButton';
 import { uploadFile } from '@/lib/firebase/storage';
 import { createDisplayImage } from '@/lib/image';
+import { toast } from 'sonner';
 
 export default function Profile() {
-  const { user, updateAvatar } = useAuthStore();
-  const [saved, setSaved] = useState(false);
+  const { user, updateAvatar, updateProfile } = useAuthStore();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      if (displayName.trim() && displayName !== user.displayName) {
+        await updateProfile(displayName.trim());
+      }
+      toast.success('Profile updated.');
+    } catch {
+      toast.error('Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,12 +39,20 @@ export default function Profile() {
       const path = `uploads/avatars/users/${user.uid}/${Date.now()}_${file.name}`;
       const url = await uploadFile(resized, path);
       await updateAvatar(url);
+      toast.success('Photo updated.');
     } catch {
-      alert('Failed to upload photo. Please try again.');
+      toast.error('Failed to upload photo. Please try again.');
     } finally {
       setUploadingAvatar(false);
     }
   };
+
+  const fields = [
+    { label: 'FULL NAME', value: displayName, onChange: setDisplayName, editable: true },
+    { label: 'EMAIL', value: user?.email || '', onChange: () => {}, editable: false },
+    { label: 'PHONE', value: phone, onChange: setPhone, editable: true },
+    { label: 'LOCATION', value: location, onChange: setLocation, editable: true },
+  ];
 
   return (
     <div className="p-8 lg:p-12 min-h-screen max-w-content-lg">
@@ -71,62 +92,39 @@ export default function Profile() {
       {/* Form */}
       <div className="space-y-6 mb-12">
         <h2 className="text-xl font-body font-medium text-nahkya-text mb-6">Personal Information</h2>
-        {[
-          { label: 'FULL NAME', value: user?.displayName || 'Aisha Rahman', editable: true },
-          { label: 'EMAIL', value: user?.email || 'aisha@email.com', editable: false },
-          { label: 'PHONE', value: '+673 888 1234', editable: true },
-          { label: 'LOCATION', value: 'Bandar Seri Begawan, Brunei', editable: true },
-        ].map(f => (
+        {fields.map(f => (
           <div key={f.label}>
-            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">{f.label}</label>
-            <input defaultValue={f.value} readOnly={!f.editable}
-              className={cn('w-full bg-workspace-panel border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none ', f.editable ? 'focus:border-nahkya-gold' : 'text-nahkya-text-muted')} />
+            <label className="block font-mono text-mono-sm font-medium uppercase tracking-widest text-nahkya-text-muted mb-2">
+              {f.label}
+            </label>
+            {f.editable ? (
+              <input
+                value={f.value}
+                onChange={(e) => f.onChange(e.target.value)}
+                className="w-full bg-workspace-hover border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold transition-colors"
+              />
+            ) : (
+              <p className="text-body-md text-nahkya-text font-body">{f.value}</p>
+            )}
           </div>
         ))}
       </div>
 
       {/* Membership */}
-      <div className="bg-workspace-panel border border-workspace-border rounded-nahkya p-6 mb-12">
+      <div className="space-y-4 mb-12">
         <h2 className="text-xl font-body font-medium text-nahkya-text mb-6">Membership</h2>
-        <p className="font-display text-xl text-nahkya-gold font-medium mb-2">Atelier Collector</p>
-        <p className="text-sm text-nahkya-text-muted font-body mb-1">Member since 15 January 2025</p>
-        <p className="text-sm text-nahkya-text-muted font-body mb-6">Renews on 15 January 2026</p>
-        <div className="border-t border-workspace-border pt-4 flex gap-6">
-          <button className="text-sm text-nahkya-gold font-body hover:text-nahkya-gold-soft transition-colors">Manage Subscription</button>
-          <button className="text-sm text-nahkya-error font-body hover:text-nahkya-error-light transition-colors">Cancel Membership</button>
+        <div className="flex items-center justify-between py-4 border-t border-workspace-border">
+          <div>
+            <p className="font-body text-body-md text-nahkya-text">Current Tier</p>
+            <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase">Member</p>
+          </div>
+          <span className="font-mono text-mono-sm text-nahkya-gold uppercase">Active</span>
         </div>
       </div>
 
-      {/* Preferences */}
-      <div className="mb-12">
-        <h2 className="text-xl font-body font-medium text-nahkya-text mb-6">Preferences</h2>
-        <div className="space-y-4">
-          {[
-            { label: 'Email notifications for order updates', on: true },
-            { label: 'Email newsletter (The Silk Letter)', on: true },
-            { label: 'Show recent colours across sessions', on: true },
-            { label: 'Auto-save designs', on: true },
-          ].map(p => (
-            <div key={p.label} className="flex items-center justify-between">
-              <span className="text-sm text-nahkya-text font-body">{p.label}</span>
-              <Toggle defaultOn={p.on} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <LuxuryButton variant="primary" size="md" onClick={handleSave}>
-        {saved ? 'Saved ✓' : 'Save Changes'}
+      <LuxuryButton onClick={handleSave} disabled={saving}>
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> : 'Save Changes'}
       </LuxuryButton>
     </div>
-  );
-}
-
-function Toggle({ defaultOn }: { defaultOn: boolean }) {
-  const [on, setOn] = useState(defaultOn);
-  return (
-    <button onClick={() => setOn(!on)} className={cn('w-10 h-5 rounded-full transition-colors ', on ? 'bg-nahkya-gold' : 'bg-workspace-border')}>
-      <div className={cn('w-4 h-4 rounded-full bg-white mt-0.5 transition-transform ', on ? 'translate-x-5' : 'translate-x-0.5')} />
-    </button>
   );
 }

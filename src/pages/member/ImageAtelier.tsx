@@ -2,10 +2,14 @@ import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react
 import { useParams, Link } from 'react-router-dom';
 import { getDocById } from '@/lib/firebase/db';
 import { useColourStore } from '@/stores/colourStore';
+import { useAuthStore } from '@/stores/authStore';
 import { useSavedDesignStore } from '@/stores/savedDesignStore';
+import { useOrderStore } from '@/stores/orderStore';
+import { usePlatformStore } from '@/stores/platformStore';
 import { StudioShell } from '@/components/studio/StudioShell';
 import { StudioSectionLabel } from '@/components/studio/StudioSectionLabel';
 import { useColoringEngine } from '@/hooks/useColoringEngine';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { ArtworkDoc } from '@/types';
 
@@ -20,7 +24,10 @@ export default function ImageAtelier() {
   const { artworkId } = useParams<{ artworkId: string }>();
   const [artwork, setArtwork] = useState<ArtworkDoc | null>(null);
   const { selectedColour } = useColourStore();
+  const { user } = useAuthStore();
   const { addDesign } = useSavedDesignStore();
+  const { addOrder } = useOrderStore();
+  const { pricing } = usePlatformStore();
 
   const {
     canvasRef,
@@ -42,6 +49,9 @@ export default function ImageAtelier() {
     activeLayer,
     setMode,
     mode,
+    baseColor,
+    paintColor,
+    lineColor,
     clearPaint,
     resetAll,
     error,
@@ -251,14 +261,62 @@ export default function ImageAtelier() {
     }
   }, []);
 
-  const handleSave = () => {
-    if (!artwork) return;
-    addDesign({
-      name: `${artwork.name} — ${selectedColour.name}`,
-      tool: 'atelier',
-      thumbnail: artwork.thumbnail || artwork.image || '',
-    });
-  };
+  const getDefaultPrice = useCallback(() => {
+    const row = pricing.find((p) => p.size === '90 x 90');
+    return row?.member ?? 180;
+  }, [pricing]);
+
+  const handleSave = useCallback(async () => {
+    if (!user) { toast.error('Please sign in to save designs.'); return; }
+    if (!artwork || !canvasRef.current) return;
+    try {
+      const thumbnail = canvasRef.current.toDataURL('image/png');
+      const name = artwork.name;
+      await addDesign({
+        name,
+        tool: 'atelier',
+        thumbnail,
+        userId: user.uid,
+        snapshot: { artworkId: artwork.id, baseColor, paintColor, lineColor, mode, activeLayer },
+      });
+      toast.success(`"${name}" saved to your collection.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save design.');
+    }
+  }, [user, artwork, canvasRef, addDesign, baseColor, paintColor, lineColor, mode, activeLayer]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!user) { toast.error('Please sign in to submit orders.'); return; }
+    if (!artwork || !canvasRef.current) return;
+    try {
+      const thumbnail = canvasRef.current.toDataURL('image/png');
+      const name = artwork.name;
+      const designId = await addDesign({
+        name,
+        tool: 'atelier',
+        thumbnail,
+        userId: user.uid,
+        snapshot: { artworkId: artwork.id, baseColor, paintColor, lineColor, mode, activeLayer },
+      });
+      const amount = getDefaultPrice();
+      await addOrder({
+        userId: user.uid,
+        userName: user.displayName || user.email || 'Member',
+        designId,
+        designName: name,
+        tool: 'atelier',
+        size: '90 x 90 CM',
+        amount,
+        currency: 'BND',
+        status: 'submitted',
+        notes: '',
+        adminNotes: '',
+      });
+      toast.success('Design submitted for production. Track it in Orders.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to submit order.');
+    }
+  }, [user, artwork, canvasRef, addDesign, addOrder, baseColor, paintColor, lineColor, mode, activeLayer, getDefaultPrice]);
 
   if (!artwork) {
     return (
@@ -381,7 +439,7 @@ export default function ImageAtelier() {
       leftPanel={leftPanel}
       canvas={canvas}
       onSave={handleSave}
-      onSubmit={() => {}}
+      onSubmit={handleSubmit}
       zoom={zoom}
       onZoomIn={zoomIn}
       onZoomOut={zoomOut}

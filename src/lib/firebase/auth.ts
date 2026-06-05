@@ -165,3 +165,7 @@ export async function getGoogleRedirectResult(): Promise<AuthUser | null> {
 export async function updateUserAvatar(uid: string, avatar: string): Promise<void> {
   await setDoc(doc(db, USERS_COL, uid), { avatar }, { merge: true });
 }
+
+export async function updateUserProfile(uid: string, displayName: string): Promise<void> {
+  await setDoc(doc(db, USERS_COL, uid), { displayName }, { merge: true });
+}

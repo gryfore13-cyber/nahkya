@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AuthUser, UserRole } from '@/lib/firebase/auth';
-import { signIn, signUp, signOut, onAuthChange, signInWithGoogle, getGoogleRedirectResult, updateUserAvatar } from '@/lib/firebase/auth';
+import { signIn, signUp, signOut, onAuthChange, signInWithGoogle, getGoogleRedirectResult, updateUserAvatar, updateUserProfile } from '@/lib/firebase/auth';
 
 interface AuthState {
   user: AuthUser | null;
@@ -19,6 +19,7 @@ interface AuthState {
   setUser: (user: AuthUser | null) => void;
   init: () => (() => void);
   updateAvatar: (avatar: string) => Promise<void>;
+  updateProfile: (displayName: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -85,5 +86,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!user) return;
     await updateUserAvatar(user.uid, avatar);
     set({ user: { ...user, avatar } });
+  },
+
+  updateProfile: async (displayName) => {
+    const { user } = get();
+    if (!user) return;
+    await updateUserProfile(user.uid, displayName);
+    set({ user: { ...user, displayName } });
   },
 }));
