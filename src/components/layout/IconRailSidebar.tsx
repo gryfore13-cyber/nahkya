@@ -49,7 +49,7 @@ export function IconRailSidebarContent({ sections, portalLinks, rootHref }: Icon
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 overflow-y-auto workspace-scroll">
+      <nav className="flex-1 px-3 overflow-y-auto dark-scroll">
         {sections.map((section, sIdx) => (
           <div key={section.title || `section-${sIdx}`}>
             {sIdx > 0 && <div className="mx-2 my-2 border-t border-nahkya-border" />}
@@ -89,8 +89,8 @@ export function IconRailSidebarContent({ sections, portalLinks, rootHref }: Icon
 
       {/* User / Logout */}
       <div className="p-3 border-t border-nahkya-border flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-nahkya-gold-veil border border-nahkya-border flex items-center justify-center">
-          <span className="font-mono text-mono-sm text-nahkya-burgundy">{initials}</span>
+        <div className="w-8 h-8 rounded-full bg-nahkya-highlight-subtle border border-nahkya-border flex items-center justify-center">
+          <span className="font-mono text-mono-sm text-nahkya-accent">{initials}</span>
         </div>
         <button
           onClick={logout}

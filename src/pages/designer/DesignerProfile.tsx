@@ -66,54 +66,54 @@ export default function DesignerProfile() {
   return (
     <div className="p-8 lg:p-12 max-w-content-lg">
       <h1 className="font-display text-display-sm text-nahkya-text font-medium mb-2">Profile</h1>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">
         Manage your designer profile information.
       </p>
 
-      <div className="bg-workspace-panel border border-workspace-border rounded-nahkya p-8">
+      <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya p-8">
         {/* Avatar */}
         <div className="flex items-center gap-4 mb-8">
           {form.avatar ? (
-            <img src={form.avatar} alt={form.name} className="w-16 h-16 rounded-full object-cover border border-workspace-border" />
+            <img src={form.avatar} alt={form.name} className="w-16 h-16 rounded-full object-cover border border-nahkya-border" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-workspace-hover border border-workspace-border flex items-center justify-center">
-              <User className="w-6 h-6 text-nahkya-text-muted" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-full bg-nahkya-surface-raised border border-nahkya-border flex items-center justify-center">
+              <User className="w-6 h-6 text-nahkya-text-secondary" strokeWidth={1.5} />
             </div>
           )}
           <div>
             <p className="font-display text-lg text-nahkya-text font-medium">{form.name || 'Designer'}</p>
-            <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase">{form.email}</p>
+            <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">{form.email}</p>
           </div>
         </div>
 
         <div className="space-y-5">
           <div>
-            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Name</label>
+            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Name</label>
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold placeholder:text-nahkya-text-muted/40"
+              className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight placeholder:text-nahkya-text-secondary/40"
             />
           </div>
           <div>
-            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Email</label>
+            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Email</label>
             <input
               value={form.email}
               disabled
-              className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text-muted font-body text-body-md px-4 py-3 rounded-nahkya cursor-not-allowed"
+              className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text-secondary font-body text-body-md px-4 py-3 rounded-nahkya cursor-not-allowed"
             />
           </div>
           <div>
-            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Bio</label>
+            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Bio</label>
             <textarea
               value={form.bio}
               onChange={(e) => setForm({ ...form, bio: e.target.value })}
               rows={4}
-              className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold resize-none placeholder:text-nahkya-text-muted/40"
+              className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight resize-none placeholder:text-nahkya-text-secondary/40"
             />
           </div>
           <div>
-            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Avatar</label>
+            <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Avatar</label>
             <input
               type="file"
               accept="image/png,image/jpeg"
@@ -123,31 +123,31 @@ export default function DesignerProfile() {
             />
             <button
               onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-              className={`flex items-center gap-4 rounded-nahkya border border-workspace-border bg-workspace-bg p-3 hover:border-nahkya-gold transition-colors ${uploadingAvatar ? 'opacity-50' : ''}`}
+              className={`flex items-center gap-4 rounded-nahkya border border-nahkya-border bg-nahkya-bg p-3 hover:border-nahkya-highlight transition-colors ${uploadingAvatar ? 'opacity-50' : ''}`}
             >
               {uploadingAvatar ? (
-                <div className="w-12 h-12 rounded-full bg-workspace-hover border border-workspace-border flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 text-nahkya-text-muted animate-spin" strokeWidth={1.5} />
+                <div className="w-12 h-12 rounded-full bg-nahkya-surface-raised border border-nahkya-border flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-nahkya-text-secondary animate-spin" strokeWidth={1.5} />
                 </div>
               ) : form.avatar ? (
                 <img src={form.avatar} alt="Avatar preview" className="w-12 h-12 rounded-full object-cover" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-workspace-hover border border-workspace-border flex items-center justify-center">
-                  <User className="w-5 h-5 text-nahkya-text-muted" strokeWidth={1.5} />
+                <div className="w-12 h-12 rounded-full bg-nahkya-surface-raised border border-nahkya-border flex items-center justify-center">
+                  <User className="w-5 h-5 text-nahkya-text-secondary" strokeWidth={1.5} />
                 </div>
               )}
-              <span className="text-sm text-nahkya-text-muted font-body">
+              <span className="text-sm text-nahkya-text-secondary font-body">
                 {uploadingAvatar ? 'Uploading...' : 'Click to upload avatar'}
               </span>
             </button>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-workspace-border mt-6 flex items-center gap-3">
+        <div className="pt-6 border-t border-nahkya-border mt-6 flex items-center gap-3">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-nahkya-highlight text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-border transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" strokeWidth={1.5} />
             {saving ? 'Saving...' : 'Save Profile'}

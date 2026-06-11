@@ -45,7 +45,6 @@ const AdminOrders = lazy(() => import('@/pages/admin/AdminOrders'));
 const AdminMembers = lazy(() => import('@/pages/admin/AdminMembers'));
 const AdminArtworks = lazy(() => import('@/pages/admin/AdminArtworks'));
 const AdminColour = lazy(() => import('@/pages/admin/AdminColour'));
-const AdminAppearance = lazy(() => import('@/pages/admin/AdminAppearance'));
 const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
 
 
@@ -58,10 +57,10 @@ const AdminCommissions = lazy(() => import('@/pages/admin/AdminCommissions'));
 
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-nahkya-ivory flex items-center justify-center">
+    <div className="min-h-screen bg-nahkya-bg flex items-center justify-center">
       <div className="text-center">
-        <div className="w-8 h-8 border-2 border-nahkya-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="font-mono text-mono-sm uppercase tracking-widest-alt text-nahkya-text-muted">
+        <div className="w-8 h-8 border-2 border-nahkya-highlight border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="font-mono text-mono-sm uppercase tracking-widest-alt text-nahkya-text-secondary">
           Loading
         </p>
       </div>
@@ -71,11 +70,11 @@ function PageLoader() {
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-nahkya-ivory flex flex-col items-center justify-center px-5">
-      <p className="font-display text-display-xxxl lg:text-display-mega text-nahkya-text/10 font-medium leading-none select-none">404</p>
+    <div className="min-h-screen bg-nahkya-bg flex flex-col items-center justify-center px-5">
+      <p className="font-display text-display-xl text-nahkya-text/10 font-medium leading-none select-none">404</p>
       <h1 className="font-display text-display-sm lg:text-display-md text-nahkya-text font-medium -mt-8 mb-4">This page does not exist.</h1>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">The path you followed may have changed.</p>
-      <a href="/" className="px-6 py-3 bg-nahkya-gold text-nahkya-text text-body-sm font-body font-medium uppercase tracking-wide hover:bg-nahkya-gold-soft transition-colors">
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">The path you followed may have changed.</p>
+      <a href="/" className="px-6 py-3 bg-nahkya-highlight text-nahkya-text text-body-sm font-body font-medium uppercase tracking-wide hover:bg-nahkya-border transition-colors">
         Return Home
       </a>
     </div>
@@ -112,7 +111,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen bg-nahkya-bg flex items-center justify-center">
         <div className="text-center">
           <div className="font-display text-2xl text-nahkya-text mb-3 text-center">NAHKYA</div>
-          <div className="text-mono-sm text-nahkya-text-muted uppercase">Loading Atelier...</div>
+          <div className="text-mono-sm text-nahkya-text-secondary uppercase">Loading Atelier...</div>
         </div>
       </div>
     );
@@ -167,7 +166,6 @@ export default function App() {
             <Route path="/admin/members" element={<AdminMembers />} />
             <Route path="/admin/artworks" element={<AdminArtworks />} />
             <Route path="/admin/colours" element={<AdminColour />} />
-            <Route path="/admin/appearance" element={<AdminAppearance />} />
             <Route path="/admin/homepage" element={<AdminHomePage />} />
 
 

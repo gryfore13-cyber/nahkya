@@ -15,15 +15,15 @@ export function Logo({ variant = 'dark', size = 'md', layout = 'inline', classNa
   }[size];
 
   const variantClasses = {
-    light: 'text-nahkya-text-inverse',
+    light: 'text-nahkya-inverse',
     dark: 'text-nahkya-text',
-    gold: 'text-nahkya-gold',
+    gold: 'text-nahkya-highlight',
   }[variant];
 
   if (layout === 'stacked') {
     return (
       <div className={cn('flex flex-col items-center leading-none select-none', className)}>
-        <span className="font-body text-body-xs uppercase tracking-hero-wide text-nahkya-text-muted">
+        <span className="font-body text-body-xs uppercase tracking-hero-wide text-nahkya-text-secondary">
           Haus of
         </span>
         <span className={cn('font-display tracking-normal', sizeClasses, variantClasses)}>

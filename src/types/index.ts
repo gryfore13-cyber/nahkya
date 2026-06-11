@@ -52,6 +52,8 @@ export interface Colour {
   id: string;
   name: string;
   hex: string;
+  /** Print/production status from the swatch guide */
+  status?: 'Caution' | 'Approved' | 'Core' | 'Premium';
 }
 
 export interface ColourCategory {

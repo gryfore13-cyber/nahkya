@@ -1,56 +1,50 @@
 import { Home, Paintbrush, Type, Grid3X3, FolderOpen, Package, User, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { IconRailSidebar, IconRailSidebarContent } from './IconRailSidebar';
-import type { NavSection, NavItem } from './IconRailSidebar';
+import { AtelierSidebar } from './AtelierSidebar';
+import type { SidebarSection, SidebarItem } from './AtelierSidebar';
 
-const SECTIONS: NavSection[] = [
+const SECTIONS: SidebarSection[] = [
   {
     title: 'Studio',
     items: [
-      { label: 'Home', shortLabel: 'Home', href: '/member/home', icon: Home },
-      { label: 'Atelier', shortLabel: 'Atelier', href: '/member/atelier', icon: Paintbrush },
-      { label: 'Monogram', shortLabel: 'Monogram', href: '/member/monogram', icon: Type },
-      { label: 'Petak', shortLabel: 'Petak', href: '/member/petak', icon: Grid3X3 },
-      { label: 'Saved Designs', shortLabel: 'Saved', href: '/member/saved', icon: FolderOpen },
+      { label: 'Home', href: '/member/home', icon: Home },
+      { label: 'Atelier', href: '/member/atelier', icon: Paintbrush },
+      { label: 'Monogram', href: '/member/monogram', icon: Type },
+      { label: 'Petak', href: '/member/petak', icon: Grid3X3 },
+      { label: 'Saved Designs', href: '/member/saved', icon: FolderOpen },
     ],
   },
   {
     title: 'Account',
     items: [
-      { label: 'My Orders', shortLabel: 'Orders', href: '/member/orders', icon: Package },
-      { label: 'Profile', shortLabel: 'Profile', href: '/member/profile', icon: User },
+      { label: 'My Orders', href: '/member/orders', icon: Package },
+      { label: 'Profile', href: '/member/profile', icon: User },
     ],
   },
 ];
 
-function getPortalLinks(role?: string): NavItem[] {
+function getPortalLinks(role?: string): SidebarItem[] {
   if (role !== 'super_admin') return [];
   return [
-    { label: 'Admin Dashboard', shortLabel: 'Admin', href: '/admin', icon: ArrowRight },
-    { label: 'Designer Portal', shortLabel: 'Designer', href: '/designer/dashboard', icon: ArrowRight },
+    { label: 'Admin Dashboard', href: '/admin', icon: ArrowRight },
+    { label: 'Designer Portal', href: '/designer/dashboard', icon: ArrowRight },
   ];
 }
 
-export function MemberSidebarContent() {
-  const { user } = useAuthStore();
-
-  return (
-    <IconRailSidebarContent
-      sections={SECTIONS}
-      portalLinks={getPortalLinks(user?.role)}
-      rootHref="/member/home"
-    />
-  );
+interface MemberSidebarProps {
+  collapsed?: boolean;
+  onCollapseToggle?: () => void;
 }
 
-export function MemberSidebar() {
+export function MemberSidebar({ collapsed, onCollapseToggle }: MemberSidebarProps) {
   const { user } = useAuthStore();
-
   return (
-    <IconRailSidebar
+    <AtelierSidebar
       sections={SECTIONS}
-      portalLinks={getPortalLinks(user?.role)}
       rootHref="/member/home"
+      footerItems={getPortalLinks(user?.role)}
+      collapsed={collapsed}
+      onCollapseToggle={onCollapseToggle}
     />
   );
 }

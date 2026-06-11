@@ -38,20 +38,20 @@ export default function DesignerEarnings() {
   return (
     <div className="p-8 lg:p-12">
       <h1 className="font-display text-display-sm text-nahkya-text font-medium mb-2">My Earnings</h1>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">
         Commission history for {designer?.name || user?.displayName || 'your account'}.
       </p>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {[
-          { label: 'Total Earned', value: `BND ${totalEarned.toFixed(2)}`, icon: DollarSign, color: 'text-nahkya-gold' },
+          { label: 'Total Earned', value: `BND ${totalEarned.toFixed(2)}`, icon: DollarSign, color: 'text-nahkya-highlight' },
           { label: 'Pending', value: `BND ${pending.toFixed(2)}`, icon: Clock, color: 'text-nahkya-error' },
           { label: 'Paid Out', value: `BND ${paid.toFixed(2)}`, icon: CheckCircle, color: 'text-nahkya-success' },
         ].map((card) => (
-          <div key={card.label} className="bg-workspace-panel border border-workspace-border rounded-nahkya p-5">
+          <div key={card.label} className="bg-nahkya-surface border border-nahkya-border rounded-nahkya p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-mono text-mono-sm text-nahkya-text-muted uppercase tracking-label">{card.label}</span>
+              <span className="font-mono text-mono-sm text-nahkya-text-secondary uppercase tracking-label">{card.label}</span>
               <card.icon className={`w-4 h-4 ${card.color}`} strokeWidth={1.5} />
             </div>
             <p className="font-display text-2xl text-nahkya-text font-medium">{card.value}</p>
@@ -62,12 +62,12 @@ export default function DesignerEarnings() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-content">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nahkya-text-muted" strokeWidth={1.5} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nahkya-text-secondary" strokeWidth={1.5} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search earnings..."
-            className="pl-10 pr-4 py-2 bg-workspace-panel border border-workspace-border text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-gold w-full font-body placeholder:text-nahkya-text-muted/40"
+            className="pl-10 pr-4 py-2 bg-nahkya-surface border border-nahkya-border text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-highlight w-full font-body placeholder:text-nahkya-text-secondary/40"
           />
         </div>
         <div className="flex gap-2">
@@ -75,8 +75,8 @@ export default function DesignerEarnings() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 bg-workspace-panel border rounded-nahkya font-mono text-mono-sm font-medium uppercase tracking-label transition-colors ${
-                filter === f ? 'border-nahkya-gold bg-nahkya-gold/15 text-nahkya-gold' : 'border-workspace-border text-nahkya-text-muted hover:border-nahkya-gold/40'
+              className={`px-4 py-2 bg-nahkya-surface border rounded-nahkya font-mono text-mono-sm font-medium uppercase tracking-label transition-colors ${
+                filter === f ? 'border-nahkya-highlight bg-nahkya-highlight/15 text-nahkya-highlight' : 'border-nahkya-border text-nahkya-text-secondary hover:border-nahkya-highlight/40'
               }`}
             >
               {f}
@@ -86,14 +86,14 @@ export default function DesignerEarnings() {
       </div>
 
       {/* Table */}
-      <div className="bg-workspace-panel border border-workspace-border rounded-nahkya overflow-hidden">
-        <div className="hidden lg:grid grid-cols-[1fr_1fr_80px_100px_100px_100px] gap-3 px-5 py-3 border-b border-workspace-border">
+      <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden">
+        <div className="hidden lg:grid gap-3 px-5 py-3 border-b border-nahkya-border" style={{ gridTemplateColumns: '1fr 1fr 80px 100px 100px 100px' }}>
           {['Artwork', 'Order', 'Amount', 'Commission', 'Status', 'Date'].map((h) => (
-            <span key={h} className="font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted">{h}</span>
+            <span key={h} className="font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary">{h}</span>
           ))}
         </div>
         {filtered.length === 0 ? (
-          <div className="px-5 py-12 text-center text-nahkya-text-muted font-body">
+          <div className="px-5 py-12 text-center text-nahkya-text-secondary font-body">
             {myCommissions.length === 0
               ? 'No commissions yet. When a member orders a scarf using your artwork, you will see it here.'
               : 'No commissions match your search.'}
@@ -102,18 +102,19 @@ export default function DesignerEarnings() {
           filtered.map((c, i) => (
             <div
               key={c.id}
-              className={`grid grid-cols-1 lg:grid-cols-[1fr_1fr_80px_100px_100px_100px] gap-3 px-5 py-3.5 items-center ${
-                i < filtered.length - 1 ? 'border-b border-workspace-border' : ''
-              } hover:bg-workspace-hover transition-colors`}
+              className={`grid gap-3 px-5 py-3.5 items-center ${
+                i < filtered.length - 1 ? 'border-b border-nahkya-border' : ''
+              } hover:bg-nahkya-surface-raised transition-colors`}
+              style={{ gridTemplateColumns: '1fr 1fr 80px 100px 100px 100px' }}
             >
               <span className="text-sm text-nahkya-text font-body">{c.artworkName}</span>
-              <span className="font-mono text-mono-sm text-nahkya-text-muted">{c.orderId}</span>
+              <span className="font-mono text-mono-sm text-nahkya-text-secondary">{c.orderId}</span>
               <span className="font-mono text-mono-sm text-nahkya-text">BND {c.orderAmount}</span>
-              <span className="font-mono text-mono-sm text-nahkya-gold uppercase">BND {c.commissionAmount}</span>
+              <span className="font-mono text-mono-sm text-nahkya-highlight uppercase">BND {c.commissionAmount}</span>
               <span className={cn('font-mono text-mono-sm uppercase ', c.status === 'paid' ? 'text-nahkya-success' : 'text-nahkya-error')}>
                 {c.status}
               </span>
-              <span className="font-mono text-mono-sm text-nahkya-text-muted">
+              <span className="font-mono text-mono-sm text-nahkya-text-secondary">
                 {new Date(c.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
             </div>

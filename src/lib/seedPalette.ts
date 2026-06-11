@@ -1,12 +1,19 @@
-// NAHKYA Colour Palette — 200-colour seed palette
-// 10 Families × 4–5 Sub-Colours × 5 Tones = 205 colours
+// NAHKYA Colour Palette — 360-colour flat swatch system
+// 12 Categories × 30 Swatches = 360 colours
 //
-// Tone scale for each sub-colour:
-//   0 = Lightest  (50 % toward white)
-//   1 = Light     (25 % toward white)
-//   2 = Base      (original pigment)
-//   3 = Dark      (30 % toward near-black)
-//   4 = Deepest   (55 % toward near-black)
+// Each swatch has a unique name, explicit hex value, and print status:
+//   Caution  = Light tints, may require print testing
+//   Approved = Print-tested and production-ready
+//   Core     = Signature brand colours
+//   Premium  = Special / metallic finishes
+//
+// Replaces the previous 200-colour generated tone system.
+
+import type { ColourCategory } from '@/types';
+import {
+  NAHKYA_SWATCH_CATEGORIES,
+  type NahkyaSwatch,
+} from './nahkyaSwatches';
 
 export interface SubColour {
   name: string;
@@ -19,7 +26,7 @@ export interface ColourFamily {
   subColours: SubColour[];
 }
 
-/* ── Helpers ── */
+/* ── Legacy tone helpers (kept for backward compat) ── */
 
 function hexToRgb(hex: string): [number, number, number] {
   const sanitized = hex.replace('#', '');
@@ -62,7 +69,33 @@ function generateTones(baseHex: string): [string, string, string, string, string
 
 const TONE_LABELS = ['Lightest', 'Light', 'Base', 'Dark', 'Deepest'] as const;
 
-/* ── Raw pigment definitions (base hex only) ── */
+/* ── New 360-swatch system ── */
+
+/**
+ * Convert the flat swatch system into the ColourCategory format
+ * used by the colour store. Each category becomes a columnar grid.
+ */
+export function buildSwatchColourCategories(): ColourCategory[] {
+  return NAHKYA_SWATCH_CATEGORIES.map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    isSystem: true,
+    columns: 6,
+    colours: cat.swatches.map((s) => ({
+      id: s.id,
+      name: s.name,
+      hex: s.hex,
+      status: s.status,
+    })),
+  }));
+}
+
+/** Quick-access flat list of all 360 swatches */
+export const ALL_SWATCHES: NahkyaSwatch[] = NAHKYA_SWATCH_CATEGORIES.flatMap(
+  (c) => c.swatches
+);
+
+/* ── Legacy generated palette (kept for reference / migration) ── */
 
 const RAW_FAMILIES: { name: string; pigments: { name: string; hex: string }[] }[] = [
   {
@@ -158,8 +191,6 @@ const RAW_FAMILIES: { name: string; pigments: { name: string; hex: string }[] }[
   },
 ];
 
-/* ── Compiled palette with tones ── */
-
 export const NAHKYA_SEED_PALETTE: ColourFamily[] = RAW_FAMILIES.map((family) => ({
   name: family.name,
   subColours: family.pigments.map((p) => ({
@@ -170,3 +201,4 @@ export const NAHKYA_SEED_PALETTE: ColourFamily[] = RAW_FAMILIES.map((family) => 
 }));
 
 export { TONE_LABELS };
+export { NAHKYA_SWATCH_CATEGORIES };

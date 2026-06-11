@@ -42,6 +42,9 @@ interface ColoringEngineState {
   loadImage: (url: string) => Promise<void>;
   handleCanvasClick: (event: React.MouseEvent<HTMLCanvasElement>) => void;
   applyColorToActiveLayer: (value: string) => void;
+  setBaseColor: (color: string) => void;
+  setPaintColor: (color: string) => void;
+  setLineColor: (color: string) => void;
   clearPaint: () => void;
   resetAll: () => void;
 }
@@ -307,5 +310,8 @@ export function useColoringEngine(options: ColoringEngineOptions = {}): Coloring
     applyColorToActiveLayer,
     clearPaint,
     resetAll,
+    setBaseColor,
+    setPaintColor,
+    setLineColor,
   };
 }

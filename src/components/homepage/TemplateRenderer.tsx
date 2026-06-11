@@ -20,6 +20,12 @@ const sectionComponents: Record<
   asymmetricalEditorial: lazy(() => import('@/components/homepage/sections/AsymmetricalEditorialSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
   productShowcase: lazy(() => import('@/components/homepage/sections/ProductShowcaseSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
   leadCapture: lazy(() => import('@/components/homepage/sections/LeadCaptureSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  benefits: lazy(() => import('@/components/homepage/sections/BenefitsSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  testimonials: lazy(() => import('@/components/homepage/sections/TestimonialsSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  faq: lazy(() => import('@/components/homepage/sections/FAQSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  howItWorks: lazy(() => import('@/components/homepage/sections/HowItWorksSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  lookbook: lazy(() => import('@/components/homepage/sections/LookbookSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
+  collectionPreview: lazy(() => import('@/components/homepage/sections/CollectionPreviewSection')) as unknown as React.LazyExoticComponent<React.ComponentType<{ section: HomepageSection }>>,
 };
 
 interface TemplateRendererProps {
@@ -31,7 +37,7 @@ export function TemplateRenderer({ section }: TemplateRendererProps) {
 
   if (!Component) {
     return (
-      <div className="py-12 text-center font-mono text-mono-sm text-nahkya-text-muted uppercase tracking-widest">
+      <div className="py-12 text-center font-mono text-mono-sm text-nahkya-text-secondary uppercase tracking-widest">
         Unknown template: {section.templateType}
       </div>
     );
@@ -41,7 +47,7 @@ export function TemplateRenderer({ section }: TemplateRendererProps) {
     <Suspense
       fallback={
         <div className="py-20 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-nahkya-gold border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-nahkya-highlight border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

@@ -1,55 +1,50 @@
 import { LayoutDashboard, Palette, DollarSign, User, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { IconRailSidebar, IconRailSidebarContent } from './IconRailSidebar';
-import type { NavSection, NavItem } from './IconRailSidebar';
+import { AtelierSidebar } from './AtelierSidebar';
+import type { SidebarSection, SidebarItem } from './AtelierSidebar';
 
-const SECTIONS: NavSection[] = [
+const SECTIONS: SidebarSection[] = [
   {
-    title: '',
     items: [
-      { label: 'Dashboard', shortLabel: 'Dashboard', href: '/designer/dashboard', icon: LayoutDashboard },
+      { label: 'Dashboard', href: '/designer/dashboard', icon: LayoutDashboard },
     ],
   },
   {
     title: 'Work',
     items: [
-      { label: 'My Artworks', shortLabel: 'Artworks', href: '/designer/artworks', icon: Palette },
-      { label: 'My Earnings', shortLabel: 'Earnings', href: '/designer/earnings', icon: DollarSign },
+      { label: 'My Artworks', href: '/designer/artworks', icon: Palette },
+      { label: 'My Earnings', href: '/designer/earnings', icon: DollarSign },
     ],
   },
   {
     title: 'Account',
     items: [
-      { label: 'Profile', shortLabel: 'Profile', href: '/designer/profile', icon: User },
+      { label: 'Profile', href: '/designer/profile', icon: User },
     ],
   },
 ];
 
-function getPortalLinks(role?: string): NavItem[] {
+function getPortalLinks(role?: string): SidebarItem[] {
   if (role !== 'super_admin') return [];
   return [
-    { label: 'Admin Dashboard', shortLabel: 'Admin', href: '/admin', icon: ArrowRight },
+    { label: 'Admin Dashboard', href: '/admin', icon: ArrowRight },
   ];
 }
 
-export function DesignerSidebarContent() {
-  const { user } = useAuthStore();
-  return (
-    <IconRailSidebarContent
-      sections={SECTIONS}
-      portalLinks={getPortalLinks(user?.role)}
-      rootHref="/designer/dashboard"
-    />
-  );
+interface DesignerSidebarProps {
+  collapsed?: boolean;
+  onCollapseToggle?: () => void;
 }
 
-export function DesignerSidebar() {
+export function DesignerSidebar({ collapsed, onCollapseToggle }: DesignerSidebarProps) {
   const { user } = useAuthStore();
   return (
-    <IconRailSidebar
+    <AtelierSidebar
       sections={SECTIONS}
-      portalLinks={getPortalLinks(user?.role)}
       rootHref="/designer/dashboard"
+      footerItems={getPortalLinks(user?.role)}
+      collapsed={collapsed}
+      onCollapseToggle={onCollapseToggle}
     />
   );
 }

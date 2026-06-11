@@ -83,7 +83,7 @@ export default function MonogramControls({
       <div>
         <div className="mb-4">
           <StudioSectionLabel>Your Monogram</StudioSectionLabel>
-          <p className="text-body-xs text-nahkya-text-muted mt-1">
+          <p className="text-body-xs text-nahkya-text-secondary mt-1">
             Begin with the letters that define you.
           </p>
         </div>
@@ -149,10 +149,10 @@ export default function MonogramControls({
       {selectedLetter && (
         <div className="pt-2">
           <div className="flex items-center gap-2 mb-4">
-            <span className="font-mono text-mono-sm uppercase tracking-widest text-nahkya-text-muted">
+            <span className="font-mono text-mono-sm uppercase tracking-widest text-nahkya-text-secondary">
               Refine This Letter
             </span>
-            <div className="h-px flex-1 bg-workspace-border" />
+            <div className="h-px flex-1 bg-nahkya-border" />
           </div>
 
           {/* Font */}
@@ -171,21 +171,21 @@ export default function MonogramControls({
                 }
               }}
             >
-              <SelectTrigger className="w-full bg-workspace-hover border-workspace-border text-nahkya-text h-11 rounded-nahkya">
+              <SelectTrigger className="w-full bg-nahkya-surface-raised border-nahkya-border text-nahkya-text h-11 rounded-nahkya">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-workspace-panel border-workspace-border">
+              <SelectContent className="bg-nahkya-surface border-nahkya-border">
                 {FONT_OPTIONS.map((font) => (
                   <SelectItem
                     key={font.id}
                     value={font.id}
-                    className="text-nahkya-text focus:bg-workspace-hover focus:text-nahkya-text"
+                    className="text-nahkya-text focus:bg-nahkya-surface-raised focus:text-nahkya-text"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-body-sm">{font.name}</span>
                       <span
                         className={cn(
-                          'text-body-sm text-nahkya-text-muted',
+                          'text-body-sm text-nahkya-text-secondary',
                           getFontClasses(font.id)
                         )}
                       >
@@ -223,29 +223,29 @@ export default function MonogramControls({
           {/* Advanced Toggle */}
           <button
             onClick={() => setShowAdvanced((prev) => !prev)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya text-body-sm text-nahkya-text font-medium hover:border-nahkya-text-secondary transition-colors mb-3"
+            className="w-full flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya text-body-sm text-nahkya-text font-medium hover:border-nahkya-text-secondary transition-colors mb-3"
           >
             <span>Advanced</span>
-            <span className="text-nahkya-text-muted">{showAdvanced ? '−' : '+'}</span>
+            <span className="text-nahkya-text-secondary">{showAdvanced ? '−' : '+'}</span>
           </button>
 
           {showAdvanced && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya">
+              <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya">
                 <span className="text-body-sm text-nahkya-text">Keep All Letters Same Size</span>
                 <Switch
                   checked={linkTextSize}
                   onCheckedChange={toggleLinkTextSize}
-                  className="data-[state=checked]:bg-nahkya-gold"
+                  className="data-[state=checked]:bg-nahkya-highlight"
                 />
               </div>
 
-              <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya">
+              <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya">
                 <span className="text-body-sm text-nahkya-text">Move as Group</span>
                 <Switch
                   checked={moveAsGroup}
                   onCheckedChange={setMoveAsGroup}
-                  className="data-[state=checked]:bg-nahkya-gold"
+                  className="data-[state=checked]:bg-nahkya-highlight"
                 />
               </div>
 
@@ -274,16 +274,16 @@ export default function MonogramControls({
       )}
 
       {/* ── Pigment ── */}
-      <div className="border-t border-workspace-border pt-6">
+      <div className="border-t border-nahkya-border pt-6">
         <StudioSectionLabel>Pigment</StudioSectionLabel>
-        <p className="text-body-xs text-nahkya-text-muted mb-4">
+        <p className="text-body-xs text-nahkya-text-secondary mb-4">
           Select a target, then choose a colour from the panel.
         </p>
 
         {/* Currently editing */}
         <div className="flex items-center justify-between mb-4 px-1">
-          <span className="text-body-xs text-nahkya-text-muted">Currently editing</span>
-          <span className="text-body-xs font-semibold text-nahkya-burgundy">
+          <span className="text-body-xs text-nahkya-text-secondary">Currently editing</span>
+          <span className="text-body-xs font-semibold text-nahkya-accent">
             {COLOR_TARGETS.find((t) => t.key === activeColorTarget)?.label}
           </span>
         </div>
@@ -293,7 +293,7 @@ export default function MonogramControls({
             const isActive = activeColorTarget === target.key;
             const swatchColor =
               target.key === 'letter'
-                ? selectedLetter?.color ?? 'var(--nahkya-gold-soft)'
+                ? selectedLetter?.color ?? 'var(--nahkya-border)'
                 : target.key === 'base'
                   ? baseColor
                   : target.key === 'border'
@@ -306,8 +306,8 @@ export default function MonogramControls({
                 className={cn('nk-color-target-card', isActive && 'is-active')}
               >
                 <div
-                  className="nk-color-target-card-swatch"
-                  style={{ backgroundColor: swatchColor }}
+                  className="nk-color-target-card-swatch bg-[var(--swatch)]"
+                  ref={(el) => { if (el) el.style.setProperty('--swatch', swatchColor); }}
                 />
                 <div className="nk-color-target-card-title">{target.label}</div>
                 <div className="nk-color-target-card-desc">{target.description}</div>
@@ -318,27 +318,27 @@ export default function MonogramControls({
       </div>
 
       {/* ── Pattern ── */}
-      <div className="border-t border-workspace-border pt-6">
+      <div className="border-t border-nahkya-border pt-6">
         <StudioSectionLabel>Pattern</StudioSectionLabel>
-        <p className="text-body-xs text-nahkya-text-muted mb-4">
+        <p className="text-body-xs text-nahkya-text-secondary mb-4">
           Control how your monogram repeats across the scarf.
         </p>
 
-        <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya mb-3">
+        <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya mb-3">
           <span className="text-body-sm text-nahkya-text">Snap to Grid</span>
           <Switch
             checked={snapEnabled}
             onCheckedChange={setSnapEnabled}
-            className="data-[state=checked]:bg-nahkya-gold"
+            className="data-[state=checked]:bg-nahkya-highlight"
           />
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya mb-3">
+        <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya mb-3">
           <span className="text-body-sm text-nahkya-text">Show Guides</span>
           <Switch
             checked={showSourceGuides}
             onCheckedChange={setShowSourceGuides}
-            className="data-[state=checked]:bg-nahkya-gold"
+            className="data-[state=checked]:bg-nahkya-highlight"
           />
         </div>
 
@@ -364,22 +364,22 @@ export default function MonogramControls({
       </div>
 
       {/* ── Borders ── */}
-      <div className="border-t border-workspace-border pt-6">
+      <div className="border-t border-nahkya-border pt-6">
         <StudioSectionLabel>Borders</StudioSectionLabel>
-        <p className="text-body-xs text-nahkya-text-muted mb-4">
+        <p className="text-body-xs text-nahkya-text-secondary mb-4">
           Frame your monogram with tailored borders.
         </p>
 
         {/* Frame Style */}
         <div className="mb-3">
-          <label className="text-body-xs text-nahkya-text-muted mb-1.5 block">Frame Style</label>
+          <label className="text-body-xs text-nahkya-text-secondary mb-1.5 block">Frame Style</label>
           <Select value={borderStyle} onValueChange={setBorderStyle}>
-            <SelectTrigger className="w-full bg-workspace-panel border-workspace-border text-nahkya-text">
+            <SelectTrigger className="w-full bg-nahkya-surface border-nahkya-border text-nahkya-text">
               <SelectValue placeholder="Select frame style" />
             </SelectTrigger>
-            <SelectContent className="bg-workspace-panel border-workspace-border">
+            <SelectContent className="bg-nahkya-surface border-nahkya-border">
               {TILE_FRAME_STYLES.map((fs) => (
-                <SelectItem key={fs.key} value={fs.key} className="text-nahkya-text hover:bg-workspace-hover focus:bg-workspace-hover">
+                <SelectItem key={fs.key} value={fs.key} className="text-nahkya-text hover:bg-nahkya-surface-raised focus:bg-nahkya-surface-raised">
                   {fs.label}
                 </SelectItem>
               ))}
@@ -387,12 +387,12 @@ export default function MonogramControls({
           </Select>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya mb-3">
+        <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya mb-3">
           <span className="text-body-sm text-nahkya-text">Show Border</span>
           <Switch
             checked={showBorder}
             onCheckedChange={setShowBorder}
-            className="data-[state=checked]:bg-nahkya-gold"
+            className="data-[state=checked]:bg-nahkya-highlight"
           />
         </div>
 
@@ -408,12 +408,12 @@ export default function MonogramControls({
           />
         )}
 
-        <div className="flex items-center justify-between px-4 py-3 bg-workspace-hover border border-workspace-border rounded-nahkya mb-3">
+        <div className="flex items-center justify-between px-4 py-3 bg-nahkya-surface-raised border border-nahkya-border rounded-nahkya mb-3">
           <span className="text-body-sm text-nahkya-text">Show Inset</span>
           <Switch
             checked={showBorder2}
             onCheckedChange={setShowBorder2}
-            className="data-[state=checked]:bg-nahkya-gold"
+            className="data-[state=checked]:bg-nahkya-highlight"
           />
         </div>
 
@@ -445,7 +445,7 @@ export default function MonogramControls({
       {/* ── Reset ── */}
       <button
         onClick={resetPrototype}
-        className="w-full py-3 rounded-nahkya border border-workspace-border bg-workspace-hover text-body-sm text-nahkya-text-muted font-semibold hover:border-nahkya-ivory hover:text-nahkya-text transition-colors"
+        className="w-full py-3 rounded-nahkya border border-nahkya-border bg-nahkya-surface-raised text-body-sm text-nahkya-text-secondary font-semibold hover:border-nahkya-bg hover:text-nahkya-text transition-colors"
       >
         Reset Monogram
       </button>
@@ -472,13 +472,13 @@ function SliderControl({ label, value, min, max, step, suffix, onChange }: Slide
     <div className="mb-4">
       <div className="flex justify-between items-center mb-2">
         <span className="text-body-xs text-nahkya-text font-medium">{label}</span>
-        <span className="font-mono text-mono-sm text-nahkya-text-muted bg-workspace-hover px-2 py-0.5 rounded-nahkya">
+        <span className="font-mono text-mono-sm text-nahkya-text-secondary bg-nahkya-surface-raised px-2 py-0.5 rounded-nahkya">
           {value}{suffix}
         </span>
       </div>
-      <div className="relative h-1.5 rounded-full bg-workspace-hover">
+      <div className="relative h-1.5 rounded-full bg-nahkya-surface-raised">
         <div
-          className="absolute left-0 top-0 h-full rounded-full bg-nahkya-ivory pointer-events-none"
+          className="absolute left-0 top-0 h-full rounded-full bg-nahkya-bg pointer-events-none"
           style={{ width: `${pct}%` }}
         />
         <input
@@ -491,7 +491,7 @@ function SliderControl({ label, value, min, max, step, suffix, onChange }: Slide
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-nahkya-ivory bg-workspace-panel shadow-sm pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-nahkya-bg bg-nahkya-surface shadow-sm pointer-events-none"
           style={{ left: `calc(${pct}% - 8px)` }}
         />
       </div>

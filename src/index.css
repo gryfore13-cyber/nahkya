@@ -4,37 +4,152 @@
 
 @layer base {
   :root {
-    /* shadcn/ui theme variables — kept for compatibility */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 8%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 8%;
+    /* shadcn/ui theme variables — mapped to Atelier Design System */
+    --background: 36 25% 96%;
+    --foreground: 0 0% 17%;
+    --card: 36 24% 91%;
+    --card-foreground: 0 0% 17%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 8%;
-    --primary: 42 62% 56%;
-    --primary-foreground: 240 10% 8%;
-    --secondary: 30 9% 89%;
-    --secondary-foreground: 240 10% 8%;
-    --muted: 30 9% 89%;
-    --muted-foreground: 0 0% 43%;
-    --accent: 30 9% 89%;
-    --accent-foreground: 240 10% 8%;
-    --destructive: 7 47% 53%;
+    --popover-foreground: 0 0% 17%;
+    --primary: 352 46% 33%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 38 43% 59%;
+    --secondary-foreground: 0 0% 17%;
+    --muted: 36 24% 91%;
+    --muted-foreground: 30 5% 40%;
+    --accent: 36 24% 91%;
+    --accent-foreground: 0 0% 17%;
+    --destructive: 0 40% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 9% 89%;
-    --input: 30 9% 89%;
-    --ring: 42 62% 56%;
+    --border: 36 15% 85%;
+    --input: 36 15% 85%;
+    --ring: 38 43% 59%;
     --radius: 2px;
 
-    /* Legacy Nahkya tokens — mapped by nahkya-v10.css, kept here for runtime safety */
-    --nahkya-teal: #5A8A8A;
-    --nahkya-fuchsia: #8A5A8A;
-    /* Workspace tokens — updated to v10 light workspace */
-    --workspace-bg: #F8F1E8;
-    --workspace-sidebar: #FFF9F2;
-    --workspace-panel: #FCF7F1;
-    --workspace-border: #D8BE96;
-    --workspace-hover: #EFE2C7;
+    /* Atelier Design System — light surface default */
+    --nahkya-bg: #F8F5F0;
+    --nahkya-surface: #EDE8E0;
+    --nahkya-surface-raised: #FFFFFF;
+    --nahkya-text: #2C2C2C;
+    --nahkya-text-secondary: #6B6560;
+    --nahkya-inverse: #FFFFFF;
+    --nahkya-accent: #7A2E3C;
+    --nahkya-accent-hover: #6A2532;
+    --nahkya-accent-active: #5A1F2A;
+    --nahkya-accent-subtle: rgba(122,46,60,0.08);
+    --nahkya-highlight: #C8A464;
+    --nahkya-highlight-hover: #B89450;
+    --nahkya-highlight-subtle: rgba(200,164,100,0.08);
+    --nahkya-border: #E0DCD5;
+    --nahkya-error: #B54A4A;
+    --nahkya-error-subtle: #F5E0E0;
+    --nahkya-success: #5A8F6E;
+    --nahkya-success-subtle: #E8F0EC;
+    --nahkya-warning: #C4943F;
+    --nahkya-warning-subtle: #F5ECD8;
+    --nahkya-info: #5A7A9A;
+    --nahkya-info-subtle: #E0E8F0;
+    --nahkya-olive: #8B8B6E;
+    --nahkya-olive-subtle: #E8EBE4;
+    --nahkya-muted: #9A958E;
+    --nahkya-disabled: #C4BEB6;
+    --nahkya-disabled-text: #9A958E;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 4px rgba(44,44,44,0.04);
+    --shadow-md: 0 4px 12px rgba(44,44,44,0.06);
+    --shadow-lg: 0 8px 24px rgba(44,44,44,0.08);
+    --shadow-xl: 0 16px 48px rgba(44,44,44,0.10);
+    --shadow-focus: 0 0 0 3px rgba(200,164,100,0.3);
+    --shadow-editor: 0 2px 12px rgba(44,44,44,0.06);
+    --shadow-soft: 0 24px 80px rgba(200,164,100,0.16);
+    --shadow-card: 0 8px 32px rgba(44,44,44,0.08);
+    --shadow-burgundy: 0 8px 32px rgba(122,46,60,0.12);
+
+    /* Radius */
+    --radius-nahkya: 2px;
+    --radius-nahkya-sm: 4px;
+    --radius-nahkya-md: 8px;
+    --radius-nahkya-lg: 12px;
+    --radius-nahkya-xl: 16px;
+    --radius-pill: 9999px;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+    --space-3xl: 48px;
+
+    /* Transitions */
+    --transition-fast: 100ms ease-out;
+    --transition-base: 150ms ease-out;
+    --transition-medium: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-slow: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Dark Mode */
+  [data-theme="dark"] {
+    /* shadcn/ui dark overrides */
+    --background: 0 0% 7%;
+    --foreground: 36 14% 89%;
+    --card: 0 0% 12%;
+    --card-foreground: 36 14% 89%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 36 14% 89%;
+    --primary: 352 46% 33%;
+    --primary-foreground: 36 14% 89%;
+    --secondary: 38 43% 59%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 36 5% 55%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 36 14% 89%;
+    --destructive: 0 50% 55%;
+    --destructive-foreground: 0 0% 7%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 38 43% 59%;
+    --radius: 2px;
+
+    /* Nahkya dark tokens */
+    --nahkya-bg: #121212;
+    --nahkya-surface: #1A1A1A;
+    --nahkya-surface-raised: #242424;
+    --nahkya-text: #E8E4DF;
+    --nahkya-text-secondary: #B0AAA4;
+    --nahkya-inverse: #121212;
+    --nahkya-accent: #9A4A5C;
+    --nahkya-accent-hover: #7A2E3C;
+    --nahkya-accent-active: #5A1F2A;
+    --nahkya-accent-subtle: rgba(154,74,92,0.15);
+    --nahkya-highlight: #D4B878;
+    --nahkya-highlight-hover: #C8A464;
+    --nahkya-highlight-subtle: rgba(212,184,120,0.10);
+    --nahkya-border: #3A3A3A;
+    --nahkya-error: #E07070;
+    --nahkya-error-subtle: #3D1A1A;
+    --nahkya-success: #7AAF8E;
+    --nahkya-success-subtle: #1A3D2A;
+    --nahkya-warning: #D4A85A;
+    --nahkya-warning-subtle: #3D2E1A;
+    --nahkya-info: #7A9AB0;
+    --nahkya-info-subtle: #1A2A3D;
+    --nahkya-olive: #9A9A7E;
+    --nahkya-olive-subtle: #2A2A25;
+    --nahkya-muted: #7A7570;
+    --nahkya-disabled: #4A4A4A;
+    --nahkya-disabled-text: #6A6560;
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.20);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.30);
+    --shadow-xl: 0 16px 48px rgba(0,0,0,0.35);
+    --shadow-soft: 0 24px 80px rgba(0,0,0,0.40);
+    --shadow-card: 0 8px 32px rgba(0,0,0,0.30);
+    --shadow-burgundy: 0 8px 32px rgba(122,46,60,0.25);
   }
 
   * {
@@ -52,12 +167,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--nahkya-taupe, var(--nahkya-text-muted));
+    background: var(--nahkya-text-secondary);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--nahkya-text-secondary, var(--nahkya-text-muted));
+    background: var(--nahkya-text);
   }
 }
 
@@ -67,26 +182,51 @@
   }
 
   .container-nahkya {
-    @apply max-w-container mx-auto section-padding;
+    width: min(100% - 32px, 1200px);
+    margin-inline: auto;
   }
 
-  /* Workspace dark theme scrollbar — retained for dark studio pages during migration */
-  .workspace-scroll::-webkit-scrollbar {
+  @media (min-width: 390px) {
+    .container-nahkya {
+      width: min(100% - 40px, 1200px);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-nahkya {
+      width: min(100% - 48px, 1200px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-nahkya {
+      width: min(100% - 64px, 1200px);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .container-nahkya {
+      width: min(100% - 96px, 1320px);
+    }
+  }
+
+  /* Dark surface scrollbar — used by studio pages with data-theme="dark" */
+  .dark-scroll::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
 
-  .workspace-scroll::-webkit-scrollbar-track {
-    background: var(--workspace-bg);
+  .dark-scroll::-webkit-scrollbar-track {
+    background: var(--nahkya-bg);
   }
 
-  .workspace-scroll::-webkit-scrollbar-thumb {
-    background: var(--workspace-hover);
+  .dark-scroll::-webkit-scrollbar-thumb {
+    background: var(--nahkya-surface-raised);
     border-radius: 2px;
   }
 
-  .workspace-scroll::-webkit-scrollbar-thumb:hover {
-    background: var(--workspace-border);
+  .dark-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--nahkya-border);
   }
 }
 
@@ -125,20 +265,171 @@
   }
 
   /* Dynamic font sizes tied to CSS variables for live theme preview */
-  .text-dynamic-display-xxl { font-size: var(--font-display-xxl); }
   .text-dynamic-display-xl  { font-size: var(--font-display-xl); }
   .text-dynamic-display-lg  { font-size: var(--font-display-lg); }
   .text-dynamic-display-md  { font-size: var(--font-display-md); }
   .text-dynamic-display-sm  { font-size: var(--font-display-sm); }
-  .text-dynamic-heading-lg  { font-size: var(--font-heading-lg); }
   .text-dynamic-heading-md  { font-size: var(--font-heading-md); }
   .text-dynamic-mono-lg     { font-size: var(--font-mono-lg); }
   .text-dynamic-mono-md     { font-size: var(--font-mono-md); }
   .text-dynamic-mono-sm     { font-size: var(--font-mono-sm); }
+
+  /* ── Container Query Names ── */
+  .container-card   { container-type: inline-size; container-name: card; }
+  .container-section { container-type: inline-size; container-name: section; }
+  .container-panel  { container-type: inline-size; container-name: panel; }
+
+  /* ── Scroll Reveal Utilities ──
+     Use with IntersectionObserver or Framer Motion.
+     Add `.is-visible` to trigger the revealed state. */
+  .reveal-fade {
+    opacity: 0;
+    transform: translateY(0);
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+  }
+  .reveal-fade.is-visible {
+    opacity: 1;
+  }
+
+  .reveal-slide-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-slide-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.96);
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
+  }
+  .reveal-scale.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Stagger children — apply to parent, children must have .reveal-* */
+  .reveal-stagger > .reveal-fade,
+  .reveal-stagger > .reveal-slide-up,
+  .reveal-stagger > .reveal-scale {
+    transition-delay: calc(var(--reveal-index, 0) * 80ms);
+  }
+
+  /* ── Touch Target Utilities ──
+     Ensures minimum 44px touch targets on touch devices */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .touch-target-sm {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Safe area insets for modern mobile devices */
+  .safe-top    { padding-top: env(safe-area-inset-top); }
+  .safe-bottom  { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-left    { padding-left: env(safe-area-inset-left); }
+  .safe-right   { padding-right: env(safe-area-inset-right); }
+
+  .mt-safe-top    { margin-top: env(safe-area-inset-top); }
+  .mb-safe-bottom { margin-bottom: env(safe-area-inset-bottom); }
+
+  /* ── Responsive Table-to-Card Conversion ──
+     Use on table wrappers to switch to card layout on small screens */
+  .responsive-table {
+    display: block;
+  }
+
+  @media (min-width: 1024px) {
+    .responsive-table {
+      display: table;
+    }
+  }
+
+  /* ── Aspect Ratio Utilities ── */
+  .aspect-scarf-square {
+    aspect-ratio: 1 / 1;
+  }
+  .aspect-scarf-rect {
+    aspect-ratio: 2 / 3;
+  }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-fade,
+  .reveal-slide-up,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 /* Silk drift animation for hero overlay */
 @keyframes silkDrift {
   0% { background-position: 0 0; }
   100% { background-position: 200px 0; }
+}
+
+/* ── Touch Device Enhancements ── */
+@media (hover: none) {
+  /* Increase tap target sizes globally for touch devices */
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Disable text selection on interactive elements to prevent accidental selection */
+  .no-select-touch {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ── Mobile Bottom Sheet Safe Area ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-sheet-safe {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ── Prevent pull-to-refresh on studio canvas ── */
+.studio-canvas {
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+/* ── Range Slider Thumb Sizing ── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  border: none;
+}
+
+/* Touch-friendly range slider thumb */
+@media (hover: none) {
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px !important;
+    height: 24px !important;
+  }
 }

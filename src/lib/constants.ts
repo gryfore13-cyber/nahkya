@@ -1,20 +1,20 @@
-// NAHKYA Colour Palette
+// NAHKYA Colour Palette — aligned with CSS semantic tokens
 export const NAHKYA_COLORS = {
-  ivory: '#F5EDE3',
-  cream: '#EDE5DA',
-  stone: '#DCC6A1',
-  taupe: '#9A8A7A',
-  sand: '#B89A7A',
-  charcoal: '#2C2420',
-  softBlack: '#1A1A1E',
-  gold: '#B88B4A',
-  goldLight: '#D4B896',
-  goldMuted: '#9A7B52',
-  textSecondary: '#8A7A6E',
-  error: '#C45B4A',
-  errorLight: '#F5E0DC',
-  success: '#5A8A6E',
-  successLight: '#E0F0E5',
+  bg: '#F5EDE3',
+  surface: '#FFF9F2',
+  text: '#2A1F1A',
+  textSecondary: '#6B5D55',
+  inverse: '#FFF9F2',
+  accent: '#7B1E2B',
+  accentHover: '#5A161F',
+  accentSubtle: '#F5E5E7',
+  highlight: '#9A6E30',
+  highlightSubtle: '#F0E6D3',
+  border: '#D4C4B0',
+  error: '#B42318',
+  errorSubtle: '#F5E0DC',
+  success: '#2F7D4F',
+  successSubtle: '#E0F0E5',
 } as const;
 
 // Curated Pigment Palettes
@@ -87,16 +87,6 @@ export const PIGMENT_PALETTES = [
   },
 ];
 
-// Monogram Fonts
-export const MONOGRAM_FONTS = [
-  { name: 'Bodoni Moda', value: 'Bodoni Moda' },
-  { name: 'Playfair Display', value: 'Playfair Display' },
-  { name: 'Cormorant Garamond', value: 'Cormorant Garamond' },
-  { name: 'Cinzel', value: 'Cinzel' },
-  { name: 'Great Vibes', value: 'Great Vibes' },
-  { name: 'Allura', value: 'Allura' },
-];
-
 // Scarf Sizes
 export const SCARF_SIZES = [
   { label: '70 \u00D7 70 cm', value: '70' as const },
@@ -107,16 +97,16 @@ export const SCARF_SIZES = [
 
 // Order Status Config
 export const ORDER_STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  submitted: { label: 'Submitted', bg: 'bg-nahkya-gold-soft', text: 'text-nahkya-text' },
-  changes_requested: { label: 'Changes Requested', bg: 'bg-nahkya-error-soft', text: 'text-nahkya-error' },
-  approved_awaiting_payment: { label: 'Approved', bg: 'bg-nahkya-gold/15', text: 'text-nahkya-gold-muted' },
-  paid_pending_production: { label: 'Paid', bg: 'bg-nahkya-success-soft', text: 'text-nahkya-success' },
-  in_production: { label: 'In Production', bg: 'bg-nahkya-success-soft', text: 'text-nahkya-success' },
-  ready_for_collection: { label: 'Ready', bg: 'bg-nahkya-success-soft', text: 'text-nahkya-success' },
+  submitted: { label: 'Submitted', bg: 'bg-nahkya-border', text: 'text-nahkya-text' },
+  changes_requested: { label: 'Changes Requested', bg: 'bg-nahkya-error-subtle', text: 'text-nahkya-error' },
+  approved_awaiting_payment: { label: 'Approved', bg: 'bg-nahkya-highlight/15', text: 'text-nahkya-highlight' },
+  paid_pending_production: { label: 'Paid', bg: 'bg-nahkya-success-subtle', text: 'text-nahkya-success' },
+  in_production: { label: 'In Production', bg: 'bg-nahkya-success-subtle', text: 'text-nahkya-success' },
+  ready_for_collection: { label: 'Ready', bg: 'bg-nahkya-success-subtle', text: 'text-nahkya-success' },
   completed: { label: 'Completed', bg: 'bg-nahkya-success/15', text: 'text-nahkya-success' },
-  rejected: { label: 'Rejected', bg: 'bg-nahkya-error-soft', text: 'text-nahkya-error' },
-  cancelled: { label: 'Cancelled', bg: 'bg-nahkya-gold-soft', text: 'text-nahkya-text-muted' },
-  payment_expired: { label: 'Payment Expired', bg: 'bg-nahkya-gold-soft', text: 'text-nahkya-text-muted' },
+  rejected: { label: 'Rejected', bg: 'bg-nahkya-error-subtle', text: 'text-nahkya-error' },
+  cancelled: { label: 'Cancelled', bg: 'bg-nahkya-border', text: 'text-nahkya-text-secondary' },
+  payment_expired: { label: 'Payment Expired', bg: 'bg-nahkya-border', text: 'text-nahkya-text-secondary' },
 };
 
 // Status Transitions
@@ -161,6 +151,5 @@ export const ADMIN_NAV = [
   { label: 'Members', href: '/admin/members', icon: 'Users' },
   { label: 'Artworks', href: '/admin/artworks', icon: 'Palette' },
   { label: 'Colour System', href: '/admin/colours', icon: 'Droplets' },
-  { label: 'Site Appearance', href: '/admin/appearance', icon: 'Paintbrush' },
   { label: 'Settings', href: '/admin/settings', icon: 'Settings' },
 ];

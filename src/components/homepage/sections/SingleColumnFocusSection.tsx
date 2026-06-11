@@ -1,4 +1,7 @@
-import { SectionWrapper } from '@/components/homepage/SectionWrapper';
+import { InlineText } from '@/components/admin/InlineText';
+import { InlineLinkURL } from '@/components/admin/InlineLinkURL';
+import { InlineArrayAdd } from '@/components/admin/InlineArrayAdd';
+import { InlineArrayRemove } from '@/components/admin/InlineArrayRemove';
 import type { HomepageSection } from '@/types';
 
 interface Props {
@@ -6,46 +9,86 @@ interface Props {
 }
 
 export default function SingleColumnFocusSection({ section }: Props) {
-  const { content, settings } = section;
+  const { content, id } = section;
 
   return (
-    <SectionWrapper settings={settings}>
+    <>
       <div className="text-center max-w-3xl mx-auto">
-        <h2 className="font-display text-display-lg lg:text-display-xl font-medium leading-tight mb-6">
-          {content.headline}
-        </h2>
-        <p className="font-body text-body-lg text-nahkya-text-muted mb-10">
-          {content.subheadline}
-        </p>
+        <InlineText
+          tag="h2"
+          value={content.headline}
+          path="headline"
+          sectionId={id}
+          className="font-display text-display-lg lg:text-display-xl font-medium leading-tight mb-6"
+          placeholder="Headline"
+        />
+        <InlineText
+          tag="p"
+          value={content.subheadline}
+          path="subheadline"
+          sectionId={id}
+          className="font-body text-body-lg text-nahkya-text-secondary mb-10"
+          placeholder="Subheadline"
+        />
         {content.ctaText && (
-          <a
+          <InlineLinkURL
             href={content.ctaLink}
-            className="inline-flex items-center px-8 py-4 bg-nahkya-gold text-nahkya-text-inverse font-body text-body-sm font-medium uppercase tracking-wide hover:bg-nahkya-gold-soft transition-colors rounded-nahkya mb-16"
+            sectionId={id}
+            path="ctaLink"
+            className="inline-flex items-center px-8 py-4 bg-nahkya-highlight text-nahkya-inverse font-body text-body-sm font-medium uppercase tracking-wide hover:bg-nahkya-border transition-colors rounded-nahkya mb-16"
           >
-            {content.ctaText}
-          </a>
+            <InlineText
+              tag="span"
+              value={content.ctaText}
+              path="ctaText"
+              sectionId={id}
+              placeholder="CTA Text"
+            />
+          </InlineLinkURL>
         )}
       </div>
 
       {content.features.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {content.features.map((feature, idx) => (
-            <div key={idx} className="text-center">
+            <div key={idx} className="text-center relative">
+              <div className="absolute top-0 right-0">
+                <InlineArrayRemove sectionId={id} path="features" index={idx} minCount={1} />
+              </div>
               {feature.icon && (
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-nahkya-gold/10 flex items-center justify-center text-nahkya-gold">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-nahkya-highlight/10 flex items-center justify-center text-nahkya-highlight">
                   <span className="text-lg">{feature.icon}</span>
                 </div>
               )}
-              <h3 className="font-display text-heading-md font-medium mb-2">
-                {feature.title}
-              </h3>
-              <p className="font-body text-body-md text-nahkya-text-muted">
-                {feature.description}
-              </p>
+              <InlineText
+                tag="h3"
+                value={feature.title}
+                path={`features.${idx}.title`}
+                sectionId={id}
+                className="font-display text-heading-md font-medium mb-2"
+                placeholder="Feature Title"
+              />
+              <InlineText
+                tag="p"
+                value={feature.description}
+                path={`features.${idx}.description`}
+                sectionId={id}
+                className="font-body text-body-md text-nahkya-text-secondary"
+                placeholder="Feature Description"
+              />
             </div>
           ))}
         </div>
       )}
-    </SectionWrapper>
+
+      <div className="mt-8 text-center">
+        <InlineArrayAdd
+          sectionId={id}
+          path="features"
+          defaultItem={{ title: 'New Feature', description: 'Describe your feature.' }}
+          label="Add Feature"
+        />
+      </div>
+    </>
   );
 }

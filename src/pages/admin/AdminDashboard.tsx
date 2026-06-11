@@ -36,24 +36,24 @@ export default function AdminDashboard() {
   return (
     <div className="p-8 lg:p-12">
       <h1 className="font-display text-display-sm text-nahkya-text font-medium mb-2">Dashboard</h1>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">Overview of your atelier.</p>
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">Overview of your atelier.</p>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
           { label: 'Members', value: memberCount.toLocaleString(), trend: 'registered users', icon: TrendingUp, color: 'text-nahkya-success' },
-          { label: 'Orders in Pipeline', value: String(activeOrders), trend: `${pendingApproval} pending approval`, icon: ShoppingBag, color: 'text-nahkya-gold' },
+          { label: 'Orders in Pipeline', value: String(activeOrders), trend: `${pendingApproval} pending approval`, icon: ShoppingBag, color: 'text-nahkya-highlight' },
           { label: 'Artworks', value: String(approvedArtworks), trend: `${pendingArtworks} pending review`, icon: Palette, color: 'text-nahkya-success' },
           { label: 'Revenue', value: `BND ${revenue.toLocaleString()}`, trend: 'from paid orders', icon: DollarSign, color: 'text-nahkya-text' },
         ].map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya p-6">
+            <div key={s.label} className="bg-nahkya-surface border border-nahkya-border rounded-nahkya p-6">
               <div className="flex items-center justify-between mb-3">
                 <Icon className={`w-4 h-4 ${s.color}`} strokeWidth={1.5} />
               </div>
               <p className="font-display text-heading-sm text-nahkya-text font-medium">{s.value}</p>
-              <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase tracking-label mt-1">{s.trend}</p>
+              <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase tracking-label mt-1">{s.trend}</p>
             </div>
           );
         })}
@@ -61,18 +61,18 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
-        <div className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden">
-          <div className="px-5 py-4 border-b border-nahkya-gold-soft">
+        <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden">
+          <div className="px-5 py-4 border-b border-nahkya-border">
             <h2 className="font-display text-lg text-nahkya-text font-medium">Recent Orders</h2>
           </div>
           {recentOrders.length === 0 ? (
-            <div className="px-5 py-8 text-center text-nahkya-text-muted font-body">No orders yet.</div>
+            <div className="px-5 py-8 text-center text-nahkya-text-secondary font-body">No orders yet.</div>
           ) : (
             recentOrders.map((o, i) => (
-              <div key={o.id} className={cn('flex items-center justify-between px-5 py-3.5 ', i < recentOrders.length - 1 ? 'border-b border-nahkya-gold-soft' : '')}>
+              <div key={o.id} className={cn('flex items-center justify-between px-5 py-3.5 ', i < recentOrders.length - 1 ? 'border-b border-nahkya-border' : '')}>
                 <div>
                   <p className="text-sm text-nahkya-text font-body">{o.designName}</p>
-                  <p className="font-mono text-mono-sm text-nahkya-text-muted">{o.userName} · {o.createdAt}</p>
+                  <p className="font-mono text-mono-sm text-nahkya-text-secondary">{o.userName} · {o.createdAt}</p>
                 </div>
                 <StatusBadge status={o.status} />
               </div>
@@ -81,20 +81,20 @@ export default function AdminDashboard() {
         </div>
 
         {/* Activity */}
-        <div className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden">
-          <div className="px-5 py-4 border-b border-nahkya-gold-soft">
+        <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden">
+          <div className="px-5 py-4 border-b border-nahkya-border">
             <h2 className="font-display text-lg text-nahkya-text font-medium">Activity</h2>
           </div>
           {recentOrders.length === 0 && pendingArtworks === 0 ? (
-            <div className="px-5 py-8 text-center text-nahkya-text-muted font-body">No recent activity.</div>
+            <div className="px-5 py-8 text-center text-nahkya-text-secondary font-body">No recent activity.</div>
           ) : (
             <div className="px-5 py-4 space-y-4">
               {pendingArtworks > 0 && (
-                <div className="flex items-start gap-3 pb-4 border-b border-nahkya-gold-soft">
-                  <Upload className="w-4 h-4 text-nahkya-gold mt-0.5" strokeWidth={1.5} />
+                <div className="flex items-start gap-3 pb-4 border-b border-nahkya-border">
+                  <Upload className="w-4 h-4 text-nahkya-highlight mt-0.5" strokeWidth={1.5} />
                   <div>
                     <p className="text-sm text-nahkya-text font-body">{pendingArtworks} artwork{pendingArtworks > 1 ? 's' : ''} pending review</p>
-                    <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase">Designer submissions</p>
+                    <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">Designer submissions</p>
                   </div>
                 </div>
               )}
@@ -103,15 +103,15 @@ export default function AdminDashboard() {
                   {o.status === 'completed' ? (
                     <CheckCircle className="w-4 h-4 text-nahkya-success mt-0.5" strokeWidth={1.5} />
                   ) : o.status === 'submitted' ? (
-                    <Paintbrush className="w-4 h-4 text-nahkya-gold mt-0.5" strokeWidth={1.5} />
+                    <Paintbrush className="w-4 h-4 text-nahkya-highlight mt-0.5" strokeWidth={1.5} />
                   ) : (
-                    <ShoppingBag className="w-4 h-4 text-nahkya-text-muted mt-0.5" strokeWidth={1.5} />
+                    <ShoppingBag className="w-4 h-4 text-nahkya-text-secondary mt-0.5" strokeWidth={1.5} />
                   )}
                   <div>
                     <p className="text-sm text-nahkya-text font-body">
                       Order <span className="font-mono text-mono-sm">{o.id}</span> — {o.status.replace(/_/g, ' ')}
                     </p>
-                    <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase">{o.userName}</p>
+                    <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">{o.userName}</p>
                   </div>
                 </div>
               ))}

@@ -93,10 +93,10 @@ export default function DesignerArtworks() {
 
   const statusLabel = (status: string) => {
     switch (status) {
-      case 'pending_review': return { text: 'Pending Review', color: 'text-nahkya-gold' };
+      case 'pending_review': return { text: 'Pending Review', color: 'text-nahkya-highlight' };
       case 'approved': return { text: 'Approved', color: 'text-nahkya-success' };
       case 'rejected': return { text: 'Rejected', color: 'text-nahkya-error' };
-      default: return { text: status, color: 'text-nahkya-text-muted' };
+      default: return { text: status, color: 'text-nahkya-text-secondary' };
     }
   };
 
@@ -106,13 +106,13 @@ export default function DesignerArtworks() {
         <h1 className="font-display text-display-sm text-nahkya-text font-medium">My Artworks</h1>
         <button
           onClick={() => setUploadModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-nahkya-highlight text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-border transition-colors"
         >
           <Plus className="w-4 h-4" strokeWidth={1.5} />
           Upload Design
         </button>
       </div>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">
         Your artwork submissions. New uploads require admin approval before they appear in the Atelier.
       </p>
 
@@ -120,13 +120,13 @@ export default function DesignerArtworks() {
         {myArtworks.map((art) => {
           const st = statusLabel(art.status);
           return (
-            <div key={art.id} className="group bg-workspace-panel border border-workspace-border rounded-nahkya overflow-hidden hover:border-nahkya-gold/30 transition-all">
-              <div className="aspect-square bg-workspace-bg flex items-center justify-center border-b border-workspace-border">
+            <div key={art.id} className="group bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden hover:border-nahkya-highlight/30 transition-all">
+              <div className="aspect-square bg-nahkya-bg flex items-center justify-center border-b border-nahkya-border">
                 {art.image ? (
                   <img src={art.thumbnail || art.image} alt={art.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-3/4 h-3/4 border border-workspace-border rounded-nahkya flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-nahkya-text-muted" strokeWidth={1.5} />
+                  <div className="w-3/4 h-3/4 border border-nahkya-border rounded-nahkya flex items-center justify-center">
+                    <ImageIcon className="w-8 h-8 text-nahkya-text-secondary" strokeWidth={1.5} />
                   </div>
                 )}
               </div>
@@ -135,16 +135,16 @@ export default function DesignerArtworks() {
                   <h3 className="text-base font-body font-medium text-nahkya-text">{art.name}</h3>
                   <span className={`font-mono text-mono-sm uppercase ${st.color}`}>{st.text}</span>
                 </div>
-                <p className="font-mono text-mono-sm text-nahkya-gold uppercase mb-2">{art.category}</p>
-                <p className="text-sm text-nahkya-text-muted font-body mb-3 line-clamp-2">{art.description}</p>
+                <p className="font-mono text-mono-sm text-nahkya-highlight uppercase mb-2">{art.category}</p>
+                <p className="text-sm text-nahkya-text-secondary font-body mb-3 line-clamp-2">{art.description}</p>
                 {art.reviewNotes && (
-                  <div className="bg-workspace-bg border border-workspace-border rounded-nahkya p-3 mb-3">
-                    <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase mb-1">Admin Note</p>
+                  <div className="bg-nahkya-bg border border-nahkya-border rounded-nahkya p-3 mb-3">
+                    <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase mb-1">Admin Note</p>
                     <p className="text-sm text-nahkya-text font-body">{art.reviewNotes}</p>
                   </div>
                 )}
                 <div className="flex items-center justify-end">
-                  <button className="p-1 text-nahkya-text-muted hover:text-nahkya-gold transition-colors opacity-0 group-hover:opacity-100">
+                  <button className="p-1 text-nahkya-text-secondary hover:text-nahkya-highlight transition-colors opacity-0 group-hover:opacity-100">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -154,27 +154,27 @@ export default function DesignerArtworks() {
         })}
         <div
           onClick={() => setUploadModal(true)}
-          className="border-2 border-dashed border-workspace-border rounded-nahkya flex flex-col items-center justify-center aspect-square cursor-pointer hover:border-nahkya-gold/40 transition-colors"
+          className="border-2 border-dashed border-nahkya-border rounded-nahkya flex flex-col items-center justify-center aspect-square cursor-pointer hover:border-nahkya-highlight/40 transition-colors"
         >
-          <Plus className="w-8 h-8 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
-          <p className="text-sm text-nahkya-text-muted font-body">Upload Design</p>
+          <Plus className="w-8 h-8 text-nahkya-text-secondary mb-3" strokeWidth={1.5} />
+          <p className="text-sm text-nahkya-text-secondary font-body">Upload Design</p>
         </div>
       </div>
 
       {myArtworks.length === 0 && (
         <div className="text-center py-20">
-          <ImageIcon className="w-10 h-10 text-nahkya-text-muted mx-auto mb-4" strokeWidth={1.5} />
-          <p className="text-nahkya-text-muted font-body mb-2">No artworks yet.</p>
-          <p className="text-sm text-nahkya-text-muted font-body">Upload your first design to get started.</p>
+          <ImageIcon className="w-10 h-10 text-nahkya-text-secondary mx-auto mb-4" strokeWidth={1.5} />
+          <p className="text-nahkya-text-secondary font-body mb-2">No artworks yet.</p>
+          <p className="text-sm text-nahkya-text-secondary font-body">Upload your first design to get started.</p>
         </div>
       )}
 
       {/* Upload Modal */}
       {uploadModal && (
         <div className="fixed inset-0 z-modal flex items-center justify-center">
-          <div className="absolute inset-0 bg-nahkya-charcoal/50" onClick={() => setUploadModal(false)} />
-          <div className="relative bg-workspace-panel border border-workspace-border rounded-nahkya max-w-prose w-full max-h-[90vh] overflow-y-auto p-8">
-            <button onClick={() => setUploadModal(false)} className="absolute top-4 right-4 text-nahkya-text-muted hover:text-nahkya-text">
+          <div className="absolute inset-0 bg-nahkya-text/50" onClick={() => setUploadModal(false)} />
+          <div className="relative bg-nahkya-surface border border-nahkya-border rounded-nahkya max-w-prose w-full max-h-90vh overflow-y-auto p-8">
+            <button onClick={() => setUploadModal(false)} className="absolute top-4 right-4 text-nahkya-text-secondary hover:text-nahkya-text">
               <X className="w-5 h-5" />
             </button>
             <h2 className="font-display text-xl text-nahkya-text font-medium mb-6">Upload Design</h2>
@@ -187,18 +187,18 @@ export default function DesignerArtworks() {
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="bg-workspace-bg border border-workspace-border rounded-nahkya p-6 mb-6 flex flex-col items-center justify-center aspect-video cursor-pointer hover:border-nahkya-gold/40 transition-colors"
+              className="bg-nahkya-bg border border-nahkya-border rounded-nahkya p-6 mb-6 flex flex-col items-center justify-center aspect-video cursor-pointer hover:border-nahkya-highlight/40 transition-colors"
             >
               {form.image ? (
                 <img src={form.image} alt="Preview" className="w-full h-full object-contain" />
               ) : (
                 <>
                   {uploadingImage ? (
-                    <Loader2 className="w-10 h-10 text-nahkya-text-muted mb-3 animate-spin" strokeWidth={1.5} />
+                    <Loader2 className="w-10 h-10 text-nahkya-text-secondary mb-3 animate-spin" strokeWidth={1.5} />
                   ) : (
-                    <ImageIcon className="w-10 h-10 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
+                    <ImageIcon className="w-10 h-10 text-nahkya-text-secondary mb-3" strokeWidth={1.5} />
                   )}
-                  <p className="text-sm text-nahkya-text-muted font-body">
+                  <p className="text-sm text-nahkya-text-secondary font-body">
                     {uploadingImage ? 'Uploading...' : 'Click to upload SVG / PNG'}
                   </p>
                 </>
@@ -206,19 +206,19 @@ export default function DesignerArtworks() {
             </div>
             <div className="space-y-5">
               <div>
-                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Name</label>
+                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Name</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold placeholder:text-nahkya-text-muted/40"
+                  className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight placeholder:text-nahkya-text-secondary/40"
                 />
               </div>
               <div>
-                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Category</label>
+                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Category</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold"
+                  className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -226,12 +226,12 @@ export default function DesignerArtworks() {
                 </select>
               </div>
               <div>
-                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Description</label>
+                <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Description</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3}
-                  className="w-full bg-workspace-bg border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold resize-none placeholder:text-nahkya-text-muted/40"
+                  className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight resize-none placeholder:text-nahkya-text-secondary/40"
                 />
               </div>
             </div>
@@ -240,18 +240,18 @@ export default function DesignerArtworks() {
                 <p className="text-sm text-nahkya-error font-body">{submitError}</p>
               </div>
             )}
-            <div className="pt-6 border-t border-workspace-border mt-6 flex gap-3">
+            <div className="pt-6 border-t border-nahkya-border mt-6 flex gap-3">
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 bg-nahkya-highlight text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-border transition-colors disabled:opacity-50"
               >
                 {submitting ? 'Submitting...' : 'Submit for Review'}
               </button>
               <button
                 onClick={() => setUploadModal(false)}
                 disabled={submitting}
-                className="px-6 py-2.5 border border-workspace-border text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-gold/40 transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 border border-nahkya-border text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-highlight/40 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getDocById } from '@/lib/firebase/db';
 import { useColourStore } from '@/stores/colourStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useSavedDesignStore } from '@/stores/savedDesignStore';
-import { useOrderStore } from '@/stores/orderStore';
 import { usePlatformStore } from '@/stores/platformStore';
 import { StudioShell } from '@/components/studio/StudioShell';
 import { StudioSectionLabel } from '@/components/studio/StudioSectionLabel';
 import { useColoringEngine } from '@/hooks/useColoringEngine';
+import { submitOrderWithCommission } from '@/lib/orders';
+import { saveDesignWithThumbnail } from '@/lib/designs';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { ArtworkDoc } from '@/types';
@@ -23,10 +24,10 @@ const LAYERS = [
 export default function ImageAtelier() {
   const { artworkId } = useParams<{ artworkId: string }>();
   const [artwork, setArtwork] = useState<ArtworkDoc | null>(null);
+  const [searchParams] = useSearchParams();
   const { selectedColour } = useColourStore();
   const { user } = useAuthStore();
-  const { addDesign } = useSavedDesignStore();
-  const { addOrder } = useOrderStore();
+  const { fetchDesignById } = useSavedDesignStore();
   const { pricing } = usePlatformStore();
 
   const {
@@ -52,6 +53,9 @@ export default function ImageAtelier() {
     baseColor,
     paintColor,
     lineColor,
+    setBaseColor,
+    setPaintColor,
+    setLineColor,
     clearPaint,
     resetAll,
     error,
@@ -61,6 +65,7 @@ export default function ImageAtelier() {
   const isSpacePressedRef = useRef(false);
   const panStartRef = useRef<{ x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null);
   const [isPanning, setIsPanning] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
   const pendingScrollRef = useRef<{ left: number; top: number } | null>(null);
   const zoomRef = useRef(zoom);
 
@@ -75,6 +80,34 @@ export default function ImageAtelier() {
       });
     }
   }, [artworkId]);
+
+  // Restore saved design from ?designId=
+  useEffect(() => {
+    const designId = searchParams.get('designId');
+    if (!designId) {
+      setIsRestoring(false);
+      return;
+    }
+
+    let cancelled = false;
+    fetchDesignById(designId).then((design) => {
+      if (cancelled) return;
+      const s = design?.snapshot;
+      if (s) {
+        if (typeof s.baseColor === 'string') setBaseColor(s.baseColor);
+        if (typeof s.paintColor === 'string') setPaintColor(s.paintColor);
+        if (typeof s.lineColor === 'string') setLineColor(s.lineColor);
+        if (s.mode === 'paint' || s.mode === 'picker' || s.mode === 'replace') setMode(s.mode);
+        if (s.activeLayer === 'base' || s.activeLayer === 'paint' || s.activeLayer === 'lineart') {
+          setActiveLayer(s.activeLayer);
+        }
+      }
+      setIsRestoring(false);
+    });
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('designId')]);
 
   // Load image when artwork data is available
   useEffect(() => {
@@ -272,18 +305,17 @@ export default function ImageAtelier() {
     try {
       const thumbnail = canvasRef.current.toDataURL('image/png');
       const name = artwork.name;
-      await addDesign({
+      await saveDesignWithThumbnail({
         name,
         tool: 'atelier',
-        thumbnail,
         userId: user.uid,
         snapshot: { artworkId: artwork.id, baseColor, paintColor, lineColor, mode, activeLayer },
-      });
+      }, thumbnail);
       toast.success(`"${name}" saved to your collection.`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to save design.');
     }
-  }, [user, artwork, canvasRef, addDesign, baseColor, paintColor, lineColor, mode, activeLayer]);
+  }, [user, artwork, canvasRef, baseColor, paintColor, lineColor, mode, activeLayer]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) { toast.error('Please sign in to submit orders.'); return; }
@@ -291,19 +323,22 @@ export default function ImageAtelier() {
     try {
       const thumbnail = canvasRef.current.toDataURL('image/png');
       const name = artwork.name;
-      const designId = await addDesign({
+      const designId = await saveDesignWithThumbnail({
         name,
         tool: 'atelier',
-        thumbnail,
         userId: user.uid,
         snapshot: { artworkId: artwork.id, baseColor, paintColor, lineColor, mode, activeLayer },
-      });
+      }, thumbnail);
       const amount = getDefaultPrice();
-      await addOrder({
+      await submitOrderWithCommission({
         userId: user.uid,
         userName: user.displayName || user.email || 'Member',
         designId,
         designName: name,
+        artworkId: artwork.id,
+        artworkName: artwork.name,
+        designerId: artwork.designerId,
+        designerName: artwork.designerName,
         tool: 'atelier',
         size: '90 x 90 CM',
         amount,
@@ -316,13 +351,21 @@ export default function ImageAtelier() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to submit order.');
     }
-  }, [user, artwork, canvasRef, addDesign, addOrder, baseColor, paintColor, lineColor, mode, activeLayer, getDefaultPrice]);
+  }, [user, artwork, canvasRef, baseColor, paintColor, lineColor, mode, activeLayer, getDefaultPrice]);
+
+  if (isRestoring) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-nahkya-bg">
+        <p className="font-mono text-mono-md text-nahkya-text-secondary uppercase tracking-label">Restoring design…</p>
+      </div>
+    );
+  }
 
   if (!artwork) {
     return (
-      <div className="h-screen flex flex-col bg-workspace-bg items-center justify-center">
+      <div className="h-screen flex flex-col bg-nahkya-bg items-center justify-center">
         <p className="font-display text-2xl text-nahkya-text mb-4">Artwork not found</p>
-        <Link to="/member/atelier" className="text-nahkya-gold hover:text-nahkya-gold-soft font-body">
+        <Link to="/member/atelier" className="text-nahkya-highlight hover:text-nahkya-border font-body">
           Back to Gallery
         </Link>
       </div>
@@ -342,8 +385,8 @@ export default function ImageAtelier() {
               className={cn(
                 'w-full text-left px-3 py-2 text-sm font-body rounded-nahkya transition-colors',
                 activeLayer === layer.key
-                  ? 'bg-nahkya-gold text-nahkya-text'
-                  : 'bg-workspace-hover text-nahkya-text-muted hover:text-nahkya-text'
+                  ? 'bg-nahkya-highlight text-nahkya-text'
+                  : 'bg-nahkya-surface-raised text-nahkya-text-secondary hover:text-nahkya-text'
               )}
             >
               {layer.label}
@@ -353,7 +396,7 @@ export default function ImageAtelier() {
       </div>
 
       {/* Tool Mode */}
-      <div className="pt-4 border-t border-workspace-border">
+      <div className="pt-4 border-t border-nahkya-border">
         <StudioSectionLabel>Tool</StudioSectionLabel>
         <div className="grid grid-cols-3 gap-2">
           {BLEND_MODES.map((m) => (
@@ -363,8 +406,8 @@ export default function ImageAtelier() {
               className={cn(
                 'px-3 py-2 text-sm font-body rounded-nahkya transition-colors capitalize',
                 mode === m
-                  ? 'bg-nahkya-gold text-nahkya-text'
-                  : 'bg-workspace-hover text-nahkya-text-muted hover:text-nahkya-text'
+                  ? 'bg-nahkya-highlight text-nahkya-text'
+                  : 'bg-nahkya-surface-raised text-nahkya-text-secondary hover:text-nahkya-text'
               )}
             >
               {m}
@@ -374,16 +417,16 @@ export default function ImageAtelier() {
       </div>
 
       {/* Actions */}
-      <div className="pt-4 border-t border-workspace-border space-y-2">
+      <div className="pt-4 border-t border-nahkya-border space-y-2">
         <button
           onClick={clearPaint}
-          className="w-full px-3 py-2 text-sm font-body text-nahkya-text-muted hover:text-nahkya-text bg-workspace-hover rounded-nahkya transition-colors"
+          className="w-full px-3 py-2 text-sm font-body text-nahkya-text-secondary hover:text-nahkya-text bg-nahkya-surface-raised rounded-nahkya transition-colors"
         >
           Clear Paint
         </button>
         <button
           onClick={resetAll}
-          className="w-full px-3 py-2 text-sm font-body text-nahkya-text-muted hover:text-nahkya-text bg-workspace-hover rounded-nahkya transition-colors"
+          className="w-full px-3 py-2 text-sm font-body text-nahkya-text-secondary hover:text-nahkya-text bg-nahkya-surface-raised rounded-nahkya transition-colors"
         >
           Reset All
         </button>

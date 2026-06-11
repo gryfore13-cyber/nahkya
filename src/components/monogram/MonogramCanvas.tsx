@@ -53,7 +53,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
   const sourceGapPx = SOURCE_VIEWPORT_SIZE * (tileSpacingCm / 110) * (effectiveZoom / 100);
 
   return (
-    <div className="flex-1 flex flex-row items-start justify-center relative bg-workspace-bg min-w-0 min-h-0 p-6 gap-6 overflow-auto">
+    <div className="flex-1 flex flex-row items-start justify-center relative bg-nahkya-bg min-w-0 min-h-0 p-6 gap-6 overflow-auto">
       {/* Source Stage */}
       {showSource && (
         <div className="flex flex-col h-full flex-1 relative">
@@ -63,7 +63,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
           <div className="flex items-center justify-center flex-1 min-h-0">
             <div
               ref={sourceStageRef}
-              className="relative w-full overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-xl max-w-none aspect-square max-h-full"
+              className="relative w-full overflow-hidden rounded-nahkya bg-nahkya-surface border border-nahkya-border shadow-xl max-w-none aspect-square max-h-full"
               onPointerMove={updateDrag}
               onPointerUp={stopDragging}
               onPointerLeave={stopDragging}
@@ -109,10 +109,10 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
                 >
                   {/* Corner markers */}
                   <div
-                    className="absolute -top-0.5 -left-0.5 w-3 h-3 border-t-2 border-l-2 border-nahkya-gold"
+                    className="absolute -top-0.5 -left-0.5 w-3 h-3 border-t-2 border-l-2 border-nahkya-highlight"
                   />
                   <div
-                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 border-b-2 border-r-2 border-nahkya-gold"
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 border-b-2 border-r-2 border-nahkya-highlight"
                   />
                 </div>
               )}
@@ -120,7 +120,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
               {/* Snap Guides */}
               {snapEnabled && activeSnapGuides.x !== null && (
                 <div
-                  className="absolute bg-nahkya-gold opacity-90 pointer-events-none z-40 shadow-gold-glow"
+                  className="absolute bg-nahkya-highlight opacity-90 pointer-events-none z-40 shadow-gold-glow"
                   style={{
                     left: sourceTileOrigin + (activeSnapGuides.x / 100) * sourceTileSize,
                     top: sourceTileOrigin,
@@ -131,7 +131,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
               )}
               {snapEnabled && activeSnapGuides.y !== null && (
                 <div
-                  className="absolute bg-nahkya-gold opacity-90 pointer-events-none z-40 shadow-gold-glow"
+                  className="absolute bg-nahkya-highlight opacity-90 pointer-events-none z-40 shadow-gold-glow"
                   style={{
                     left: sourceTileOrigin,
                     top: sourceTileOrigin + (activeSnapGuides.y / 100) * sourceTileSize,
@@ -143,14 +143,14 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
 
               {/* Snap Badge */}
               {(activeSnapGuides.x !== null || activeSnapGuides.y !== null) && (
-                <div className="absolute top-3 left-3 bg-nahkya-gold text-nahkya-text text-mono-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full z-50 pointer-events-none shadow-gold-glow-soft">
+                <div className="absolute top-3 left-3 bg-nahkya-highlight text-nahkya-text text-mono-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full z-50 pointer-events-none shadow-gold-glow-soft">
                   {getSnapFeedback()}
                 </div>
               )}
 
               {/* Group Move Badge */}
               {moveAsGroup && (
-                <div className="absolute top-3 right-3 bg-nahkya-charcoal text-white text-mono-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full z-50 pointer-events-none">
+                <div className="absolute top-3 right-3 bg-nahkya-text text-nahkya-inverse text-mono-sm font-bold uppercase tracking-widest px-3 py-1.5 rounded-full z-50 pointer-events-none">
                   Group
                 </div>
               )}
@@ -223,7 +223,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
         <div className="flex flex-col h-full flex-1 relative">
           <div className="flex items-center justify-between absolute top-6 left-4 right-4 z-10">
             <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text">Repeat Preview</span>
-            <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text-muted bg-workspace-hover px-2.5 py-1 rounded-nahkya">
+            <span className="text-mono-sm font-semibold uppercase tracking-widest text-nahkya-text-secondary bg-nahkya-surface-raised px-2.5 py-1 rounded-nahkya">
               {previewTiles} × {previewTiles}
             </span>
           </div>
@@ -231,7 +231,7 @@ export default function MonogramCanvas({ state }: MonogramCanvasProps) {
           <div className="flex items-center justify-center flex-1 min-h-0">
             <div
               ref={previewStageRef}
-              className="relative w-full overflow-hidden rounded-nahkya bg-workspace-panel border border-workspace-border shadow-2xl max-w-none aspect-square max-h-full"
+              className="relative w-full overflow-hidden rounded-nahkya bg-nahkya-surface border border-nahkya-border shadow-2xl max-w-none aspect-square max-h-full"
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 {(() => {
@@ -376,7 +376,7 @@ function LetterElement({
         <>
           {/* Handle Box */}
           <span
-            className="absolute pointer-events-none border border-nahkya-gold"
+            className="absolute pointer-events-none border border-nahkya-highlight"
             style={{ inset: -12 }}
           />
 
@@ -385,7 +385,7 @@ function LetterElement({
             <span
               key={corner}
               className={cn(
-                'absolute w-2.5 h-2.5 bg-white border border-nahkya-gold shadow-sm',
+                'absolute w-2.5 h-2.5 bg-nahkya-inverse border border-nahkya-highlight shadow-sm',
                 corner === 'nw' && '-top-1.5 -left-1.5 cursor-nw-resize',
                 corner === 'ne' && '-top-1.5 -right-1.5 cursor-ne-resize',
                 corner === 'sw' && '-bottom-1.5 -left-1.5 cursor-sw-resize',
@@ -397,11 +397,11 @@ function LetterElement({
 
           {/* Rotate Handle */}
           <span
-            className="absolute left-1/2 -translate-x-1/2 w-px h-3 bg-nahkya-gold"
+            className="absolute left-1/2 -translate-x-1/2 w-px h-3 bg-nahkya-highlight"
             style={{ top: -16 }}
           />
           <span
-            className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white border border-nahkya-gold cursor-grab shadow-sm"
+            className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-nahkya-inverse border border-nahkya-highlight cursor-grab shadow-sm"
             style={{ top: -28 }}
             onPointerDown={onRotate}
           />

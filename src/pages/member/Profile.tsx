@@ -69,10 +69,10 @@ export default function Profile() {
         />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="relative w-20 h-20 rounded-full bg-workspace-hover border border-workspace-border flex items-center justify-center overflow-hidden hover:border-nahkya-gold transition-colors"
+          className="relative w-20 h-20 rounded-full bg-nahkya-surface-raised border border-nahkya-border flex items-center justify-center overflow-hidden hover:border-nahkya-highlight transition-colors"
         >
           {uploadingAvatar ? (
-            <Loader2 className="w-6 h-6 text-nahkya-text-muted animate-spin" strokeWidth={1.5} />
+            <Loader2 className="w-6 h-6 text-nahkya-text-secondary animate-spin" strokeWidth={1.5} />
           ) : user?.avatar ? (
             <img src={user.avatar} alt={user.displayName} className="w-full h-full object-cover" />
           ) : (
@@ -83,7 +83,7 @@ export default function Profile() {
         </button>
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="text-sm text-nahkya-gold font-body hover:text-nahkya-gold-soft transition-colors"
+          className="text-sm text-nahkya-highlight font-body hover:text-nahkya-border transition-colors"
         >
           Change Photo
         </button>
@@ -94,14 +94,14 @@ export default function Profile() {
         <h2 className="text-xl font-body font-medium text-nahkya-text mb-6">Personal Information</h2>
         {fields.map(f => (
           <div key={f.label}>
-            <label className="block font-mono text-mono-sm font-medium uppercase tracking-widest text-nahkya-text-muted mb-2">
+            <label className="block font-mono text-mono-sm font-medium uppercase tracking-widest text-nahkya-text-secondary mb-2">
               {f.label}
             </label>
             {f.editable ? (
               <input
                 value={f.value}
                 onChange={(e) => f.onChange(e.target.value)}
-                className="w-full bg-workspace-hover border border-workspace-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold transition-colors"
+                className="w-full bg-nahkya-surface-raised border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight transition-colors"
               />
             ) : (
               <p className="text-body-md text-nahkya-text font-body">{f.value}</p>
@@ -113,12 +113,12 @@ export default function Profile() {
       {/* Membership */}
       <div className="space-y-4 mb-12">
         <h2 className="text-xl font-body font-medium text-nahkya-text mb-6">Membership</h2>
-        <div className="flex items-center justify-between py-4 border-t border-workspace-border">
+        <div className="flex items-center justify-between py-4 border-t border-nahkya-border">
           <div>
             <p className="font-body text-body-md text-nahkya-text">Current Tier</p>
-            <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase">Member</p>
+            <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">Member</p>
           </div>
-          <span className="font-mono text-mono-sm text-nahkya-gold uppercase">Active</span>
+          <span className="font-mono text-mono-sm text-nahkya-highlight uppercase">Active</span>
         </div>
       </div>
 

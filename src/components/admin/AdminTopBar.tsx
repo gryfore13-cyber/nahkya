@@ -20,11 +20,11 @@ export function AdminTopBar({ icon, label, hint, middle, actions, className }: A
     >
       {/* Left: Icon + Title */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="h-10 w-10 rounded-full bg-nahkya-burgundy text-nahkya-text-inverse grid place-items-center shrink-0">
+        <div className="h-10 w-10 rounded-full bg-nahkya-accent text-nahkya-inverse grid place-items-center shrink-0">
           {icon}
         </div>
         <div className="min-w-0">
-          <div className="text-mono-sm text-nahkya-text-muted uppercase truncate">{label}</div>
+          <div className="text-mono-sm text-nahkya-text-secondary uppercase truncate">{label}</div>
           {hint && <div className="text-sm text-nahkya-text font-body truncate">{hint}</div>}
         </div>
       </div>

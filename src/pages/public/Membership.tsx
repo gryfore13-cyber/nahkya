@@ -34,11 +34,11 @@ export default function Membership() {
   const collectorFeatures = ['Everything in Atelier Member', 'Unlimited design saves', 'Priority production queue', 'Exclusive artwork collections', 'Early access to new tools', 'Member-only events'];
 
   return (
-    <div ref={ref} className="bg-nahkya-ivory min-h-screen pt-[160px] pb-32">
+    <div ref={ref} className="bg-nahkya-bg min-h-screen pb-32" style={{ paddingTop: '160px' }}>
       <div className="max-w-container mx-auto">
-        <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-gold mb-4">JOIN THE ATELIER</p>
+        <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-highlight mb-4">JOIN THE ATELIER</p>
         <h1 className="font-display text-5xl lg:text-display-xl text-nahkya-text font-medium tracking-tight mb-6">Membership</h1>
-        <p className="text-base lg:text-lg text-nahkya-text-muted font-body leading-relaxed max-w-content-lg mb-20">
+        <p className="text-base lg:text-lg text-nahkya-text-secondary font-body leading-relaxed max-w-content-lg mb-20">
           NAHKYA members do not shop for scarves — they create them. Join our digital atelier and transform colour, pattern, and intention into silk.
         </p>
 
@@ -47,10 +47,10 @@ export default function Membership() {
           {benefits.map((b) => {
             const Icon = b.icon;
             return (
-              <div key={b.title} className="benefit-card bg-nahkya-ivory border border-nahkya-gold-soft p-10 hover:border-nahkya-gold/30 hover:-translate-y-1 transition-all duration-300">
-                <Icon className="w-8 h-8 text-nahkya-gold mb-6" strokeWidth={1.5} />
+              <div key={b.title} className="benefit-card bg-nahkya-bg border border-nahkya-border p-10 hover:border-nahkya-highlight/30 hover:-translate-y-1 transition-all duration-300">
+                <Icon className="w-8 h-8 text-nahkya-highlight mb-6" strokeWidth={1.5} />
                 <h3 className="text-xl font-body font-medium text-nahkya-text mb-4">{b.title}</h3>
-                <p className="text-body-md text-nahkya-text-muted font-body leading-relaxed">{b.desc}</p>
+                <p className="text-body-md text-nahkya-text-secondary font-body leading-relaxed">{b.desc}</p>
               </div>
             );
           })}
@@ -65,13 +65,13 @@ export default function Membership() {
           ].map((tool, i) => (
             <div key={tool.num} className={cn('grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ', i % 2 === 1 ? 'lg:direction-rtl' : '')}>
               <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
-                <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-gold mb-4">{tool.num} — {tool.label}</p>
+                <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-highlight mb-4">{tool.num} — {tool.label}</p>
                 <h3 className="font-display text-heading-sm lg:text-display-md text-nahkya-text font-medium mb-6">{tool.title}</h3>
-                <p className="text-base text-nahkya-text-muted font-body leading-relaxed mb-6">{tool.desc}</p>
+                <p className="text-base text-nahkya-text-secondary font-body leading-relaxed mb-6">{tool.desc}</p>
                 <ul className="space-y-2">
                   {tool.feats.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-nahkya-text-muted font-body">
-                      <span className="text-nahkya-gold text-body-3xs">&diams;</span>
+                    <li key={f} className="flex items-center gap-2 text-sm text-nahkya-text-secondary font-body">
+                      <span className="text-nahkya-highlight text-body-3xs">&diams;</span>
                       {f}
                     </li>
                   ))}
@@ -86,15 +86,15 @@ export default function Membership() {
 
         {/* Tiers */}
         <div className="tiers-section grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto mb-24">
-          <div className="tier-card bg-nahkya-ivory border border-nahkya-gold-soft p-10">
-            <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-gold text-center mb-4">ATELIER MEMBER</p>
+          <div className="tier-card bg-nahkya-bg border border-nahkya-border p-10">
+            <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-highlight text-center mb-4">ATELIER MEMBER</p>
             <p className="font-display text-display-sm text-nahkya-text font-medium text-center mb-1">Free</p>
-            <p className="font-mono text-mono-sm text-nahkya-text-muted text-center mb-8">Forever</p>
-            <div className="border-t border-nahkya-gold-soft pt-8 space-y-3">
+            <p className="font-mono text-mono-sm text-nahkya-text-secondary text-center mb-8">Forever</p>
+            <div className="border-t border-nahkya-border pt-8 space-y-3">
               {freeFeatures.map((f) => (
                 <div key={f} className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-nahkya-gold flex-shrink-0" strokeWidth={2} />
-                  <span className="text-sm text-nahkya-text-muted font-body">{f}</span>
+                  <Check className="w-4 h-4 text-nahkya-highlight flex-shrink-0" strokeWidth={2} />
+                  <span className="text-sm text-nahkya-text-secondary font-body">{f}</span>
                 </div>
               ))}
             </div>
@@ -102,16 +102,16 @@ export default function Membership() {
               <LuxuryButton variant="secondary" size="md" className="w-full mt-8">Join Free</LuxuryButton>
             </Link>
           </div>
-          <div className="tier-card bg-nahkya-charcoal border border-nahkya-gold/30 p-10 relative">
-            <div className="absolute top-4 right-4 bg-nahkya-gold text-nahkya-text font-mono text-mono-sm font-medium uppercase tracking-label px-3 py-1">Most Popular</div>
-            <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-gold text-center mb-4">ATELIER COLLECTOR</p>
-            <p className="font-display text-display-sm text-nahkya-ivory font-medium text-center mb-1">$48</p>
-            <p className="font-mono text-mono-sm text-nahkya-text-muted text-center mb-8">per year</p>
-            <div className="border-t border-workspace-border pt-8 space-y-3">
+          <div className="tier-card bg-nahkya-text border border-nahkya-highlight/30 p-10 relative">
+            <div className="absolute top-4 right-4 bg-nahkya-highlight text-nahkya-text font-mono text-mono-sm font-medium uppercase tracking-label px-3 py-1">Most Popular</div>
+            <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-highlight text-center mb-4">ATELIER COLLECTOR</p>
+            <p className="font-display text-display-sm text-nahkya-bg font-medium text-center mb-1">$48</p>
+            <p className="font-mono text-mono-sm text-nahkya-text-secondary text-center mb-8">per year</p>
+            <div className="border-t border-nahkya-border pt-8 space-y-3">
               {collectorFeatures.map((f) => (
                 <div key={f} className="flex items-center gap-3">
-                  <Check className="w-4 h-4 text-nahkya-gold flex-shrink-0" strokeWidth={2} />
-                  <span className="text-sm text-nahkya-text-muted font-body">{f}</span>
+                  <Check className="w-4 h-4 text-nahkya-highlight flex-shrink-0" strokeWidth={2} />
+                  <span className="text-sm text-nahkya-text-secondary font-body">{f}</span>
                 </div>
               ))}
             </div>
@@ -123,10 +123,10 @@ export default function Membership() {
       </div>
 
       {/* Final CTA */}
-      <div className="bg-nahkya-charcoal py-20">
+      <div className="bg-nahkya-text py-20">
         <div className="max-w-content mx-auto px-5 text-center">
-          <h2 className="font-display text-display-sm lg:text-display-md text-nahkya-ivory font-medium mb-5">Your scarf is waiting to be designed</h2>
-          <p className="text-base text-nahkya-text-muted font-body leading-relaxed mb-10">Join today and begin creating. No credit card required for the free tier.</p>
+          <h2 className="font-display text-display-sm lg:text-display-md text-nahkya-bg font-medium mb-5">Your scarf is waiting to be designed</h2>
+          <p className="text-base text-nahkya-text-secondary font-body leading-relaxed mb-10">Join today and begin creating. No credit card required for the free tier.</p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/login"><LuxuryButton variant="primary" size="lg">Join Free</LuxuryButton></Link>
             <Link to="/contact"><LuxuryButton variant="dark-ghost" size="lg">Contact Us</LuxuryButton></Link>

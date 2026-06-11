@@ -3,12 +3,14 @@ import type { SavedDesign } from '@/types';
 import {
   getCollection,
   getCollectionQuery,
+  getDocById,
   addDocToCollection,
   updateDocInCollection,
   deleteDocFromCollection,
   subscribeCollection,
   where,
 } from '@/lib/firebase/db';
+import { deleteThumbnail } from '@/lib/firebase/storage';
 
 const COLLECTION = 'savedDesigns';
 
@@ -21,6 +23,7 @@ interface SavedDesignState {
   addDesign: (design: Omit<SavedDesign, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
   updateDesign: (id: string, data: Partial<SavedDesign>) => Promise<void>;
   deleteDesign: (id: string) => Promise<void>;
+  fetchDesignById: (id: string) => Promise<SavedDesign | null>;
   subscribe: () => (() => void);
   getByUser: (userId: string) => SavedDesign[];
 }
@@ -87,12 +90,31 @@ export const useSavedDesignStore = create<SavedDesignState>((set, get) => ({
   },
 
   deleteDesign: async (id) => {
+    const design = get().designs.find((d) => d.id === id);
+    const userId = design?.userId;
+    // Delete thumbnail from Storage if it was uploaded there (not base64 legacy)
+    if (userId && design?.thumbnail && !design.thumbnail.startsWith('data:')) {
+      try {
+        await deleteThumbnail(userId, id);
+      } catch {
+        // Storage file may not exist — ignore
+      }
+    }
     await deleteDocFromCollection(COLLECTION, id);
-    const userId = get().designs.find((d) => d.id === id)?.userId;
     if (userId) {
       await get().fetchDesignsByUser(userId);
     } else {
       await get().fetchDesigns();
+    }
+  },
+
+  fetchDesignById: async (id) => {
+    try {
+      const doc = await getDocById<Record<string, unknown> & { id: string }>(COLLECTION, id);
+      return doc ? docToDesign(doc) : null;
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to fetch design' });
+      return null;
     }
   },
 

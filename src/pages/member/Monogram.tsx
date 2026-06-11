@@ -1,6 +1,7 @@
 // src/pages/member/Monogram.tsx — NAHKYA Monogram Atelier
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { StudioShell } from '@/components/studio/StudioShell';
 import { useColourStore } from '@/stores/colourStore';
@@ -10,19 +11,44 @@ import { useOrderStore } from '@/stores/orderStore';
 import { usePlatformStore } from '@/stores/platformStore';
 import { useMonogramState } from '@/hooks/useMonogramState';
 import { generateMonogramThumbnail } from '@/lib/monogramExport';
+import { saveDesignWithThumbnail } from '@/lib/designs';
 import MonogramControls from '@/components/monogram/MonogramControls';
 import MonogramCanvas from '@/components/monogram/MonogramCanvas';
 import { StudioViewPill } from '@/components/studio/StudioViewPill';
+import type { MonogramSnapshot } from '@/types';
 
 export default function Monogram() {
   const state = useMonogramState();
   const { selectedColour } = useColourStore();
   const { user } = useAuthStore();
-  const { addDesign } = useSavedDesignStore();
+  const { fetchDesignById } = useSavedDesignStore();
   const { addOrder } = useOrderStore();
   const { pricing } = usePlatformStore();
 
+  const [searchParams] = useSearchParams();
   const [activeColorTarget, setActiveColorTarget] = useState<'letter' | 'base' | 'border' | 'border2'>('letter');
+  const [isRestoring, setIsRestoring] = useState(true);
+
+  // Restore saved design from ?designId=
+  useEffect(() => {
+    const designId = searchParams.get('designId');
+    if (!designId) {
+      setIsRestoring(false);
+      return;
+    }
+
+    let cancelled = false;
+    fetchDesignById(designId).then((design) => {
+      if (cancelled) return;
+      if (design?.snapshot) {
+        state.loadSnapshot(design.snapshot as unknown as MonogramSnapshot);
+      }
+      setIsRestoring(false);
+    });
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('designId')]);
 
 
   // Auto-apply selected colour from the right panel to the active target
@@ -60,18 +86,17 @@ export default function Monogram() {
       const snapshot = state.getSnapshot();
       const thumbnail = generateMonogramThumbnail(snapshot, 512);
       const name = getDesignName();
-      await addDesign({
+      await saveDesignWithThumbnail({
         name,
         tool: 'monogram',
-        thumbnail,
         userId: user.uid,
         snapshot: snapshot as unknown as Record<string, unknown>,
-      });
+      }, thumbnail);
       toast.success(`"${name}" saved to your collection.`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to save design.');
     }
-  }, [user, state, addDesign, getDesignName]);
+  }, [user, state, getDesignName]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) {
@@ -82,13 +107,12 @@ export default function Monogram() {
       const snapshot = state.getSnapshot();
       const thumbnail = generateMonogramThumbnail(snapshot, 512);
       const name = getDesignName();
-      const designId = await addDesign({
+      const designId = await saveDesignWithThumbnail({
         name,
         tool: 'monogram',
-        thumbnail,
         userId: user.uid,
         snapshot: snapshot as unknown as Record<string, unknown>,
-      });
+      }, thumbnail);
       const amount = getDefaultPrice();
       await addOrder({
         userId: user.uid,
@@ -107,7 +131,15 @@ export default function Monogram() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to submit order.');
     }
-  }, [user, state, addDesign, addOrder, getDesignName, getDefaultPrice]);
+  }, [user, state, addOrder, getDesignName, getDefaultPrice]);
+
+  if (isRestoring) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-nahkya-bg">
+        <p className="font-mono text-mono-md text-nahkya-text-secondary uppercase tracking-label">Restoring design…</p>
+      </div>
+    );
+  }
 
   return (
     <StudioShell

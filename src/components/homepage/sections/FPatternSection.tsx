@@ -1,4 +1,7 @@
-import { SectionWrapper } from '@/components/homepage/SectionWrapper';
+import { InlineText } from '@/components/admin/InlineText';
+import { InlineImage } from '@/components/admin/InlineImage';
+import { InlineArrayAdd } from '@/components/admin/InlineArrayAdd';
+import { InlineArrayRemove } from '@/components/admin/InlineArrayRemove';
 import type { HomepageSection } from '@/types';
 
 interface Props {
@@ -6,40 +9,74 @@ interface Props {
 }
 
 export default function FPatternSection({ section }: Props) {
-  const { content, settings } = section;
+  const { content, id } = section;
 
   return (
-    <SectionWrapper settings={settings}>
+    <>
       <div className="max-w-4xl">
-        <h2 className="font-display text-display-lg lg:text-display-xl font-medium leading-tight mb-6">
-          {content.headline}
-        </h2>
-        <p className="font-body text-body-lg text-nahkya-text-muted mb-12 max-w-2xl">
-          {content.intro}
-        </p>
+        <InlineText
+          tag="h2"
+          value={content.headline}
+          path="headline"
+          sectionId={id}
+          className="font-display text-display-lg lg:text-display-xl font-medium leading-tight mb-6"
+          placeholder="Headline"
+        />
+        <InlineText
+          tag="p"
+          value={content.intro}
+          path="intro"
+          sectionId={id}
+          className="font-body text-body-lg text-nahkya-text-secondary mb-12 max-w-2xl"
+          placeholder="Introduction"
+        />
 
         <div className="space-y-10">
           {content.items.map((item, idx) => (
             <div key={idx} className="flex flex-col md:flex-row gap-6 items-start">
-              {item.imageUrl && (
-                <img
+              <div className="w-full md:w-48 flex-shrink-0">
+                <InlineImage
                   src={item.imageUrl}
                   alt={item.title}
-                  className="w-full md:w-48 h-32 object-cover rounded-nahkya flex-shrink-0"
+                  aspectClass="w-full h-32"
+                  sectionId={id}
+                  path={`items.${idx}.imageUrl`}
                 />
-              )}
-              <div>
-                <h3 className="font-display text-heading-md font-medium mb-2">
-                  {item.title}
-                </h3>
-                <p className="font-body text-body-md text-nahkya-text-muted">
-                  {item.description}
-                </p>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <InlineText
+                    tag="h3"
+                    value={item.title}
+                    path={`items.${idx}.title`}
+                    sectionId={id}
+                    className="font-display text-heading-md font-medium"
+                    placeholder="Item Title"
+                  />
+                  <InlineArrayRemove sectionId={id} path="items" index={idx} minCount={1} />
+                </div>
+                <InlineText
+                  tag="p"
+                  value={item.description}
+                  path={`items.${idx}.description`}
+                  sectionId={id}
+                  className="font-body text-body-md text-nahkya-text-secondary"
+                  placeholder="Item Description"
+                />
               </div>
             </div>
           ))}
         </div>
+
+        <div className="mt-8">
+          <InlineArrayAdd
+            sectionId={id}
+            path="items"
+            defaultItem={{ title: 'New Item', description: 'Description for the new item.' }}
+            label="Add Item"
+          />
+        </div>
       </div>
-    </SectionWrapper>
+    </>
   );
 }

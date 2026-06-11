@@ -91,48 +91,48 @@ export default function AdminArtworks() {
   const statusBadge = (status: string) => {
     switch (status) {
       case 'pending_review':
-        return <span className="font-mono text-mono-sm text-nahkya-gold uppercase">Pending Review</span>;
+        return <span className="font-mono text-mono-sm text-nahkya-highlight uppercase">Pending Review</span>;
       case 'approved':
         return <span className="font-mono text-mono-sm text-nahkya-success uppercase">Approved</span>;
       case 'rejected':
         return <span className="font-mono text-mono-sm text-nahkya-error uppercase">Rejected</span>;
       default:
-        return <span className="font-mono text-mono-sm text-nahkya-text-muted uppercase">{status}</span>;
+        return <span className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">{status}</span>;
     }
   };
 
   if (editing && editArt) {
     return (
       <div className="p-8 lg:p-12">
-        <button onClick={() => setEditing(null)} className="text-sm text-nahkya-text font-body mb-8 hover:text-nahkya-gold transition-colors">&larr; Back to List</button>
+        <button onClick={() => setEditing(null)} className="text-sm text-nahkya-text font-body mb-8 hover:text-nahkya-highlight transition-colors">&larr; Back to List</button>
         <h2 className="font-display text-display-sm text-nahkya-text font-medium mb-8">{editArt.name}</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-10">
-          <div className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya p-8 flex items-center justify-center aspect-square">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10" style={{ gridTemplateColumns: '40% 60%' }}>
+          <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya p-8 flex items-center justify-center aspect-square">
             {editArt.image ? (
               <img src={editArt.image} alt={editArt.name} className="w-full h-full object-contain" />
             ) : (
-              <div className="w-full h-full border-2 border-dashed border-nahkya-gold-soft rounded-nahkya flex flex-col items-center justify-center">
-                <ImageIcon className="w-8 h-8 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
-                <p className="text-sm text-nahkya-text-muted font-body">SVG Preview</p>
+              <div className="w-full h-full border-2 border-dashed border-nahkya-border rounded-nahkya flex flex-col items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-nahkya-text-secondary mb-3" strokeWidth={1.5} />
+                <p className="text-sm text-nahkya-text-secondary font-body">SVG Preview</p>
               </div>
             )}
           </div>
           <div className="space-y-6">
             <div>
-              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Name</label>
-              <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold" />
+              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Name</label>
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight" />
             </div>
             <div>
-              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Category</label>
-              <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
+              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Category</label>
+              <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight">
                 {CATEGORIES.filter((c) => c !== 'All').map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Designer</label>
-              <select value={editDesignerId} onChange={(e) => setEditDesignerId(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold">
+              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Designer</label>
+              <select value={editDesignerId} onChange={(e) => setEditDesignerId(e.target.value)} className="w-full bg-nahkya-surface border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight">
                 <option value="">Select a designer</option>
                 {designers.filter((d) => d.isActive).map((d) => (
                   <option key={d.id} value={d.id}>{d.name}</option>
@@ -140,20 +140,20 @@ export default function AdminArtworks() {
               </select>
             </div>
             <div>
-              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted mb-2">Status</label>
+              <label className="block font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary mb-2">Status</label>
               <div className="flex items-center gap-2">
                 {statusBadge(editArt.status)}
               </div>
             </div>
             {editArt.reviewNotes && (
-              <div className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya p-4">
-                <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase mb-1">Review Notes</p>
+              <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya p-4">
+                <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase mb-1">Review Notes</p>
                 <p className="text-sm text-nahkya-text font-body">{editArt.reviewNotes}</p>
               </div>
             )}
-            <div className="pt-6 border-t border-nahkya-gold-soft flex gap-3">
-              <button onClick={handleSaveEdit} className="px-6 py-2.5 bg-nahkya-gold text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-gold-soft transition-colors">Save Artwork</button>
-              <button onClick={() => setEditing(null)} className="px-6 py-2.5 border border-nahkya-gold-soft text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-burgundy transition-colors">Cancel</button>
+            <div className="pt-6 border-t border-nahkya-border flex gap-3">
+              <button onClick={handleSaveEdit} className="px-6 py-2.5 bg-nahkya-highlight text-nahkya-text text-sm font-body font-medium rounded-nahkya hover:bg-nahkya-border transition-colors">Save Artwork</button>
+              <button onClick={() => setEditing(null)} className="px-6 py-2.5 border border-nahkya-border text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-accent transition-colors">Cancel</button>
             </div>
           </div>
         </div>
@@ -166,14 +166,14 @@ export default function AdminArtworks() {
       <div className="flex items-center justify-between mb-2">
         <h1 className="font-display text-display-sm text-nahkya-text font-medium">Artworks</h1>
       </div>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">Manage scarf artwork templates and designer submissions.</p>
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">Manage scarf artwork templates and designer submissions.</p>
 
       {/* Status Tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
         {STATUS_TABS.map((s) => (
           <button key={s} onClick={() => setActiveStatus(s)}
             className={`px-4 py-2 font-mono text-mono-sm font-medium uppercase rounded-nahkya transition-colors ${
-              activeStatus === s ? 'bg-nahkya-burgundy text-nahkya-text-inverse' : 'bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text-muted hover:border-nahkya-burgundy'
+              activeStatus === s ? 'bg-nahkya-accent text-nahkya-inverse' : 'bg-nahkya-surface border border-nahkya-border text-nahkya-text-secondary hover:border-nahkya-accent'
             }`}>{s}</button>
         ))}
       </div>
@@ -183,7 +183,7 @@ export default function AdminArtworks() {
         {CATEGORIES.map((c) => (
           <button key={c} onClick={() => setActiveCat(c)}
             className={`px-4 py-2 font-mono text-mono-sm font-medium uppercase rounded-nahkya transition-colors ${
-              activeCat === c ? 'bg-nahkya-burgundy text-nahkya-text-inverse' : 'bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text-muted hover:border-nahkya-burgundy'
+              activeCat === c ? 'bg-nahkya-accent text-nahkya-inverse' : 'bg-nahkya-surface border border-nahkya-border text-nahkya-text-secondary hover:border-nahkya-accent'
             }`}>{c}</button>
         ))}
       </div>
@@ -191,14 +191,14 @@ export default function AdminArtworks() {
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((art) => (
-          <div key={art.id} className="group bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden hover:shadow-gold-glow-soft transition-shadow">
-            <div className="aspect-square bg-nahkya-ivory p-6 flex items-center justify-center">
+          <div key={art.id} className="group bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden hover:shadow-gold-glow-soft transition-shadow">
+            <div className="aspect-square bg-nahkya-bg p-6 flex items-center justify-center">
               {art.image ? (
                 <img src={art.image} alt={art.name} className="w-full h-full object-contain" />
               ) : (
-                <div className="w-full h-full border-2 border-dashed border-nahkya-gold-soft rounded-nahkya flex flex-col items-center justify-center">
-                  <ImageIcon className="w-8 h-8 text-nahkya-text-muted mb-3" strokeWidth={1.5} />
-                  <p className="text-sm text-nahkya-text-muted font-body">SVG Preview</p>
+                <div className="w-full h-full border-2 border-dashed border-nahkya-border rounded-nahkya flex flex-col items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-nahkya-text-secondary mb-3" strokeWidth={1.5} />
+                  <p className="text-sm text-nahkya-text-secondary font-body">SVG Preview</p>
                 </div>
               )}
             </div>
@@ -207,7 +207,7 @@ export default function AdminArtworks() {
                 <h3 className="font-body text-body-sm font-medium text-nahkya-text">{art.name}</h3>
                 {statusBadge(art.status)}
               </div>
-              <p className="text-body-xs text-nahkya-text-muted font-body">{art.designerName}</p>
+              <p className="text-body-xs text-nahkya-text-secondary font-body">{art.designerName}</p>
 
               {art.status === 'pending_review' && (
                 <div className="flex gap-2 pt-2">
@@ -229,20 +229,20 @@ export default function AdminArtworks() {
               )}
 
               <div className="flex items-center justify-between">
-                <div className={cn('w-8 h-4 rounded-full ', art.available ? 'bg-nahkya-success' : 'bg-nahkya-stone')}>
-                  <div className={cn('w-3 h-3 rounded-full bg-white mt-0.5 transition-transform ', art.available ? 'translate-x-4' : 'translate-x-0.5')} />
+                <div className={cn('w-8 h-4 rounded-full ', art.available ? 'bg-nahkya-success' : 'bg-nahkya-border')}>
+                  <div className={cn('w-3 h-3 rounded-full bg-nahkya-inverse mt-0.5 transition-transform ', art.available ? 'translate-x-4' : 'translate-x-0.5')} />
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => startEditing(art.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-gold"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleCopy(art)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-text"><Copy className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => deleteArtwork(art.id)} className="p-1.5 text-nahkya-text-muted hover:text-nahkya-error"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => startEditing(art.id)} className="p-1.5 text-nahkya-text-secondary hover:text-nahkya-highlight"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleCopy(art)} className="p-1.5 text-nahkya-text-secondary hover:text-nahkya-text"><Copy className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => deleteArtwork(art.id)} className="p-1.5 text-nahkya-text-secondary hover:text-nahkya-error"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-center py-12 text-nahkya-text-muted font-body">
+          <div className="col-span-full text-center py-12 text-nahkya-text-secondary font-body">
             No artworks match the selected filters.
           </div>
         )}
@@ -251,13 +251,13 @@ export default function AdminArtworks() {
       {/* Reject Modal */}
       {rejectModal && (
         <div className="fixed inset-0 z-modal flex items-center justify-center">
-          <div className="absolute inset-0 bg-nahkya-charcoal/50" onClick={() => setRejectModal(null)} />
-          <div className="relative bg-nahkya-ivory border border-nahkya-gold-soft rounded-nahkya max-w-canvas w-full p-8">
-            <button onClick={() => setRejectModal(null)} className="absolute top-4 right-4 text-nahkya-text-muted hover:text-nahkya-text">
+          <div className="absolute inset-0 bg-nahkya-text/50" onClick={() => setRejectModal(null)} />
+          <div className="relative bg-nahkya-bg border border-nahkya-border rounded-nahkya max-w-canvas w-full p-8">
+            <button onClick={() => setRejectModal(null)} className="absolute top-4 right-4 text-nahkya-text-secondary hover:text-nahkya-text">
               <X className="w-5 h-5" />
             </button>
             <h3 className="font-display text-lg text-nahkya-text font-medium mb-2">Reject Artwork?</h3>
-            <p className="text-sm text-nahkya-text-muted font-body mb-6">
+            <p className="text-sm text-nahkya-text-secondary font-body mb-6">
               Add a note explaining why this artwork was rejected. The designer will see this feedback.
             </p>
             <textarea
@@ -265,18 +265,18 @@ export default function AdminArtworks() {
               onChange={(e) => setRejectNotes(e.target.value)}
               rows={3}
               placeholder="e.g. Colour palette is too limited, composition needs refinement..."
-              className="w-full bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-gold resize-none mb-6"
+              className="w-full bg-nahkya-surface border border-nahkya-border text-nahkya-text font-body text-body-md px-4 py-3 rounded-nahkya focus:outline-none focus:border-nahkya-highlight resize-none mb-6"
             />
             <div className="flex gap-3">
               <button
                 onClick={handleReject}
-                className="px-5 py-2 bg-nahkya-error text-white text-sm font-body font-medium rounded-nahkya hover:opacity-90 transition-opacity"
+                className="px-5 py-2 bg-nahkya-error text-nahkya-inverse text-sm font-body font-medium rounded-nahkya hover:opacity-90 transition-opacity"
               >
                 Reject
               </button>
               <button
                 onClick={() => setRejectModal(null)}
-                className="px-5 py-2 border border-nahkya-gold-soft text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-burgundy transition-colors"
+                className="px-5 py-2 border border-nahkya-border text-sm font-body text-nahkya-text rounded-nahkya hover:border-nahkya-accent transition-colors"
               >
                 Cancel
               </button>

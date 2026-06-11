@@ -3,6 +3,7 @@ import { Search, Shield, User as UserIcon, CheckCircle, XCircle, Clock, RotateCc
 import { useUserStore } from '@/stores/userStore';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
+import { AdminFilterTabs } from '@/components/admin/AdminFilterTabs';
 import type { User as UserType, ApprovalStatus } from '@/types';
 
 type Tab = 'all' | 'pending' | 'approved' | 'rejected';
@@ -44,11 +45,11 @@ export default function AdminMembers() {
   const roleLabel = (role: string) => {
     switch (role) {
       case 'super_admin':
-        return { text: 'Super Admin', icon: Shield, color: 'text-nahkya-gold' };
+        return { text: 'Super Admin', icon: Shield, color: 'text-nahkya-highlight' };
       case 'designer':
         return { text: 'Designer', icon: UserIcon, color: 'text-nahkya-success' };
       default:
-        return { text: 'Member', icon: UserIcon, color: 'text-nahkya-text-muted' };
+        return { text: 'Member', icon: UserIcon, color: 'text-nahkya-text-secondary' };
     }
   };
 
@@ -58,7 +59,7 @@ export default function AdminMembers() {
         return {
           text: 'Pending',
           icon: Clock,
-          classes: 'bg-nahkya-gold/10 text-nahkya-gold border-nahkya-gold/20',
+          classes: 'bg-nahkya-highlight/10 text-nahkya-highlight border-nahkya-highlight/20',
         };
       case 'approved':
         return {
@@ -121,59 +122,43 @@ export default function AdminMembers() {
   return (
     <div className="p-8 lg:p-12">
       <h1 className="font-display text-display-sm text-nahkya-text font-medium mb-2">Members</h1>
-      <p className="text-body-md text-nahkya-text-muted font-body mb-8">
+      <p className="text-body-md text-nahkya-text-secondary font-body mb-8">
         Manage registered users, review applications, and control access.
       </p>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-nahkya-gold-soft">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className={cn(
-              'px-4 py-2.5 text-sm font-body transition-colors border-b-2 -mb-px',
-              activeTab === t.key
-                ? 'border-nahkya-gold text-nahkya-text'
-                : 'border-transparent text-nahkya-text-muted hover:text-nahkya-text'
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <AdminFilterTabs tabs={tabs} active={activeTab} onChange={(key) => setActiveTab(key as Tab)} className="mb-6" />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-content">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nahkya-text-muted" strokeWidth={1.5} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nahkya-text-secondary" strokeWidth={1.5} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search members..."
-            className="pl-10 pr-4 py-2 bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-gold w-full font-body"
+            className="pl-10 pr-4 py-2 bg-nahkya-surface border border-nahkya-border text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-highlight w-full font-body"
           />
         </div>
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-4 py-2 bg-nahkya-surface border border-nahkya-gold-soft text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-gold font-body"
+          className="px-4 py-2 bg-nahkya-surface border border-nahkya-border text-nahkya-text text-body-sm rounded-nahkya focus:outline-none focus:border-nahkya-highlight font-body"
         >
           <option value="all">All Roles</option>
           <option value="member">Member</option>
           <option value="designer">Designer</option>
           <option value="super_admin">Super Admin</option>
         </select>
-        <p className="font-mono text-mono-sm text-nahkya-text-muted uppercase ml-auto">
+        <p className="font-mono text-mono-sm text-nahkya-text-secondary uppercase ml-auto">
           {filtered.length} shown
         </p>
       </div>
 
       {/* Table */}
-      <div className="bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya overflow-hidden">
-        <div className="hidden lg:grid grid-cols-[1fr_1fr_100px_100px_140px_140px] gap-3 px-5 py-3 border-b-2 border-nahkya-charcoal">
+      <div className="bg-nahkya-surface border border-nahkya-border rounded-nahkya overflow-hidden">
+        <div className="hidden lg:grid gap-3 px-5 py-3 border-b-2 border-nahkya-text" style={{ gridTemplateColumns: '1fr 1fr 100px 100px 140px 140px' }}>
           {['Name', 'Email', 'Role', 'Tier', 'Status', 'Actions'].map((h) => (
-            <span key={h} className="font-mono text-mono-sm font-medium uppercase text-nahkya-text-muted">
+            <span key={h} className="font-mono text-mono-sm font-medium uppercase text-nahkya-text-secondary">
               {h}
             </span>
           ))}
@@ -187,20 +172,21 @@ export default function AdminMembers() {
             <div
               key={u.uid}
               className={cn(
-                'grid grid-cols-1 lg:grid-cols-[1fr_1fr_100px_100px_140px_140px] gap-3 px-5 py-3.5 items-center',
-                i < filtered.length - 1 ? 'border-b border-nahkya-gold-soft' : '',
-                'hover:bg-nahkya-ivory transition-colors'
+                'grid gap-3 px-5 py-3.5 items-center',
+                i < filtered.length - 1 ? 'border-b border-nahkya-border' : '',
+                'hover:bg-nahkya-bg transition-colors'
               )}
+              style={{ gridTemplateColumns: '1fr 1fr 100px 100px 140px 140px' }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-workspace-hover border border-workspace-border flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-nahkya-surface-raised border border-nahkya-border flex items-center justify-center">
                   <span className="font-mono text-mono-sm text-nahkya-text">
                     {u.displayName?.split(' ').map((n) => n[0]).join('') || 'U'}
                   </span>
                 </div>
                 <div>
                   <span className="text-sm text-nahkya-text font-body font-medium block">{u.displayName}</span>
-                  <span className="text-xs text-nahkya-text-muted font-body lg:hidden">{u.email}</span>
+                  <span className="text-xs text-nahkya-text-secondary font-body lg:hidden">{u.email}</span>
                 </div>
               </div>
               <span className="text-sm text-nahkya-text font-body hidden lg:block">{u.email}</span>
@@ -208,7 +194,7 @@ export default function AdminMembers() {
                 <RoleIcon className={cn('w-3.5 h-3.5', rl.color)} strokeWidth={1.5} />
                 <span className={cn('font-mono text-mono-sm uppercase', rl.color)}>{rl.text}</span>
               </span>
-              <span className="font-mono text-mono-sm text-nahkya-text-muted uppercase">
+              <span className="font-mono text-mono-sm text-nahkya-text-secondary uppercase">
                 {u.membershipTier}
               </span>
               <span
@@ -245,14 +231,14 @@ export default function AdminMembers() {
                   <button
                     onClick={() => handleReapprove(u)}
                     disabled={isSubmitting}
-                    className="flex items-center gap-1 px-2.5 py-1.5 bg-nahkya-gold/10 text-nahkya-gold border border-nahkya-gold/20 rounded-nahkya text-body-2xs font-body hover:bg-nahkya-gold/20 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-nahkya-highlight/10 text-nahkya-highlight border border-nahkya-highlight/20 rounded-nahkya text-body-2xs font-body hover:bg-nahkya-highlight/20 transition-colors disabled:opacity-50"
                   >
                     <RotateCcw className="w-3 h-3" strokeWidth={1.5} />
                     Re-approve
                   </button>
                 )}
                 {u.approvalStatus === 'approved' && (
-                  <span className="text-body-2xs text-nahkya-text-muted font-body">
+                  <span className="text-body-2xs text-nahkya-text-secondary font-body">
                     {u.approvedAt
                       ? new Date(u.approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
                       : '—'}
@@ -263,7 +249,7 @@ export default function AdminMembers() {
           );
         })}
         {filtered.length === 0 && (
-          <div className="px-5 py-12 text-center text-nahkya-text-muted font-body">
+          <div className="px-5 py-12 text-center text-nahkya-text-secondary font-body">
             No members found in this category.
           </div>
         )}
@@ -273,14 +259,14 @@ export default function AdminMembers() {
       {rejectingUser && (
         <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => setRejectingUser(null)} />
-          <div className="relative bg-nahkya-surface border border-nahkya-gold-soft rounded-nahkya p-6 w-full max-w-md">
+          <div className="relative bg-nahkya-surface border border-nahkya-border rounded-nahkya p-6 w-full max-w-md">
             <h3 className="font-display text-heading-sm text-nahkya-text font-medium mb-2">
               Reject Application
             </h3>
-            <p className="text-sm text-nahkya-text-muted font-body mb-4">
+            <p className="text-sm text-nahkya-text-secondary font-body mb-4">
               You are rejecting <strong className="text-nahkya-text">{rejectingUser.displayName}</strong> ({rejectingUser.email}).
             </p>
-            <label className="block font-mono text-mono-sm uppercase text-nahkya-text-muted mb-2">
+            <label className="block font-mono text-mono-sm uppercase text-nahkya-text-secondary mb-2">
               Reason (optional)
             </label>
             <textarea
@@ -288,19 +274,19 @@ export default function AdminMembers() {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Explain why this application is being declined..."
               rows={3}
-              className="w-full bg-nahkya-ivory border border-nahkya-gold-soft text-nahkya-text text-sm rounded-nahkya p-3 focus:outline-none focus:border-nahkya-gold font-body resize-none mb-4"
+              className="w-full bg-nahkya-bg border border-nahkya-border text-nahkya-text text-sm rounded-nahkya p-3 focus:outline-none focus:border-nahkya-highlight font-body resize-none mb-4"
             />
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => setRejectingUser(null)}
-                className="px-4 py-2 text-sm text-nahkya-text-muted font-body hover:text-nahkya-text transition-colors"
+                className="px-4 py-2 text-sm text-nahkya-text-secondary font-body hover:text-nahkya-text transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-nahkya-error text-white text-sm font-body rounded-nahkya hover:bg-nahkya-error/90 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-nahkya-error text-nahkya-inverse text-sm font-body rounded-nahkya hover:bg-nahkya-error/90 transition-colors disabled:opacity-50"
               >
                 Confirm Rejection
               </button>

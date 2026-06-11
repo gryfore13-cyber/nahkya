@@ -26,28 +26,28 @@ export default function SilkWire() {
   }, []);
 
   return (
-    <div className="bg-nahkya-charcoal min-h-screen pt-[160px] pb-32">
+    <div className="bg-nahkya-text min-h-screen pb-32" style={{ paddingTop: '160px' }}>
       <div className="max-w-container mx-auto">
-        <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-gold mb-4">FASHION NEWS</p>
-        <h1 className="font-display text-5xl lg:text-display-xl text-nahkya-ivory font-medium tracking-tight mb-6">Silk Wire</h1>
-        <p className="text-base lg:text-lg text-nahkya-text-muted font-body leading-relaxed max-w-content mb-16">
+        <p className="font-mono text-mono-md font-medium uppercase  text-nahkya-highlight mb-4">FASHION NEWS</p>
+        <h1 className="font-display text-5xl lg:text-display-xl text-nahkya-bg font-medium tracking-tight mb-6">Silk Wire</h1>
+        <p className="text-base lg:text-lg text-nahkya-bg font-body leading-relaxed max-w-content mb-16">
           The latest from the world of modest fashion, textile innovation, and cultural style. Curated weekly for the NAHKYA community.
         </p>
 
         {/* Featured */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 mb-16 bg-workspace-panel border border-workspace-border">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 mb-16 bg-nahkya-surface border border-nahkya-border">
           <div className="overflow-hidden">
             <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&q=80" alt="Modest fashion week"
               className="w-full h-full object-cover aspect-video lg:aspect-auto" />
           </div>
           <div className="p-10 lg:p-12 flex flex-col justify-center">
-            <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-gold mb-4">BREAKING — MODEST FASHION WEEK</p>
-            <h2 className="font-display text-heading-sm text-nahkya-ivory font-medium leading-tight mb-4">London Modest Fashion Week: The Highlights</h2>
-            <p className="text-body-md text-nahkya-text-muted font-body leading-relaxed mb-4">
+            <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-highlight mb-4">BREAKING — MODEST FASHION WEEK</p>
+            <h2 className="font-display text-heading-sm text-nahkya-bg font-medium leading-tight mb-4">London Modest Fashion Week: The Highlights</h2>
+            <p className="text-body-md text-nahkya-text-secondary font-body leading-relaxed mb-4">
               From emerging Brunei-based designers to established London houses, this year's modest fashion week proved that covered dress is not a niche — it is the future.
             </p>
-            <p className="font-mono text-mono-sm text-nahkya-text-muted mb-6">20 MARCH 2025 — 8 MIN READ</p>
-            <span className="inline-flex items-center gap-2 text-body-md font-body font-medium text-nahkya-ivory hover:text-nahkya-gold transition-colors cursor-pointer">
+            <p className="font-mono text-mono-sm text-nahkya-text-secondary mb-6">20 MARCH 2025 — 8 MIN READ</p>
+            <span className="inline-flex items-center gap-2 text-body-md font-body font-medium text-nahkya-bg hover:text-nahkya-highlight transition-colors cursor-pointer">
               Read Full Story &rarr;
             </span>
           </div>
@@ -56,15 +56,15 @@ export default function SilkWire() {
         {/* News Grid */}
         <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {NEWS.map((n, i) => (
-            <div key={i} className="news-card group bg-workspace-panel border border-workspace-border hover:border-nahkya-gold/30 transition-all duration-200">
+            <div key={i} className="news-card group bg-nahkya-surface border border-nahkya-border hover:border-nahkya-highlight/30 transition-all duration-200">
               <div className="overflow-hidden">
-                <img src={n.img} alt={n.title} className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                <img src={n.img} alt={n.title} className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="p-6">
-                <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-gold mb-3">{n.cat}</p>
-                <h3 className="font-display text-xl text-nahkya-ivory font-medium leading-snug mb-3">{n.title}</h3>
-                <p className="text-sm text-nahkya-text-muted font-body leading-relaxed mb-4">{n.excerpt}</p>
-                <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-text-muted">{n.date}</p>
+                <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-highlight mb-3">{n.cat}</p>
+                <h3 className="font-display text-xl text-nahkya-bg font-medium leading-snug mb-3">{n.title}</h3>
+                <p className="text-sm text-nahkya-text-secondary font-body leading-relaxed mb-4">{n.excerpt}</p>
+                <p className="font-mono text-mono-sm font-medium uppercase  text-nahkya-text-secondary">{n.date}</p>
               </div>
             </div>
           ))}

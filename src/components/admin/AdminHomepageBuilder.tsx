@@ -1,56 +1,48 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Plus, Save, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Pencil, Layout } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Save, Eye, EyeOff, RotateCcw, Globe, FileCheck } from 'lucide-react';
 import { useHomeContentStore } from '@/stores/homeContentStore';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { SectionEditorSheet } from './SectionEditorSheet';
-import { TemplateRenderer } from '@/components/homepage/TemplateRenderer';
-import { SectionWrapper } from '@/components/homepage/SectionWrapper';
 import { cn } from '@/lib/utils';
-import {
-  TEMPLATE_LABELS,
-  type HomepageSection,
-  type TemplateType,
-} from '@/types';
+import type { HomepageSection, TemplateType } from '@/types/homepage';
+import { FormatToolbar } from './FormatToolbar';
+import { SectionListSidebar } from './SectionListSidebar';
+import { SectionSettingsPanel } from './SectionSettingsPanel';
+import { HomepagePreview, type DeviceType } from './HomepagePreview';
 
-const TEMPLATE_TYPES: TemplateType[] = [
-  'splitScreenHero',
-  'singleColumnFocus',
-  'zPattern',
-  'fPattern',
-  'invertedPyramid',
-  'cardGrid',
-  'alternating',
-  'longFormSales',
-  'storytellingScroll',
-  'asymmetricalEditorial',
-  'productShowcase',
-  'leadCapture',
+const DEVICE_OPTIONS: { key: DeviceType; icon: React.ReactNode; label: string }[] = [
+  { key: 'desktop', icon: <Monitor size={15} />, label: 'Desktop' },
+  { key: 'tablet', icon: <Tablet size={15} />, label: 'Tablet' },
+  { key: 'mobile', icon: <Smartphone size={15} />, label: 'Mobile' },
 ];
 
 export function AdminHomepageBuilder() {
   const config = useHomeContentStore((s) => s.config);
   const isSaving = useHomeContentStore((s) => s.isSaving);
+  const saveError = useHomeContentStore((s) => s.saveError);
   const isLoaded = useHomeContentStore((s) => s.isLoaded);
+  const hasDraftChanges = useHomeContentStore((s) => s.hasDraftChanges);
+
   const addSection = useHomeContentStore((s) => s.addSection);
   const removeSection = useHomeContentStore((s) => s.removeSection);
-  const moveSection = useHomeContentStore((s) => s.moveSection);
   const duplicateSection = useHomeContentStore((s) => s.duplicateSection);
+  const reorderSections = useHomeContentStore((s) => s.reorderSections);
+  const updateSectionContent = useHomeContentStore((s) => s.updateSectionContent);
+  const updateSectionSettings = useHomeContentStore((s) => s.updateSectionSettings);
+  const updateSectionAnimation = useHomeContentStore((s) => s.updateSectionAnimation);
+  const updateSectionResponsive = useHomeContentStore((s) => s.updateSectionResponsive);
+  const updateSectionStatus = useHomeContentStore((s) => s.updateSectionStatus);
+  const updateSectionName = useHomeContentStore((s) => s.updateSectionName);
   const toggleVisibility = useHomeContentStore((s) => s.toggleVisibility);
   const saveConfig = useHomeContentStore((s) => s.saveConfig);
+  const publishAll = useHomeContentStore((s) => s.publishAll);
+  const resetConfig = useHomeContentStore((s) => s.resetConfig);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isPreview, setIsPreview] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [device, setDevice] = useState<DeviceType>('desktop');
+  const [activeField, setActiveField] = useState<{ sectionId: string; path: string } | null>(null);
 
   const sections = useMemo(() => {
-    return (config?.sections ?? []).filter((s) => s != null);
+    return (config?.sections ?? []).filter((s) => s != null).sort((a, b) => a.order - b.order);
   }, [config]);
 
   const selectedSection = useMemo(() => {
@@ -59,369 +51,234 @@ export function AdminHomepageBuilder() {
 
   const handleAddSection = useCallback((templateType: TemplateType) => {
     addSection(templateType);
+    // Select the newly added section (it will be the last one)
+    setTimeout(() => {
+      const current = useHomeContentStore.getState().config.sections;
+      const last = [...current].sort((a, b) => a.order - b.order).at(-1);
+      if (last) setSelectedId(last.id);
+    }, 50);
   }, [addSection]);
-
-  const handleSelectSection = useCallback((id: string) => {
-    setSelectedId(id);
-    setSheetOpen(true);
-  }, []);
-
-  const handleCloseSheet = useCallback(() => {
-    setSheetOpen(false);
-    setSelectedId(null);
-  }, []);
 
   const handleSave = useCallback(async () => {
     await saveConfig();
   }, [saveConfig]);
 
+  const handlePublishAll = useCallback(async () => {
+    await publishAll();
+  }, [publishAll]);
+
+  const handleReset = useCallback(async () => {
+    if (!confirm('Reset homepage to factory defaults? All current sections will be replaced.')) return;
+    resetConfig();
+    await saveConfig();
+    setSelectedId(null);
+  }, [resetConfig, saveConfig]);
+
+  const updateField = useCallback((sectionId: string, path: string, html: string) => {
+    const section = sections.find((s) => s.id === sectionId);
+    if (!section) return;
+    const keys = path.split('.');
+    if (keys.length === 1) {
+      updateSectionContent(sectionId, { [path]: html } as Partial<HomepageSection['content']>);
+      return;
+    }
+    const newContent = typeof structuredClone === 'function'
+      ? structuredClone(section.content)
+      : JSON.parse(JSON.stringify(section.content));
+    let current: unknown = newContent;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const next = (current as Record<string, unknown>)[keys[i]];
+      if (next === null || next === undefined || typeof next !== 'object') {
+        (current as Record<string, unknown>)[keys[i]] = {};
+      }
+      current = (current as Record<string, unknown>)[keys[i]];
+    }
+    (current as Record<string, unknown>)[keys[keys.length - 1]] = html;
+    updateSectionContent(sectionId, newContent as Partial<HomepageSection['content']>);
+  }, [sections, updateSectionContent]);
+
+  const isEditing = !isPreview;
+
+  const builderEditValue = useMemo(() => ({
+    isEditing,
+    activeField,
+    setActiveField,
+    updateField,
+    updateSectionContent,
+    updateSectionSettings,
+  }), [isEditing, activeField, setActiveField, updateField, updateSectionContent, updateSectionSettings]);
+
   if (!isLoaded) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="font-body text-nahkya-text-muted">Loading…</div>
+      <div className="flex-1 flex items-center justify-center bg-nahkya-bg">
+        <div className="font-body text-nahkya-text-secondary">Loading…</div>
       </div>
     );
   }
 
-  return (
-    <div className="flex flex-col h-full bg-nahkya-bg">
-      {/* ── Top Toolbar ── */}
-      <div className="h-toolbar border-b border-nahkya-border bg-nahkya-surface flex items-center justify-between px-5 shrink-0 z-20">
-        {/* Left: Section count */}
-        <span className="font-mono text-mono-xs text-nahkya-text-muted uppercase tracking-wider">
-          {sections.length} section{sections.length !== 1 ? 's' : ''}
-        </span>
+  const publishedCount = sections.filter((s) => (s.status ?? 'published') === 'published').length;
+  const draftCount = sections.filter((s) => (s.status ?? 'published') === 'draft').length;
+  const hiddenCount = sections.filter((s) => (s.status ?? 'published') === 'hidden').length;
 
-        {/* Middle: Status */}
-        <div className="flex items-center gap-2">
+  return (
+    <div className="fixed top-14 bottom-0 left-0 right-0 lg:top-0 lg:left-[80px] lg:right-0 flex flex-col bg-nahkya-bg overflow-hidden z-10">
+      {/* Top Toolbar */}
+      <div className="shrink-0 h-toolbar border-b border-nahkya-border bg-nahkya-surface flex items-center justify-between px-5 z-20">
+        {/* Left: Stats */}
+        <div className="flex items-center gap-4">
+          <span className="font-mono text-mono-sm text-nahkya-text-secondary uppercase tracking-wider">
+            {sections.length} section{sections.length !== 1 ? 's' : ''}
+          </span>
+          <div className="flex items-center gap-2">
+            {publishedCount > 0 && (
+              <span className="flex items-center gap-1 font-mono text-mono-sm text-nahkya-success">
+                <Globe size={12} />
+                {publishedCount}
+              </span>
+            )}
+            {draftCount > 0 && (
+              <span className="flex items-center gap-1 font-mono text-mono-sm text-nahkya-highlight">
+                <FileCheck size={12} />
+                {draftCount}
+              </span>
+            )}
+            {hiddenCount > 0 && (
+              <span className="flex items-center gap-1 font-mono text-mono-sm text-nahkya-text-secondary">
+                <EyeOff size={12} />
+                {hiddenCount}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Center: Device Toggle + Save Status */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 bg-nahkya-bg rounded-nahkya border border-nahkya-border p-0.5">
+            {DEVICE_OPTIONS.map(({ key, icon, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setDevice(key)}
+                title={label}
+                aria-label={label}
+                className={cn(
+                  'w-8 h-8 flex items-center justify-center rounded-sm transition-colors',
+                  device === key
+                    ? 'bg-nahkya-surface-raised text-nahkya-text shadow-sm'
+                    : 'text-nahkya-text-secondary hover:text-nahkya-text hover:bg-nahkya-surface'
+                )}
+              >
+                {icon}
+              </button>
+            ))}
+          </div>
+
           {isSaving && (
-            <span className="font-mono text-mono-xs text-nahkya-gold animate-pulse">Saving…</span>
+            <span className="font-mono text-mono-sm text-nahkya-highlight animate-pulse">Saving…</span>
           )}
-          {!isSaving && (
-            <span className="font-mono text-mono-xs text-nahkya-success">Saved</span>
+          {!isSaving && !saveError && hasDraftChanges && (
+            <span className="font-mono text-mono-sm text-nahkya-highlight">Unsaved changes</span>
+          )}
+          {!isSaving && !saveError && !hasDraftChanges && (
+            <span className="font-mono text-mono-sm text-nahkya-success">Saved</span>
+          )}
+          {saveError && (
+            <span className="font-mono text-mono-sm text-nahkya-error">Save failed</span>
           )}
         </div>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsPreview((v) => !v)}
-            className={cn(
-              'font-body text-body-sm',
-              isPreview ? 'text-nahkya-gold bg-nahkya-gold-veil' : 'text-nahkya-text-muted'
-            )}
-          >
-            {isPreview ? <Eye size={15} className="mr-1.5" /> : <EyeOff size={15} className="mr-1.5" />}
-            {isPreview ? 'Preview' : 'Edit'}
-          </Button>
-
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="h-button bg-nahkya-gold hover:bg-nahkya-gold-deep text-nahkya-soft-black font-body text-body-sm disabled:opacity-50"
-          >
-            <Save size={15} className="mr-1.5" />
-            Save
-          </Button>
-        </div>
-      </div>
-
-      {/* ── Workspace ── */}
-      <ScrollArea className="flex-1 bg-nahkya-bg">
-        <div className="max-w-5xl mx-auto py-8 px-4">
-          {sections.length === 0 ? (
-            <EmptyWorkspace onAdd={handleAddSection} />
-          ) : (
-            <div className="space-y-2">
-              {sections.map((section, idx) => (
-                <div key={section.id}>
-                  {/* Insertion divider before first section (idx === 0) and between sections */}
-                  <InsertionDivider
-                    visible={!isPreview}
-                    onAdd={handleAddSection}
-                  />
-                  <SectionCard
-                    section={section}
-                    index={idx}
-                    total={sections.length}
-                    isSelected={section.id === selectedId}
-                    isPreview={isPreview}
-                    onSelect={() => handleSelectSection(section.id)}
-                    onMoveUp={() => moveSection(section.id, 'up')}
-                    onMoveDown={() => moveSection(section.id, 'down')}
-                    onDuplicate={() => duplicateSection(section.id)}
-                    onRemove={() => removeSection(section.id)}
-                    onToggleVisibility={() => toggleVisibility(section.id)}
-                  />
-                </div>
-              ))}
-              {/* Bottom insertion zone */}
-              {!isPreview && (
-                <WorkspaceAddZone onAdd={handleAddSection} />
-              )}
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* ── Section Editor Sheet ── */}
-      <SectionEditorSheet
-        section={selectedSection}
-        open={sheetOpen}
-        onClose={handleCloseSheet}
-      />
-    </div>
-  );
-}
-
-// ── Empty State ──
-
-function EmptyWorkspace({ onAdd }: { onAdd: (t: TemplateType) => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <Layout size={48} className="text-nahkya-border mb-4" />
-      <h3 className="font-display text-heading-md font-medium text-nahkya-text mb-2">
-        Start Building Your Homepage
-      </h3>
-      <p className="font-body text-body-md text-nahkya-text-muted max-w-md mb-6">
-        Add sections to create a stunning homepage. Choose from 12 professional templates.
-      </p>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="h-button bg-nahkya-gold hover:bg-nahkya-gold-deep text-nahkya-soft-black font-body text-body-sm">
-            <Plus size={15} className="mr-1.5" />
-            Add First Section
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-56 bg-nahkya-surface border-nahkya-border">
-          {TEMPLATE_TYPES.map((t) => (
-            <DropdownMenuItem
-              key={t}
-              onClick={() => onAdd(t)}
-              className="font-body text-body-sm cursor-pointer focus:bg-nahkya-cream focus:text-nahkya-text"
-            >
-              {TEMPLATE_LABELS[t]}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-}
-
-// ── Section Card ──
-
-function SectionCard({
-  section,
-  index,
-  total,
-  isSelected,
-  isPreview,
-  onSelect,
-  onMoveUp,
-  onMoveDown,
-  onDuplicate,
-  onRemove,
-  onToggleVisibility,
-}: {
-  section: HomepageSection;
-  index: number;
-  total: number;
-  isSelected: boolean;
-  isPreview: boolean;
-  onSelect: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onDuplicate: () => void;
-  onRemove: () => void;
-  onToggleVisibility: () => void;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const showControls = !isPreview && (isHovered || isSelected);
-
-  return (
-    <div
-      className={cn(
-        'relative rounded-sm transition-all duration-200',
-        showControls && 'ring-1 ring-nahkya-gold/40',
-        !section.settings?.isVisible && 'opacity-50'
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Hover toolbar */}
-      {showControls && (
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 h-9 bg-nahkya-surface border-b border-nahkya-gold/20 rounded-t-sm">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-mono-xs text-nahkya-text-muted uppercase">
-              {index + 1}. {TEMPLATE_LABELS[section.templateType]}
-            </span>
-            {!section.settings?.isVisible && (
-              <span className="font-mono text-mono-xs text-nahkya-text-muted bg-nahkya-stone px-1.5 rounded">Hidden</span>
-            )}
-          </div>
-          <div className="flex items-center gap-0.5">
-            <SectionCardButton onClick={onMoveUp} disabled={index === 0} tooltip="Move Up">
-              <ChevronUp size={14} />
-            </SectionCardButton>
-            <SectionCardButton onClick={onMoveDown} disabled={index === total - 1} tooltip="Move Down">
-              <ChevronDown size={14} />
-            </SectionCardButton>
-            <SectionCardButton onClick={onDuplicate} tooltip="Duplicate">
-              <Copy size={14} />
-            </SectionCardButton>
-            <SectionCardButton onClick={onToggleVisibility} tooltip={section.settings?.isVisible ? 'Hide' : 'Show'}>
-              {section.settings?.isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
-            </SectionCardButton>
-            <SectionCardButton onClick={onSelect} tooltip="Edit">
-              <Pencil size={14} />
-            </SectionCardButton>
-            <SectionCardButton onClick={onRemove} tooltip="Delete" danger>
-              <Trash2 size={14} />
-            </SectionCardButton>
-          </div>
-        </div>
-      )}
-
-      {/* Preview / content */}
-      <div
-        className={cn(showControls && 'pt-9')}
-        onClick={() => {
-          if (!isPreview) onSelect();
-        }}
-      >
-        <SectionWrapper settings={section.settings}>
-          <TemplateRenderer section={section} />
-        </SectionWrapper>
-      </div>
-    </div>
-  );
-}
-
-function SectionCardButton({
-  onClick,
-  disabled,
-  tooltip,
-  danger,
-  children,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  tooltip: string;
-  danger?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      disabled={disabled}
-      title={tooltip}
-      type="button"
-      className={cn(
-        'w-7 h-7 flex items-center justify-center rounded-sm transition-colors',
-        'hover:bg-nahkya-cream',
-        disabled && 'opacity-30 cursor-not-allowed',
-        danger ? 'text-nahkya-text-muted hover:text-nahkya-error' : 'text-nahkya-text-muted hover:text-nahkya-text'
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ── Insertion Divider (between sections) ──
-
-function InsertionDivider({
-  visible,
-  onAdd,
-}: {
-  visible: boolean;
-  onAdd: (t: TemplateType) => void;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  if (!visible) return null;
-
-  return (
-    <div
-      className="relative h-6 -my-1 z-10 flex items-center justify-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {isHovered && (
-        <div className="absolute inset-x-0 flex items-center justify-center">
-          <div className="w-full h-px bg-nahkya-gold/40" />
-          <div className="absolute">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-nahkya-gold text-nahkya-soft-black shadow-sm hover:bg-nahkya-gold-deep transition-colors"
-                >
-                  <Plus size={12} strokeWidth={2.5} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-56 bg-nahkya-surface border-nahkya-border">
-                {TEMPLATE_TYPES.map((t) => (
-                  <DropdownMenuItem
-                    key={t}
-                    onClick={() => onAdd(t)}
-                    className="font-body text-body-sm cursor-pointer focus:bg-nahkya-cream focus:text-nahkya-text"
-                  >
-                    {TEMPLATE_LABELS[t]}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Bottom Workspace Add Zone ──
-
-function WorkspaceAddZone({ onAdd }: { onAdd: (t: TemplateType) => void }) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <div
-      className="py-6 flex items-center justify-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
           <button
             type="button"
+            onClick={() => setIsPreview((v) => !v)}
             className={cn(
-              'flex items-center gap-2 px-5 h-button border-2 border-dashed rounded-nahkya transition-all duration-200',
-              isHovered
-                ? 'border-nahkya-gold bg-nahkya-gold-veil text-nahkya-gold'
-                : 'border-nahkya-border text-nahkya-text-muted'
+              'h-button px-3 flex items-center gap-1.5 rounded-nahkya font-body text-body-sm transition-colors',
+              isPreview
+                ? 'bg-nahkya-highlight/10 text-nahkya-highlight'
+                : 'text-nahkya-text-secondary hover:text-nahkya-text hover:bg-nahkya-bg'
             )}
           >
-            <Plus size={15} />
-            <span className="font-body text-body-sm">Add Section</span>
+            {isPreview ? <Eye size={15} /> : <EyeOff size={15} />}
+            {isPreview ? 'Preview' : 'Edit'}
           </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-56 bg-nahkya-surface border-nahkya-border">
-          {TEMPLATE_TYPES.map((t) => (
-            <DropdownMenuItem
-              key={t}
-              onClick={() => onAdd(t)}
-              className="font-body text-body-sm cursor-pointer focus:bg-nahkya-cream focus:text-nahkya-text"
-            >
-              {TEMPLATE_LABELS[t]}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={isSaving}
+            className="h-button px-3 flex items-center gap-1.5 rounded-nahkya font-body text-body-sm text-nahkya-text-secondary hover:text-nahkya-error transition-colors disabled:opacity-50"
+            title="Reset to factory defaults"
+          >
+            <RotateCcw size={15} />
+            Reset
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="h-button px-4 flex items-center gap-1.5 rounded-nahkya bg-nahkya-highlight hover:bg-nahkya-highlight text-nahkya-text font-body text-body-sm transition-colors disabled:opacity-50"
+          >
+            <Save size={15} />
+            Save Draft
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePublishAll}
+            disabled={isSaving}
+            className="h-button px-4 flex items-center gap-1.5 rounded-nahkya bg-nahkya-accent hover:bg-nahkya-accent-hover text-nahkya-inverse font-body text-body-sm transition-colors disabled:opacity-50"
+          >
+            <Globe size={15} />
+            Publish All
+          </button>
+        </div>
+      </div>
+
+      {/* Format Toolbar (edit mode only) */}
+      {isEditing && <FormatToolbar />}
+
+      {/* 3-Panel Workspace */}
+      <div className="flex-1 min-h-0 flex">
+        {/* Left Sidebar */}
+        <div className="shrink-0 w-[280px] hidden lg:block">
+          <SectionListSidebar
+            sections={sections}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onReorder={reorderSections}
+            onAdd={handleAddSection}
+            onDuplicate={duplicateSection}
+            onRemove={removeSection}
+            onToggleVisibility={toggleVisibility}
+          />
+        </div>
+
+        {/* Center Preview */}
+        <div className="flex-1 min-w-0">
+          <HomepagePreview
+            sections={sections}
+            selectedId={selectedId}
+            device={device}
+            isPreview={isPreview}
+            onSelectSection={setSelectedId}
+            builderEditValue={builderEditValue}
+          />
+        </div>
+
+        {/* Right Settings Panel */}
+        <div className="shrink-0 w-[320px] hidden xl:block">
+          <SectionSettingsPanel
+            section={selectedSection}
+            onUpdateSettings={updateSectionSettings}
+            onUpdateAnimation={updateSectionAnimation}
+            onUpdateResponsive={updateSectionResponsive}
+            onUpdateStatus={updateSectionStatus}
+            onUpdateName={updateSectionName}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,25 +1,10 @@
 import { create } from 'zustand';
-import { NAHKYA_SEED_PALETTE, TONE_LABELS } from '@/lib/seedPalette';
+import { buildSwatchColourCategories } from '@/lib/seedPalette';
 import { subscribeConfig, setConfig } from '@/lib/firebase/db';
 import type { Colour, ColourCategory } from '@/types';
 
 function seedCategories(): ColourCategory[] {
-  return NAHKYA_SEED_PALETTE.map((family, fIdx) => {
-    const colours: Colour[] = family.subColours.flatMap((sub, sIdx) =>
-      sub.tones.map((tone, tIdx) => ({
-        id: `f${fIdx}-s${sIdx}-${tIdx}`,
-        name: `${sub.name} ${TONE_LABELS[tIdx]}`,
-        hex: tone,
-      }))
-    );
-    return {
-      id: `family-${fIdx}`,
-      name: family.name,
-      isSystem: true,
-      columns: 4,
-      colours,
-    };
-  });
+  return buildSwatchColourCategories();
 }
 
 const DEFAULT_COLOUR: Colour = { id: 'gold', name: 'NAHKYA Gold', hex: '#B88B4A' };
@@ -177,20 +162,40 @@ export const useColourStore = create<ColourState>((set, get) => ({
 }));
 
 function isOldFlatStructure(categories: ColourCategory[]): boolean {
-  // Old structure used IDs like "f0-s0" without a tone index.
-  // New structure uses "f0-s0-0" (three segments).
+  // Oldest structure used IDs like "f0-s0" without a tone index.
   return categories.some(
     (cat) => cat.isSystem && cat.colours.some((c) => /^f\d+-s\d+$/.test(c.id))
+  );
+}
+
+function isOldFamilyStructure(categories: ColourCategory[]): boolean {
+  // Previous 200-colour system used category IDs like "family-0", "family-1"...
+  // New 360-swatch system uses IDs like "reds-burgundy", "rose-blush"...
+  return categories.some(
+    (cat) => cat.isSystem && /^family-\d+$/.test(cat.id)
   );
 }
 
 function ensureSystemCategories(categories: ColourCategory[]): ColourCategory[] {
   const hasSystem = categories.some((c) => c.isSystem);
   if (!hasSystem) return [...seedCategories(), ...categories];
-  if (isOldFlatStructure(categories)) {
+
+  // Always replace old generated-tone families with the new flat swatch system
+  if (isOldFlatStructure(categories) || isOldFamilyStructure(categories)) {
     const customCats = categories.filter((c) => !c.isSystem);
     return [...seedCategories(), ...customCats];
   }
+
+  // If saved system categories don't match current seed IDs,
+  // replace them (handles swatch system updates)
+  const seedIds = new Set(seedCategories().map((c) => c.id));
+  const savedSystemIds = categories.filter((c) => c.isSystem).map((c) => c.id);
+  const hasAllCurrent = savedSystemIds.every((id) => seedIds.has(id));
+  if (!hasAllCurrent) {
+    const customCats = categories.filter((c) => !c.isSystem);
+    return [...seedCategories(), ...customCats];
+  }
+
   return categories;
 }
 
