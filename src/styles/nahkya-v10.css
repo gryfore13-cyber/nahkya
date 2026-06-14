@@ -94,6 +94,24 @@
   --transition-medium: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 300ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* State overlays & focus — aligned to Atelier guide */
+  --nahkya-active-overlay: rgba(122, 46, 60, 0.15);
+  --nahkya-focus-ring: rgba(200, 164, 100, 0.4);
+
+  /* Link color */
+  --nahkya-link: #7A2E3C;
+
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* Z-index layers */
+  --z-dropdown: 100;
+  --z-modal: 1000;
+  --z-toast: 2000;
 }
 
 [data-theme="dark"] {
@@ -164,7 +182,7 @@ body {
   color: var(--nahkya-text);
   font-family: var(--font-body);
   font-size: var(--text-body);
-  line-height: 1.7;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -3150,7 +3168,7 @@ textarea {
    ---------------------------------------------------
    Purpose:
    Primary navigation sidebar for admin/member/designer portals.
-   Supports three states: expanded (280px), collapsed (64px), and icon-only.
+   Supports three states: expanded (320px), collapsed (68px), and icon-only.
    Items have submenus, badges, active indicators, and smooth transitions.
 
    Why it is an exception:
@@ -3165,11 +3183,12 @@ textarea {
 .sidebar-menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px var(--space-lg);
-  border-radius: var(--radius-md);
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius-nahkya-lg);
   color: var(--nahkya-text);
-  font-size: var(--text-body-sm);
+  font-size: var(--text-body);
   font-weight: 500;
   text-decoration: none;
   transition: background var(--transition-base), color var(--transition-base);
@@ -3178,26 +3197,42 @@ textarea {
 }
 
 .sidebar-menu-item:hover {
-  background: var(--nahkya-accent-subtle);
+  background: rgba(255, 253, 249, 0.58);
   color: var(--nahkya-accent);
 }
 
 .sidebar-menu-item.active {
   background: var(--nahkya-accent-subtle);
   color: var(--nahkya-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .sidebar-menu-item.active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
-  border-radius: 0 2px 2px 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 99px;
   background: var(--nahkya-accent);
+}
+
+/* Collapsed rail variant: centered icon-only tile */
+.sidebar-menu-item.justify-center {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  margin-inline: auto;
+  border-radius: var(--radius-nahkya-md);
+}
+
+.sidebar-menu-item.justify-center.active::before {
+  left: -6px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
 }
 
 .sidebar-menu-item.active .sidebar-menu-icon {
@@ -3206,8 +3241,8 @@ textarea {
 
 /* Icon */
 .sidebar-menu-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3278,3 +3313,282 @@ textarea {
 }
 
 /* Submenu items are indented via inline style; no additional CSS needed */
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   45. Ribbon / Toolbar — Word-style contextual command bar
+   -----------------------------------------------------------------------
+   Approved bespoke component. Used by the Front Page builder and the
+   System DNA reference. Keeps tabs, command groups, toggles, colour
+   swatches, and inputs in one predictable vocabulary.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.nk-ribbon-tabs {
+  display: flex;
+  background: var(--nahkya-surface);
+  border-bottom: 1px solid var(--nahkya-border);
+  padding: 0 16px;
+  gap: 2px;
+}
+
+.nk-ribbon-tab {
+  padding: 8px 24px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--nahkya-text-secondary);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.nk-ribbon-tab:hover {
+  color: var(--nahkya-accent);
+  background: var(--nahkya-accent-subtle);
+}
+
+.nk-ribbon-tab.is-active {
+  color: var(--nahkya-accent);
+  border-bottom-color: var(--nahkya-accent);
+  background: var(--nahkya-surface-raised);
+  font-weight: 600;
+}
+
+.nk-ribbon-tab.is-contextual {
+  color: var(--nahkya-highlight);
+}
+
+.nk-ribbon-tab.is-contextual.is-active {
+  border-bottom-color: var(--nahkya-highlight);
+  color: var(--nahkya-highlight);
+}
+
+.nk-ribbon-body {
+  padding: 16px 24px;
+  display: flex;
+  gap: 16px;
+  min-height: 96px;
+  align-items: stretch;
+}
+
+.nk-ribbon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+  border-right: 1px solid var(--nahkya-border);
+}
+
+.nk-ribbon-group:last-child {
+  border-right: none;
+}
+
+.nk-ribbon-group-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--nahkya-muted);
+  text-align: center;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--nahkya-border);
+  text-transform: capitalize;
+}
+
+.nk-ribbon-group-content {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+}
+
+.nk-ribbon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-nahkya-md);
+  background: none;
+  cursor: pointer;
+  color: var(--nahkya-text);
+  transition: all var(--transition-fast);
+  min-width: 56px;
+}
+
+.nk-ribbon-btn:hover {
+  background: var(--nahkya-accent-subtle);
+  border-color: var(--nahkya-border);
+}
+
+.nk-ribbon-btn:active {
+  background: var(--nahkya-active-overlay);
+  transform: scale(0.95);
+}
+
+.nk-ribbon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nk-ribbon-btn-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nk-ribbon-btn-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--nahkya-text-secondary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.nk-ribbon-btn.is-dropdown {
+  position: relative;
+}
+
+.nk-ribbon-btn.is-dropdown::after {
+  content: "▼";
+  font-size: 8px;
+  color: var(--nahkya-text-secondary);
+  margin-top: 2px;
+}
+
+.nk-ribbon-toggle-group {
+  display: flex;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-md);
+  overflow: hidden;
+}
+
+.nk-ribbon-toggle-btn {
+  padding: 4px 8px;
+  border: none;
+  background: var(--nahkya-surface-raised);
+  color: var(--nahkya-text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-right: 1px solid var(--nahkya-border);
+}
+
+.nk-ribbon-toggle-btn:last-child {
+  border-right: none;
+}
+
+.nk-ribbon-toggle-btn:hover {
+  background: var(--nahkya-accent-subtle);
+  color: var(--nahkya-accent);
+}
+
+.nk-ribbon-toggle-btn.is-active {
+  background: var(--nahkya-accent);
+  color: #fff;
+}
+
+.nk-ribbon-color-picker {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  width: 80px;
+}
+
+.nk-ribbon-color-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid var(--nahkya-border);
+  transition: transform var(--transition-fast);
+}
+
+.nk-ribbon-color-swatch:hover {
+  transform: scale(1.2);
+  border-color: var(--nahkya-accent);
+  z-index: 1;
+}
+
+.nk-ribbon-input {
+  width: 120px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-sm);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  background: var(--nahkya-surface-raised);
+  color: var(--nahkya-text);
+}
+
+.nk-ribbon-input:focus {
+  outline: none;
+  border-color: var(--nahkya-accent);
+  box-shadow: var(--shadow-focus);
+}
+
+.nk-ribbon-split {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.nk-ribbon-split-main {
+  border-radius: var(--radius-nahkya-md) 0 0 var(--radius-nahkya-md);
+}
+
+.nk-ribbon-split-arrow {
+  border-radius: 0 var(--radius-nahkya-md) var(--radius-nahkya-md) 0;
+  padding: 8px 4px;
+}
+
+.nk-ribbon-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--nahkya-surface-raised);
+  border: 1px solid var(--nahkya-border);
+  border-radius: var(--radius-nahkya-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  padding: 8px 0;
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: all var(--transition-base);
+}
+
+.nk-ribbon-dropdown-menu.is-open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.nk-ribbon-dropdown-item {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--nahkya-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background var(--transition-fast);
+}
+
+.nk-ribbon-dropdown-item:hover {
+  background: var(--nahkya-accent-subtle);
+  color: var(--nahkya-accent);
+}
+
+.nk-ribbon-dropdown-divider {
+  height: 1px;
+  background: var(--nahkya-border);
+  margin: 8px 0;
+}

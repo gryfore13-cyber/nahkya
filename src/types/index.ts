@@ -204,5 +204,5 @@ export interface MonogramSnapGuides {
   y: number | null;
 }
 
-// ── Homepage Section Types ──
-export * from './homepage';
+// ── Landing Page Types (see landingPage.ts) ──
+

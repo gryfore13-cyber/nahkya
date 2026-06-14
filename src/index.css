@@ -74,14 +74,16 @@
     --radius-nahkya-xl: 16px;
     --radius-pill: 9999px;
 
-    /* Spacing */
+    /* Spacing — aligned to Atelier Design System guide */
     --space-xs: 4px;
     --space-sm: 8px;
-    --space-md: 12px;
-    --space-lg: 16px;
-    --space-xl: 24px;
-    --space-2xl: 32px;
-    --space-3xl: 48px;
+    --space-md-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+    --space-4xl: 96px;
 
     /* Transitions */
     --transition-fast: 100ms ease-out;
@@ -89,6 +91,24 @@
     --transition-medium: 200ms cubic-bezier(0.16, 1, 0.3, 1);
     --transition-slow: 300ms cubic-bezier(0.16, 1, 0.3, 1);
     --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* State overlays & focus */
+    --nahkya-active-overlay: rgba(122, 46, 60, 0.15);
+    --nahkya-focus-ring: rgba(200, 164, 100, 0.4);
+
+    /* Link color */
+    --nahkya-link: #7A2E3C;
+
+    /* Line heights */
+    --leading-tight: 1.2;
+    --leading-snug: 1.4;
+    --leading-normal: 1.6;
+    --leading-relaxed: 1.75;
+
+    /* Z-index layers */
+    --z-dropdown: 100;
+    --z-modal: 1000;
+    --z-toast: 2000;
   }
 
   /* Dark Mode */
@@ -117,8 +137,8 @@
 
     /* Nahkya dark tokens */
     --nahkya-bg: #121212;
-    --nahkya-surface: #1A1A1A;
-    --nahkya-surface-raised: #242424;
+    --nahkya-surface: #1E1E1E;
+    --nahkya-surface-raised: #2A2A2A;
     --nahkya-text: #E8E4DF;
     --nahkya-text-secondary: #B0AAA4;
     --nahkya-inverse: #121212;
@@ -319,6 +339,61 @@
     transition-delay: calc(var(--reveal-index, 0) * 80ms);
   }
 
+  /* ── Section Transition Utilities (from Landing Page Designer prototype) ──
+     Add `.is-visible` via IntersectionObserver to trigger the animation.
+     Respects prefers-reduced-motion below. */
+  .nk-transition {
+    opacity: 0;
+  }
+
+  .nk-transition-fade { opacity: 0; }
+  .nk-transition-fade.is-visible { animation: nk-transition-fade 0.6s ease-out forwards; }
+
+  .nk-transition-slide-up { opacity: 0; transform: translateY(40px); }
+  .nk-transition-slide-up.is-visible { animation: nk-transition-slide-up 0.6s ease-out forwards; }
+
+  .nk-transition-soft-reveal { opacity: 0; transform: translateY(20px); }
+  .nk-transition-soft-reveal.is-visible { animation: nk-transition-soft-reveal 0.8s ease-out forwards; }
+
+  .nk-transition-image-zoom { opacity: 0; transform: scale(1.05); }
+  .nk-transition-image-zoom.is-visible { animation: nk-transition-image-zoom 1s ease-out forwards; }
+
+  .nk-transition-editorial-overlap { opacity: 0; transform: translateY(60px); }
+  .nk-transition-editorial-overlap.is-visible { animation: nk-transition-editorial-overlap 0.7s ease-out forwards; }
+
+  .nk-transition-curtain-reveal { clip-path: inset(100% 0 0 0); }
+  .nk-transition-curtain-reveal.is-visible { animation: nk-transition-curtain-reveal 0.8s ease-out forwards; }
+
+  @keyframes nk-transition-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes nk-transition-slide-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes nk-transition-soft-reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes nk-transition-image-zoom {
+    from { opacity: 0; transform: scale(1.05); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes nk-transition-editorial-overlap {
+    from { opacity: 0; transform: translateY(60px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes nk-transition-curtain-reveal {
+    from { clip-path: inset(100% 0 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+
   /* ── Touch Target Utilities ──
      Ensures minimum 44px touch targets on touch devices */
   .touch-target {
@@ -365,10 +440,23 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal-fade,
   .reveal-slide-up,
-  .reveal-scale {
+  .reveal-scale,
+  .nk-transition,
+  .nk-transition-fade,
+  .nk-transition-slide-up,
+  .nk-transition-soft-reveal,
+  .nk-transition-image-zoom,
+  .nk-transition-editorial-overlap {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+    animation: none !important;
+    clip-path: none !important;
+  }
+
+  .nk-transition-curtain-reveal {
+    clip-path: inset(0 0 0 0) !important;
+    animation: none !important;
   }
 }
 

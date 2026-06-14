@@ -1,12 +1,14 @@
 import {
   LayoutDashboard, FileText, Image, ShoppingBag, Users,
-  Palette, Droplets, Settings, ClipboardList, Globe, ArrowRight, UserCog, Coins, Monitor,
+  Palette, Droplets, Settings, ClipboardList, ArrowRight, UserCog, Coins,
+  Dna, LayoutTemplate,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { AtelierSidebar } from './AtelierSidebar';
 import type { SidebarSection, SidebarItem } from './AtelierSidebar';
+import { useMemo } from 'react';
 
-const SECTIONS: SidebarSection[] = [
+const CORE_SECTIONS: SidebarSection[] = [
   {
     items: [
       { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -15,10 +17,9 @@ const SECTIONS: SidebarSection[] = [
   {
     title: 'Site',
     items: [
-      { label: 'Homepage', href: '/admin/homepage', icon: Monitor },
+      { label: 'Front Page', href: '/admin/front-page', icon: LayoutTemplate },
       { label: 'Content', href: '/admin/content', icon: FileText },
       { label: 'Media Library', href: '/admin/media', icon: Image },
-      { label: 'Global Site', href: '/admin/global', icon: Globe },
     ],
   },
   {
@@ -42,6 +43,7 @@ const SECTIONS: SidebarSection[] = [
     items: [
       { label: 'Settings', href: '/admin/settings', icon: Settings },
       { label: 'Log', href: '/admin/log', icon: ClipboardList },
+      { label: 'System DNA', href: '/admin/system-dna', icon: Dna },
     ],
   },
 ];
@@ -61,11 +63,16 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ collapsed, onCollapseToggle }: AdminSidebarProps) {
   const { user } = useAuthStore();
+  const sections = useMemo(() => {
+    const portals = getPortalLinks(user?.role);
+    if (portals.length === 0) return CORE_SECTIONS;
+    return [...CORE_SECTIONS, { title: 'Access', items: portals }];
+  }, [user?.role]);
+
   return (
     <AtelierSidebar
-      sections={SECTIONS}
+      sections={sections}
       rootHref="/admin"
-      footerItems={getPortalLinks(user?.role)}
       collapsed={collapsed}
       onCollapseToggle={onCollapseToggle}
     />

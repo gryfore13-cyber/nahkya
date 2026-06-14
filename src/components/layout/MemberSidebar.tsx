@@ -1,9 +1,10 @@
 import { Home, Paintbrush, Type, Grid3X3, FolderOpen, Package, User, ArrowRight } from 'lucide-react';
+import { useMemo } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { AtelierSidebar } from './AtelierSidebar';
 import type { SidebarSection, SidebarItem } from './AtelierSidebar';
 
-const SECTIONS: SidebarSection[] = [
+const CORE_SECTIONS: SidebarSection[] = [
   {
     title: 'Studio',
     items: [
@@ -38,11 +39,16 @@ interface MemberSidebarProps {
 
 export function MemberSidebar({ collapsed, onCollapseToggle }: MemberSidebarProps) {
   const { user } = useAuthStore();
+  const sections = useMemo(() => {
+    const portals = getPortalLinks(user?.role);
+    if (portals.length === 0) return CORE_SECTIONS;
+    return [...CORE_SECTIONS, { title: 'Access', items: portals }];
+  }, [user?.role]);
+
   return (
     <AtelierSidebar
-      sections={SECTIONS}
+      sections={sections}
       rootHref="/member/home"
-      footerItems={getPortalLinks(user?.role)}
       collapsed={collapsed}
       onCollapseToggle={onCollapseToggle}
     />

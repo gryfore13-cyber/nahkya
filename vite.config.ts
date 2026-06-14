@@ -25,7 +25,8 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('firebase')) return 'firebase';
             if (id.includes('recharts')) return 'charts';
-            if (id.includes('@radix-ui') || id.includes('lucide-react') || id.includes('framer-motion') || id.includes('gsap')) return 'ui';
+            // Keep React + all shared UI/component libraries in one chunk to avoid
+            // circular references between a "ui" chunk and the "vendor" chunk.
             return 'vendor';
           }
         },

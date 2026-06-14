@@ -4,7 +4,7 @@ import { Menu } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesignerSidebar } from './DesignerSidebar';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 export function DesignerLayout() {
@@ -41,6 +41,7 @@ export function DesignerLayout() {
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-sidebar-expanded bg-nahkya-surface border-r border-nahkya-border p-0 flex flex-col">
+                <SheetTitle className="sr-only">Designer navigation menu</SheetTitle>
                 <DesignerSidebar />
               </SheetContent>
             </Sheet>
@@ -58,7 +59,7 @@ export function DesignerLayout() {
           <div
             className={cn(
               'min-h-screen transition-[margin] duration-300',
-              sidebarCollapsed ? 'ml-sidebar-collapsed' : 'ml-sidebar-expanded'
+              sidebarCollapsed ? 'ml-sidebar-nav-collapsed' : 'ml-sidebar-expanded'
             )}
           >
             <Outlet />

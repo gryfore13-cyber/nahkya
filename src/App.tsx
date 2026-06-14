@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { MemberLayout } from '@/components/layout/MemberLayout';
@@ -45,15 +45,17 @@ const AdminOrders = lazy(() => import('@/pages/admin/AdminOrders'));
 const AdminMembers = lazy(() => import('@/pages/admin/AdminMembers'));
 const AdminArtworks = lazy(() => import('@/pages/admin/AdminArtworks'));
 const AdminColour = lazy(() => import('@/pages/admin/AdminColour'));
-const AdminHomePage = lazy(() => import('@/pages/admin/AdminHomePage'));
+// Legacy AdminHomePage removed — /admin/homepage now redirects to /admin/front-page
+const AdminFrontPage = lazy(() => import('@/pages/admin/AdminFrontPage'));
 
-
-const AdminGlobal = lazy(() => import('@/pages/admin/AdminGlobal'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 
 const AdminLog = lazy(() => import('@/pages/admin/AdminLog'));
 const AdminDesigners = lazy(() => import('@/pages/admin/AdminDesigners'));
 const AdminCommissions = lazy(() => import('@/pages/admin/AdminCommissions'));
+const AdminSystemDNA = lazy(() => import('@/pages/admin/AdminSystemDNA'));
+const LandingStudio = lazy(() => import('@/components/admin/LandingStudio').then((m) => ({ default: m.LandingStudio })));
+
 
 function PageLoader() {
   return (
@@ -166,16 +168,18 @@ export default function App() {
             <Route path="/admin/members" element={<AdminMembers />} />
             <Route path="/admin/artworks" element={<AdminArtworks />} />
             <Route path="/admin/colours" element={<AdminColour />} />
-            <Route path="/admin/homepage" element={<AdminHomePage />} />
+            <Route path="/admin/homepage" element={<Navigate to="/admin/front-page" replace />} />
+            <Route path="/admin/front-page" element={<AdminFrontPage />} />
 
-
-            <Route path="/admin/global" element={<AdminGlobal />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
 
             <Route path="/admin/log" element={<AdminLog />} />
             <Route path="/admin/designers" element={<AdminDesigners />} />
             <Route path="/admin/commissions" element={<AdminCommissions />} />
+            <Route path="/admin/system-dna" element={<AdminSystemDNA />} />
           </Route>
+
+          <Route path="/test-landing" element={<LandingStudio />} />
 
           {/* Designer Routes */}
           <Route element={<DesignerLayout />}>

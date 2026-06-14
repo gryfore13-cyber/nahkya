@@ -1,20 +1,36 @@
-// NAHKYA Colour Palette — aligned with CSS semantic tokens
+// Design System metadata — auto-updated by scripts/update-design-system-meta.cjs
+export const DESIGN_SYSTEM_VERSION = '1.0.11';
+export const DESIGN_SYSTEM_UPDATED_AT = '2026-06-14T00:01:50+08:00';
+
+// NAHKYA Colour Palette — aligned with CSS semantic tokens (src/index.css)
 export const NAHKYA_COLORS = {
-  bg: '#F5EDE3',
-  surface: '#FFF9F2',
-  text: '#2A1F1A',
-  textSecondary: '#6B5D55',
-  inverse: '#FFF9F2',
-  accent: '#7B1E2B',
-  accentHover: '#5A161F',
+  bg: '#F8F5F0',
+  surface: '#EDE8E0',
+  surfaceRaised: '#FFFFFF',
+  text: '#2C2C2C',
+  textSecondary: '#6B6560',
+  inverse: '#FFFFFF',
+  accent: '#7A2E3C',
+  accentHover: '#6A2532',
+  accentActive: '#5A1F2A',
   accentSubtle: '#F5E5E7',
-  highlight: '#9A6E30',
+  highlight: '#C8A464',
+  highlightHover: '#B89450',
   highlightSubtle: '#F0E6D3',
-  border: '#D4C4B0',
-  error: '#B42318',
-  errorSubtle: '#F5E0DC',
-  success: '#2F7D4F',
-  successSubtle: '#E0F0E5',
+  border: '#E0DCD5',
+  error: '#B54A4A',
+  errorSubtle: '#F5E0E0',
+  success: '#5A8F6E',
+  successSubtle: '#E8F0EC',
+  warning: '#C4943F',
+  warningSubtle: '#F5ECD8',
+  info: '#5A7A9A',
+  infoSubtle: '#E0E8F0',
+  olive: '#8B8B6E',
+  oliveSubtle: '#E8EBE4',
+  muted: '#9A958E',
+  disabled: '#C4BEB6',
+  disabledText: '#9A958E',
 } as const;
 
 // Curated Pigment Palettes

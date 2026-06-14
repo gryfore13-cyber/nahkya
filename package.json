@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/check-env.cjs",
+    "predev": "node scripts/check-env.cjs && node scripts/update-design-system-meta.cjs",
     "dev": "vite",
+    "prebuild": "node scripts/update-design-system-meta.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
